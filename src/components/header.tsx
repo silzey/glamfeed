@@ -1,11 +1,6 @@
 'use client';
 import { useState } from 'react';
-import {
-  Palette,
-  PlusCircle,
-  LogOut,
-  Gem,
-} from 'lucide-react';
+import { Palette, PlusCircle, LogOut, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,10 +15,11 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useUser, useAuth } from '@/firebase';
 import { PageLoader } from './page-loader';
+import { Skeleton } from './ui/skeleton';
 
 
 export function Header() {
-  const { user: authUser } = useUser()
+  const { user: authUser, isUserLoading } = useUser()
   const auth = useAuth()
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -51,7 +47,12 @@ export function Header() {
           </Link>
           
           <div className="flex items-center justify-end space-x-2 sm:space-x-4">
-              {authUser ? (
+              {isUserLoading ? (
+                <>
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-10 w-24 rounded-full" />
+                </>
+              ) : authUser ? (
                 <>
                   <Link href="/theme" passHref>
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
