@@ -19,16 +19,16 @@ service firebase.storage {
                                  request.auth.uid == resource.metadata.uploaderUid
                                  ||
                                  // Allow the admin user
-                                 request.auth.token.email == "kim@admincentral.com"
+                                 request.auth.token.email == "kim@admincenral.com"
                                );
 
       // Optional: allow admin to upload any file (not size/type restricted)
-      allow create: if request.auth.token.email == "kim@admincentral.com";
+      allow create: if request.auth.token.email == "kim@admincenral.com";
     }
 
     // (Optional) Allow admin to read/write anywhere in bucket for moderation
     match /{allPaths=**} {
-      allow read, write: if request.auth.token.email == "kim@admincentral.com";
+      allow read, write: if request.auth.token.email == "kim@admincenral.com";
     }
   }
 }

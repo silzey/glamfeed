@@ -7,7 +7,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == userId || request.auth.token.email == "kim@admincentral.com";
+      allow update, delete: if request.auth.uid == userId || request.auth.token.email == "kim@admincenral.com";
     }
 
     // --- FEED (Posts) ---
@@ -19,7 +19,7 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId
         ||
         // Admins can edit any post
-        request.auth.token.email == "kim@admincentral.com"
+        request.auth.token.email == "kim@admincenral.com"
       );
     }
 
@@ -27,13 +27,13 @@ service cloud.firestore {
     match /reports/{reportId} {
       allow read, write: if (
         request.auth != null &&
-        request.auth.token.email == "kim@admincentral.com"
+        request.auth.token.email == "kim@admincenral.com"
       );
     }
 
     // --- ANALYTICS, SETTINGS, ETC. ---
     match /admin/{document=**} {
-      allow read, write: if request.auth.token.email == "kim@admincentral.com";
+      allow read, write: if request.auth.token.email == "kim@admincenral.com";
     }
   }
 }
