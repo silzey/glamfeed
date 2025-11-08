@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/header';
-import { FirebaseClientProvider } from '@/firebase';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'GlamFeed',
@@ -25,13 +25,13 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body">
-        <FirebaseClientProvider>
+        <Providers>
           <div className="flex min-h-screen w-full flex-col">
             <Header />
             <main className="flex-1 pt-24">{children}</main>
           </div>
           <Toaster />
-        </FirebaseClientProvider>
+        </Providers>
       </body>
     </html>
   );
