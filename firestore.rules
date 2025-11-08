@@ -12,14 +12,16 @@
  * - /users/{userId}/reviews/{reviewId}/comments/{commentId}: Comments on reviews, owned by the user.
  * - /feed/{postId}: Public feed posts.
  * - /reports/{reportId}: Reports on posts.
+ * - /broadcasts/{broadcastId}: Messages for all users.
  *
  * Key Security Decisions:
  * - Users can only write to their own profile data, but anyone can read it.
- * - Admins can write to any user's profile data.
+ * - Admins can write to any user's profile data, including freezing accounts or adjusting points.
  * - Product data is publicly readable but not writable through the API.
  * - Reviews and comments can only be created, updated, or deleted by their respective owners.
- * - Feed posts can be created by any signed-in user, but only modified/deleted by admins.
+ * - Feed posts can be created by any signed-in user (if not frozen), but only modified/deleted by admins.
  * - Reports can be created by any signed-in user. Only admins can update/delete them.
+ * - Broadcasts can only be created by admins.
  *
  * Denormalization for Authorization:
  * - Reviews contain the `userId` of the author.
@@ -43,6 +45,15 @@ service cloud.firestore {
      */
     function isAdmin() {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    /**
+     * @description Checks if the user's account is frozen.
+     * @param {string} userId The user ID to check.
+     * @return {bool} True if the user's account is frozen, false otherwise.
+     */
+    function isNotFrozen(userId) {
+        return get(/databases/$(database)/documents/users/$(userId)).data.isFrozen != true;
     }
 
     /**
@@ -68,13 +79,15 @@ service cloud.firestore {
      * @path /users/{userId}
      * @allow (get, list) Any user can view a profile.
      * @allow (create) Signed-in user creates their own profile.
-     * @allow (update, delete) Signed-in user accesses their own profile OR is an admin.
+     * @allow (update) Signed-in user accesses their own profile OR is an admin.
+     * @allow (delete) Signed-in user accesses their own profile OR is an admin.
      */
     match /users/{userId} {
       allow get, list: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if (isExistingOwner(userId) && request.resource.data.id == resource.data.id) || isAdmin();
-      allow delete: if isExistingOwner(userId) || isAdmin();
+      // Allow user to update their own non-admin fields. Admin can update anything.
+      allow update: if (isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
     }
 
     /**
@@ -92,13 +105,11 @@ service cloud.firestore {
      * @description Security rules for reviews created by a user.
      * @path /users/{userId}/reviews/{reviewId}
      * @allow (create) Signed-in user creates a review under their own user ID.
-     * @allow (get, list, update, delete) Signed-in user accesses their own reviews.
-     * @deny (create) Signed-in user attempts to create a review under a different user ID.
-     * @deny (get, list, update, delete) Signed-in user attempts to access another user's reviews.
+     * @allow (get, list, update, delete) Signed-in user accesses their own reviews, or is an admin.
      */
     match /users/{userId}/reviews/{reviewId} {
       allow get, list: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow create: if isOwner(userId) && request.resource.data.userId == userId && isNotFrozen(userId);
       allow update: if (isExistingOwner(userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
       allow delete: if isExistingOwner(userId) || isAdmin();
     }
@@ -111,7 +122,7 @@ service cloud.firestore {
      */
     match /users/{userId}/reviews/{reviewId}/comments/{commentId} {
       allow get, list: if isSignedIn();
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow create: if isOwner(userId) && request.resource.data.userId == userId && isNotFrozen(userId);
       allow update: if (isExistingOwner(userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
       allow delete: if isExistingOwner(userId) || isAdmin();
     }
@@ -121,13 +132,13 @@ service cloud.firestore {
      * @path /feed/{postId}
      * @allow (list) Any user can list visible posts.
      * @allow (get) Any user can get a visible post, or an admin can get any post.
-     * @allow (create) Any signed in user can create a post.
+     * @allow (create) Any signed in user can create a post, if not frozen.
      * @allow (update, delete) Only admins can update or delete posts.
      */
     match /feed/{postId} {
       allow list: if isSignedIn();
       allow get: if resource.data.visible == true || isAdmin();
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
       allow update, delete: if isAdmin();
     }
     
@@ -142,6 +153,17 @@ service cloud.firestore {
        allow list, get: if isAdmin();
        allow create: if isSignedIn() && request.resource.data.reporterId == request.auth.uid;
        allow update, delete: if isAdmin();
+     }
+     
+    /**
+     * @description Security rules for broadcast messages.
+     * @path /broadcasts/{broadcastId}
+     * @allow (list, get) Any signed-in user can read broadcasts.
+     * @allow (create, update, delete) Only admins can manage broadcasts.
+     */
+     match /broadcasts/{broadcastId} {
+       allow list, get: if isSignedIn();
+       allow create, update, delete: if isAdmin();
      }
   }
 }

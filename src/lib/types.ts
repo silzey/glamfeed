@@ -46,6 +46,8 @@ export type AppUser = {
   email?: string;
   avatarUrl?: string;
   isAdmin?: boolean;
+  isFrozen?: boolean;
+  points?: number;
   [key: string]: any;
 }
 
@@ -56,6 +58,9 @@ export type Post = {
     photoUrl?: string;
     createdAt: any; // Can be a Date or a Firebase Timestamp
     visible?: boolean;
+    likeCount?: number;
+    commentCount?: number;
+    shareCount?: number;
 }
 
 export type Report = {

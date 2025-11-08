@@ -1,14 +1,13 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import AdminRow from '@/components/admin-row';
 import { useUser, useFirestore, useAuth } from '@/firebase';
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut as firebaseSignOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck } from 'lucide-react';
+import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { AppUser, Post, Report } from '@/lib/types';
 
@@ -29,9 +28,15 @@ export default function AdminPage() {
   const [adminEmail, setAdminEmail] = useState('');
   const [isMakingAdmin, setIsMakingAdmin] = useState(false);
 
+  const [feedBlackout, setFeedBlackout] = useState(false);
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+
   useEffect(() => {
     if (!firestore) return;
-    if (!isAdmin) return;
+    if (!isAdmin) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
 
@@ -130,6 +135,42 @@ export default function AdminPage() {
       toast({ variant: 'destructive', title: 'Error', description: err.message });
     }
   };
+  
+    // --- User Actions ---
+  const toggleFreezeUser = async (userId: string, freeze: boolean) => {
+    if (!firestore) return;
+    await updateDoc(doc(firestore, 'users', userId), { isFrozen: freeze });
+    toast({ title: freeze ? 'User frozen' : 'User unfrozen' });
+  };
+  const deleteUser = async (userId: string) => {
+    if (!firestore) return;
+    await deleteDoc(doc(firestore, 'users', userId));
+    toast({ title: 'User deleted' });
+  };
+  const adjustPoints = async (userId: string, currentPoints: number, amount: number) => {
+    if (!firestore) return;
+    await updateDoc(doc(firestore, 'users', userId), { points: (currentPoints || 0) + amount });
+    toast({ title: `Points updated` });
+  };
+
+  // --- Feed Blackout ---
+  const toggleFeedBlackout = async () => {
+    setFeedBlackout(!feedBlackout);
+    // In a real app, this would likely write to a global config document in Firestore
+    toast({ title: feedBlackout ? 'Feed restored' : 'Feed blacked out (simulated)' });
+  };
+
+  // --- Broadcast / Notifications ---
+  const sendBroadcast = async () => {
+    if (!broadcastMessage.trim() || !firestore) return;
+    await addDoc(collection(firestore, 'broadcasts'), {
+      message: broadcastMessage,
+      createdAt: serverTimestamp(),
+      type: 'broadcast',
+    });
+    toast({ title: 'Broadcast sent' });
+    setBroadcastMessage('');
+  };
 
   if (loading) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
   if (!isAdmin) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
@@ -138,15 +179,34 @@ export default function AdminPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
       <Header />
-      <main className="container mx-auto max-w-6xl px-4 pt-20 sm:pt-24 flex-1 pb-16 md:pb-24">
+      <main className="container mx-auto max-w-7xl px-4 pt-20 sm:pt-24 flex-1 pb-16 md:pb-24 space-y-6">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Admin Console</h1>
+            <h1 className="text-3xl font-bold">🔥 Enterprise Admin Console</h1>
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => auth && firebaseSignOut(auth)}>Sign out</Button>
           </div>
         </div>
 
-        <section className="glass-card p-6 md:p-8 mb-6">
+        {/* --- Top Level Controls --- */}
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="glass-card p-6">
+              <h2 className="text-xl font-semibold mb-4">Feed Controls</h2>
+              <Button onClick={toggleFeedBlackout} variant={feedBlackout ? 'destructive' : 'default'}>
+                {feedBlackout ? 'Restore Feed' : 'Blackout Feed'}
+              </Button>
+            </section>
+
+            <section className="glass-card p-6">
+              <h2 className="text-xl font-semibold mb-4">Broadcast Message</h2>
+              <div className="flex gap-2">
+                <Input placeholder="Message to all users..." value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} className="bg-black/40"/>
+                <Button onClick={sendBroadcast}><Bell className="mr-2 h-4 w-4" /> Send</Button>
+              </div>
+            </section>
+         </div>
+
+
+        <section className="glass-card p-6 md:p-8">
           <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
             <div>
               <h2 className="font-semibold flex items-center gap-2"><ShieldCheck /> Grant Admin</h2>
@@ -159,50 +219,72 @@ export default function AdminPage() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="col-span-1 glass-card p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 glass-card p-4">
             <h3 className="font-semibold mb-2">Users ({users.length})</h3>
-            {users.map(u => (
-              <AdminRow key={u.uid}>
-                <div className="flex items-center gap-3">
-                  <img src={u.avatarUrl || '/avatar-placeholder.png'} className="h-10 w-10 rounded-full object-cover" alt={u.name || u.email}/>
-                  <div>
-                    <div className="text-sm font-medium">{u.name || u.email}</div>
-                    <div className="text-xs text-white/60">{u.email} {u.isAdmin ? '• ADMIN' : ''}</div>
-                  </div>
-                </div>
-              </AdminRow>
-            ))}
+            <div className="max-h-[600px] overflow-y-auto pr-2">
+                {users.map(u => (
+                  <AdminRow key={u.uid}>
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <img src={u.avatarUrl || '/avatar-placeholder.png'} className="h-10 w-10 rounded-full object-cover" alt={u.name || u.email}/>
+                          <div>
+                            <div className="text-sm font-medium">{u.name || u.email}</div>
+                            <div className="text-xs text-white/60">{u.email}</div>
+                            <div className="text-xs mt-1 space-x-2">
+                                {u.isAdmin && <span className="font-bold text-primary">ADMIN</span>}
+                                {u.isFrozen && <span className="font-bold text-red-500">FROZEN</span>}
+                            </div>
+                             <div className="text-xs text-white/60 mt-1">Points: {u.points || 0}</div>
+                          </div>
+                        </div>
+
+                         <div className="flex flex-wrap items-center gap-1 justify-end">
+                            <Button size="sm" variant="outline" onClick={() => toggleFreezeUser(u.uid, !(u.isFrozen || false))}>{u.isFrozen ? <Eye /> : <EyeOff />}</Button>
+                            <Button size="sm" variant="destructive" onClick={() => deleteUser(u.uid)}><Trash2 /></Button>
+                            <Button size="sm" variant="secondary" onClick={() => adjustPoints(u.uid, u.points || 0, 10)}>+10</Button>
+                            <Button size="sm" variant="secondary" onClick={() => adjustPoints(u.uid, u.points || 0, -10)}>-10</Button>
+                        </div>
+                    </div>
+                  </AdminRow>
+                ))}
+            </div>
           </div>
 
-          <div className="col-span-1 glass-card p-4">
+          <div className="glass-card p-4">
             <h3 className="font-semibold mb-2">Recent Posts ({posts.length})</h3>
-            {posts.map(p => (
-              <AdminRow key={p.id} actions={<>
-                <Button size="sm" variant="ghost" onClick={() => toggleVisibility(p.id, !p.visible)} title="Toggle visibility">
-                  {p.visible ? <EyeOff /> : <Eye />}
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)} title="Delete post"><Trash2 /></Button>
-              </>}>
-                <div className="text-sm">{p.caption || '—'}</div>
-                <div className="text-xs text-white/60">by {p.userId} • {p.createdAt?.seconds ? new Date(p.createdAt.seconds * 1000).toLocaleString() : 'just now'}</div>
-              </AdminRow>
-            ))}
+             <div className="max-h-[600px] overflow-y-auto pr-2">
+                {posts.map(p => (
+                  <AdminRow key={p.id} actions={<>
+                    <Button size="sm" variant="ghost" onClick={() => toggleVisibility(p.id, !p.visible)} title="Toggle visibility">
+                      {p.visible ? <EyeOff /> : <Eye />}
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)} title="Delete post"><Trash2 /></Button>
+                  </>}>
+                    <div className="text-sm">{p.caption || '—'}</div>
+                    <div className="text-xs text-white/60">by {p.userId} • {p.createdAt?.seconds ? new Date(p.createdAt.seconds * 1000).toLocaleString() : 'just now'}</div>
+                     <div className="text-xs text-white/60">Likes: {p.likeCount || 0} • Comments: {p.commentCount || 0} • Shares: {p.shareCount || 0}</div>
+                  </AdminRow>
+                ))}
+            </div>
           </div>
 
-          <div className="col-span-1 glass-card p-4">
-            <h3 className="font-semibold mb-2">Reports ({reports.filter(r => !r.resolved).length})</h3>
-            {reports.filter(r => !r.resolved).map(r => (
-              <AdminRow key={r.id} actions={<>
-                <Button size="sm" variant="outline" onClick={() => resolveReport(r.id)} title="Resolve"><Check /></Button>
-                <Button size="sm" variant="destructive" onClick={() => resolveReport(r.id, r.postId, true)} title="Delete post & resolve"><Trash2 /></Button>
-              </>}>
-                <div className="text-sm">{r.reason || 'Flagged content'}</div>
-                <div className="text-xs text-white/60">post: {r.postId} • by {r.reporterId} • {r.resolved ? 'resolved' : 'open'}</div>
-              </AdminRow>
-            ))}
-          </div>
         </div>
+        
+        <div className="glass-card p-4">
+            <h3 className="font-semibold mb-2">Reports ({reports.filter(r => !r.resolved).length})</h3>
+             <div className="max-h-[400px] overflow-y-auto pr-2">
+                {reports.filter(r => !r.resolved).map(r => (
+                  <AdminRow key={r.id} actions={<>
+                    <Button size="sm" variant="outline" onClick={() => resolveReport(r.id)} title="Resolve"><Check /></Button>
+                    <Button size="sm" variant="destructive" onClick={() => resolveReport(r.id, r.postId, true)} title="Delete post & resolve"><Trash2 /></Button>
+                  </>}>
+                    <div className="text-sm">{r.reason || 'Flagged content'}</div>
+                    <div className="text-xs text-white/60">post: {r.postId} • by {r.reporterId} • {r.resolved ? 'resolved' : 'open'}</div>
+                  </AdminRow>
+                ))}
+            </div>
+          </div>
 
       </main>
     </div>
