@@ -19,16 +19,18 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { useUser, useAuth } from '@/firebase';
+import { useUser } from '@/firebase/provider';
+import { useAuth } from '@/firebase/provider';
+
 
 export function Header() {
-  const { user: authUser, signOut } = useAuth() ?? {};
-  const { user } = useUser();
+  const { user: authUser } = useUser()
+  const auth = useAuth()
   const router = useRouter();
 
   const handleSignOut = () => {
-    if (signOut) {
-      signOut();
+    if (auth) {
+      auth.signOut();
     }
     router.push('/');
   };
@@ -49,7 +51,7 @@ export function Header() {
               <Palette className="h-5 w-5" />
             </Button>
           </Link>
-          {user ? (
+          {authUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -57,9 +59,9 @@ export function Header() {
                   className="relative h-10 w-10 rounded-full"
                 >
                   <Avatar className="h-10 w-10 border-2 border-primary/50">
-                    {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                    {authUser.photoURL && <AvatarImage src={authUser.photoURL} alt={authUser.displayName || 'User'} />}
                     <AvatarFallback>
-                      {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                      {authUser.displayName ? authUser.displayName.charAt(0).toUpperCase() : 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -72,10 +74,10 @@ export function Header() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user.displayName}
+                      {authUser.displayName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
+                      {authUser.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
