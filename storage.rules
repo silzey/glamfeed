@@ -9,26 +9,20 @@ service firebase.storage {
 
       // Allow create if user is authenticated and meets size/type constraints,
       // OR if the user is the specific admin.
-      allow create: if request.auth != null && (
+      allow create: if request.auth != null &&
                       (
-                        request.resource.size < 5 * 1024 * 1024
-                        && request.resource.contentType.matches('image/.*')
-                      ) ||
-                      request.auth.token.email == "kim@admincenral.com"
-                    );
+                        (
+                          request.resource.size < 5 * 1024 * 1024 &&
+                          (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'))
+                        ) ||
+                        request.auth.token.email == "kim@admincenral.com"
+                      );
 
-      // Allow delete & overwrite by the uploader OR by specific admin
-      allow delete, update: if request.auth != null
-                            && (
-                                 // Allow the user who originally uploaded (same UID in metadata)
-                                 request.auth.uid == resource.metadata.uploaderUid
-                                 ||
-                                 // Allow the admin user
-                                 request.auth.token.email == "kim@admincenral.com"
-                               );
+      // Allow delete & overwrite by the admin
+      allow delete, update: if request.auth != null && request.auth.token.email == "kim@admincenral.com";
     }
 
-    // (Optional) Allow admin to read/write anywhere in bucket for moderation
+    // Allow admin to read/write anywhere in bucket for moderation
     match /{allPaths=**} {
       allow read, write: if request.auth.token.email == "kim@admincenral.com";
     }
