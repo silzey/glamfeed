@@ -54,7 +54,7 @@ export default function AdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
-  const isAdminUser = authUser?.email === 'kim@admincentral.com';
+  const isAdminUser = authUser?.email === 'kim@admincenral.com';
   
   useEffect(() => {
     if (isUserLoading || !firestore) {
