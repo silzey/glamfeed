@@ -4,6 +4,7 @@ import './styles.css';
 import { useAuth, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { setDoc, doc } from 'firebase/firestore';
+import { PageLoader } from '@/components/page-loader';
 
 const GoogleIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -19,6 +20,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   const auth = useAuth();
   const firestore = useFirestore();
@@ -26,9 +28,12 @@ export default function LoginPage() {
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     if (auth) {
       initiateEmailSignIn(auth, email, password);
       router.push('/');
+    } else {
+        setIsLoading(false);
     }
   };
 
@@ -38,6 +43,7 @@ export default function LoginPage() {
       alert("Passwords don't match");
       return;
     }
+    setIsLoading(true);
     if (auth && firestore) {
       try {
         const userCredential = await initiateEmailSignUp(auth, email, password);
@@ -55,20 +61,28 @@ export default function LoginPage() {
           router.push('/');
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Sign up error:", error);
         alert("Could not sign up. Please try again.");
       }
+    } else {
+        setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = () => {
+    setIsLoading(true);
     if (auth) {
       initiateGoogleSignIn(auth);
       router.push('/');
+    } else {
+        setIsLoading(false);
     }
   }
 
   return (
+    <>
+    {isLoading && <PageLoader />}
     <div className="login-wrap">
       <div className="login-html">
         <input id="tab-1" type="radio" name="tab" className="sign-in" defaultChecked /><label htmlFor="tab-1" className="tab">Sign In</label>
@@ -168,5 +182,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
