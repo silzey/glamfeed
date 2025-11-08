@@ -43,7 +43,7 @@ export function Header() {
         </Link>
         
         <div className="flex items-center justify-end space-x-2 sm:space-x-4">
-          <Link href="/theme" passHref>
+            <Link href="/theme" passHref>
               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
                   <Palette className="h-5 w-5" />
               </Button>
@@ -51,8 +51,13 @@ export function Header() {
             {authUser ? (
               <>
                 <Link href="/upload" passHref>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
                         <PlusCircle className="h-5 w-5" />
+                    </Button>
+                </Link>
+                 <Link href="/share" passHref>
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                        <LayoutGrid className="h-5 w-5" />
                     </Button>
                 </Link>
                 <DropdownMenu>
