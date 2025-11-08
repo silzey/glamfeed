@@ -7,21 +7,19 @@ service firebase.storage {
 
     // --- Feed Assets ---
     match /feed/{path=**} {
+      // Anyone can read files in the feed
       allow read: if true;
 
-      // Allow write (create, update, delete) for the admin.
-      // For create, also allow any authenticated user if the file is valid media.
-      allow write: if request.auth != null && 
-                     (request.auth.token.email == "reellookz@gmail.com" ||
-                      (request.method == 'create' &&
-                       request.resource.size < 5 * 1024 * 1024 &&
-                       (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'))
-                      )
-                     );
+      // Any authenticated user can create a valid media file
+      allow create: if request.auth != null &&
+                      request.resource.size < 5 * 1024 * 1024 &&
+                      (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
+      
+      // The admin has full write access (create, update, delete) to the feed
+      allow write: if request.auth != null && request.auth.token.email == "reellookz@gmail.com";
     }
 
     // --- Full Admin Override ---
-    // The admin has unrestricted read and write access to the entire bucket.
     // This rule is a failsafe for any path not explicitly covered above.
     match /{allPaths=**} {
       allow read, write: if request.auth != null && request.auth.token.email == "reellookz@gmail.com";
