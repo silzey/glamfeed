@@ -1,12 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './styles.css';
 import { useAuth, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
-import { UserCredential } from 'firebase/auth';
+import type { UserCredential } from 'firebase/auth';
 
 const GoogleIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -36,12 +36,17 @@ export default function LoginPage() {
   
   const handleAuthError = (error: any, context: 'Sign In' | 'Sign Up' | 'Google Sign In') => {
     console.error(`${context} Error:`, error);
+    let description = error.message || 'An unexpected error occurred. Please try again.';
+    if (error.code === 'auth/invalid-credential') {
+        description = 'Invalid email or password. Please try again.';
+    } else if (error.code === 'auth/email-already-in-use') {
+        description = 'This email is already in use. Please sign in or use a different email.';
+    }
+
     toast({
       variant: 'destructive',
       title: `${context} Failed`,
-      description: error.code === 'auth/invalid-credential' 
-        ? 'Invalid email or password. Please try again.'
-        : error.message || 'An unexpected error occurred. Please try again.',
+      description: description,
     });
     setIsLoading(false);
   };
@@ -56,7 +61,6 @@ export default function LoginPage() {
     } catch (error) {
       handleAuthError(error, 'Sign In');
     }
-    setIsLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -83,7 +87,6 @@ export default function LoginPage() {
     } catch (error) {
       handleAuthError(error, 'Sign Up');
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
@@ -108,7 +111,6 @@ export default function LoginPage() {
     } catch (error) {
       handleAuthError(error, 'Google Sign In');
     }
-    setIsLoading(false);
   }
 
   return (
@@ -142,7 +144,7 @@ export default function LoginPage() {
                 className="input" 
                 data-type="password" 
                 value={password}
-                onChange={(e) => setPassword(e.targe.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 />
             </div>
             <div className="group">
