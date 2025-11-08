@@ -11,7 +11,7 @@
  * - /users/{userId}/reviews/{reviewId}/comments/{commentId}: Comments on reviews, owned by the user.
  *
  * Key Security Decisions:
- * - Users can only access their own profile data.
+ * - Users can only write to their own profile data, but anyone can read it.
  * - Product data is publicly readable but not writable through the API.
  * - Reviews and comments can only be created, updated, or deleted by their respective owners.
  * - Listing operations are secured within user-owned subcollections.
@@ -54,14 +54,15 @@ service cloud.firestore {
     /**
      * @description Security rules for user profiles.
      * @path /users/{userId}
+     * @allow (get) Any user can view a profile.
      * @allow (create) Signed-in user creates their own profile.
-     * @allow (get, update, delete) Signed-in user accesses their own profile.
+     * @allow (update, delete) Signed-in user accesses their own profile.
      * @deny (create) Signed-in user attempts to create a profile with a mismatched userId.
-     * @deny (get, update, delete) Signed-in user attempts to access another user's profile.
-     * @principle Enforces document ownership for user profiles.
+     * @deny (update, delete) Signed-in user attempts to access another user's profile.
+     * @principle Enforces document ownership for user profiles on write, public read.
      */
     match /users/{userId} {
-      allow get: if isOwner(userId);
+      allow get: if true;
       allow list: if false; // Prevent listing all users
 
       allow create: if isOwner(userId) && request.resource.data.id == userId;
