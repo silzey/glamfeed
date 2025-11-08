@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "review-image-1",
+      "description": "A woman applying lipstick",
+      "imageUrl": "https://images.unsplash.com/photo-1671288239289-f01976a87c43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGxpcHN0aWNrfGVufDB8fHx8MTc2MjYwMzAwNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman lipstick"
+    },
+    {
+      "id": "review-image-2",
+      "description": "Close-up of an eyeshadow palette",
+      "imageUrl": "https://images.unsplash.com/photo-1625094640367-05f84293fe42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxleWVzaGFkb3clMjBwYWxldHRlfGVufDB8fHx8MTc2MjU1NjI0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "eyeshadow palette"
+    },
+    {
+      "id": "review-image-3",
+      "description": "Skincare products arranged on a marble surface",
+      "imageUrl": "https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxza2luY2FyZSUyMHByb2R1Y3RzfGVufDB8fHx8MTc2MjUzMTM0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "skincare products"
+    },
+    {
+      "id": "review-image-4",
+      "description": "A person using a facial roller",
+      "imageUrl": "https://images.unsplash.com/photo-1603274737277-f43f54446c7b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYWNpYWwlMjByb2xsZXJ8ZW58MHx8fHwxNzYyNjAzMDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "facial roller"
+    },
+    {
+      "id": "review-image-5",
+      "description": "Bottles of foundation in various shades",
+      "imageUrl": "https://images.unsplash.com/photo-1682618901459-54ae8c166d16?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmb3VuZGF0aW9uJTIwYm90dGxlc3xlbnwwfHx8fDE3NjI2MDMwMDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "foundation bottles"
+    }
+  ]
 }
