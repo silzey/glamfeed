@@ -1,20 +1,21 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Grant admin full read/write access to the entire database.
+
+    // 1. The Admin has universal read/write access to the entire database.
     match /{document=**} {
       allow read, write: if request.auth != null && request.auth.token.email == 'reellookz@gmail.com';
     }
 
-    // Grant all other authenticated users read-only access to specific collections.
-    // This prevents non-admin users from writing data.
-    match /users/{userId} {
-      allow get: if request.auth != null;
-    }
+    // 2. All other authenticated users can read from the public 'feed'.
     match /feed/{postId} {
       allow read: if request.auth != null;
+    }
+    
+    // 3. All other authenticated users can read individual user profiles.
+    match /users/{userId} {
+        allow get: if request.auth != null;
     }
   }
 }

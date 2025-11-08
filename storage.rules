@@ -1,29 +1,22 @@
-
 rules_version = '2';
 
 // These rules apply to the bucket: studio-9439717090-1fb6e.firebasestorage.app
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // --- Feed Assets ---
-    match /feed/{path=**} {
-      // Anyone can read files in the feed.
-      allow read: if true;
-
-      // Allow write access if EITHER the user is an admin OR they are
-      // a regular user creating a valid new file. This single rule
-      // prevents conflicts and ensures admin has full C/U/D access.
-      allow write: if (request.auth != null && request.auth.token.email == 'reellookz@gmail.com') ||
-                     (request.auth != null &&
-                      request.method == 'create' &&
-                      request.resource.size < 5 * 1024 * 1024 &&
-                      (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*')));
-    }
-
-    // This is a fallback rule. The more specific /feed rule above will be checked first.
-    // This gives the admin access to any OTHER paths that might be created.
+    // Rule for all files in the project.
     match /{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.token.email == "reellookz@gmail.com";
+      // 1. The Admin has universal read/write access to all storage paths.
+      allow read, write: if request.auth != null && request.auth.token.email == 'reellookz@gmail.com';
+      
+      // 2. Any user can read files from the 'feed' directory.
+      allow read: if allPaths.matches('feed/.*');
+
+      // 3. Authenticated users can create new files in the 'feed' directory.
+      allow create: if request.auth != null &&
+                       allPaths.matches('feed/.*') &&
+                       request.resource.size < 5 * 1024 * 1024 &&
+                       (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
     }
   }
 }
