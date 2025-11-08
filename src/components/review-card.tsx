@@ -92,12 +92,12 @@ export function ReviewCard({ post }: ReviewCardProps) {
       <span className="glow"></span>
       <div className="inner">
         {post.photoUrl && (
-            <div className="relative aspect-[4/3] w-full">
+            <div className="relative aspect-square w-full">
                 <Image
                     src={post.photoUrl}
                     alt={post.caption || 'Feed post'}
                     fill
-                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
             </div>
