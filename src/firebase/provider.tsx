@@ -120,7 +120,7 @@ export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
   
 
   const signInWithGoogle = async () => {
-    initiateGoogleSignIn(auth);
+    return initiateGoogleSignIn(auth);
   };
 
   const signOut = () => {
