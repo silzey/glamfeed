@@ -15,9 +15,9 @@ service cloud.firestore {
 
     // --- Users Collection ---
     match /users/{userId} {
-      // Any authenticated user can read public user profiles
-      allow get: if request.auth != null;
-      // Only the admin can list all users (covered by the global admin rule)
+      // Anyone can read a single public user profile
+      allow get: if true;
+      // Only the admin can list all users
       allow list: if isAdmin();
       // Users can update their own document
       allow update: if request.auth != null && request.auth.uid == userId;
