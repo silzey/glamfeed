@@ -1,3 +1,4 @@
+
 /**
  * @file Firestore Security Rules for GlamFeed.
  *
@@ -172,3 +173,5 @@ service cloud.firestore {
      }
   }
 }
+
+    

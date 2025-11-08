@@ -105,7 +105,7 @@ export default function AdminPage() {
     toast({ title: 'Post deleted' });
   };
   
-  const handleCreatePost = async () => {
+const handleCreatePost = async () => {
     if (!firestore || !authUser || !storage) return;
     if (!newPostFile && !newPostMediaUrl) {
       toast({ variant: 'destructive', title: 'Please provide media', description: 'Upload a file or enter a media URL.' });
@@ -130,9 +130,11 @@ export default function AdminPage() {
             ctaLink: newPostCtaLink,
         };
 
+        // This is a non-blocking call, so we don't await it.
         addDocumentNonBlocking(collection(firestore, 'feed'), postData);
 
         toast({ title: 'Draft created successfully!', description: 'Review and publish it below.' });
+        
         // Reset form
         setNewPostCaption('');
         setNewPostFile(null);
@@ -160,19 +162,24 @@ export default function AdminPage() {
             setIsUploading(false); // Reset on failure
           },
           async () => {
-            const finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            createPostDocument(finalMediaUrl);
-            setIsUploading(false); // Reset on success
+            try {
+              const finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
+              createPostDocument(finalMediaUrl);
+            } catch (err: any) {
+               toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
+            } finally {
+              setIsUploading(false); // Reset on success or final error
+            }
           }
         );
       } else if (newPostMediaUrl) {
-        // If it's just a URL, create the document directly
+        // If it's just a URL, create the document directly and reset state.
         createPostDocument(newPostMediaUrl);
-        setIsUploading(false); // Reset immediately
+        setIsUploading(false);
       }
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
-      setIsUploading(false); // Reset on catch
+      setIsUploading(false); // Reset on outer catch
     }
   };
 
@@ -518,9 +525,5 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
-
-    
 
     
