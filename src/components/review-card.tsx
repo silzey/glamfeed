@@ -1,66 +1,149 @@
+'use client';
 import Image from 'next/image';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
+import { formatDistanceToNow } from 'date-fns';
+import type { Post, AppUser } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import type { PopulatedReview } from '@/lib/types';
-import { StarRating } from './star-rating';
-import { ReviewSummary } from './review-summary';
-import { CardActions } from './like-button';
+import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { PageLoader } from './page-loader';
+import { useFirestore, useUser } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { Skeleton } from './ui/skeleton';
+
 
 type ReviewCardProps = {
-  review: PopulatedReview;
+  post: Post;
 };
 
-export function ReviewCard({ review }: ReviewCardProps) {
-  const { user, product } = review;
-  const image = PlaceHolderImages.find(img => img.id === review.imageId);
+export function ReviewCard({ post }: ReviewCardProps) {
+    const router = useRouter();
+    const firestore = useFirestore();
+    const { user: currentUser, isUserLoading } = useUser();
+    const [isNavigating, setIsNavigating] = useState(false);
+    
+    const [author, setAuthor] = useState<AppUser | null>(null);
+    
+    useEffect(() => {
+        const fetchAuthor = async () => {
+            if (post.userId && firestore) {
+                const userDoc = await getDoc(doc(firestore, 'users', post.userId));
+                if (userDoc.exists()) {
+                    setAuthor({ uid: userDoc.id, ...userDoc.data() } as AppUser);
+                }
+            }
+        };
+        if (firestore) {
+            fetchAuthor();
+        }
+    }, [post.userId, firestore]);
 
-  return (
-    <Card className="overflow-hidden">
-      <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-        <Avatar>
-          <AvatarImage src={user.avatarUrl} alt={user.name} />
-          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <p className="font-semibold">{user.name}</p>
-          <p className="text-sm text-muted-foreground">@{user.username}</p>
-        </div>
-      </CardHeader>
-      
-      {image && (
-        <div className="relative aspect-[3/4] w-full">
-            <Image
-                src={image.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                data-ai-hint={image.imageHint}
-            />
-        </div>
-      )}
-
-      <CardFooter className="flex-col items-start gap-2 pt-4">
-        <CardActions review={review} />
-        <div className="w-full space-y-2">
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="font-semibold">{product.brand}</p>
-                    <p className="text-sm text-muted-foreground">{product.name}</p>
+    if (isUserLoading || !post) {
+         return (
+            <div className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
+                <Skeleton className="relative aspect-video w-full rounded" />
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                        <Skeleton className="h-4 w-[200px]" />
+                    </div>
                 </div>
-                <StarRating rating={review.rating} readOnly />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-1/2" />
             </div>
-            <ReviewSummary text={review.text} />
-            <p className="text-xs text-muted-foreground">
-                {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
+        );
+    }
+
+    const handleAvatarClick = () => {
+        if (!author?.uid) return;
+        setIsNavigating(true);
+        router.push(`/users/${author.uid}`);
+    };
+
+    const getFormattedDate = () => {
+      if (!post.createdAt) return 'just now';
+      // @ts-ignore
+      if (typeof post.createdAt.toDate === 'function') {
+        // @ts-ignore
+        return formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true });
+      }
+      try {
+        return formatDistanceToNow(new Date(post.createdAt as any), { addSuffix: true });
+      } catch (e) {
+        return 'a while ago';
+      }
+    };
+
+    return (
+    <>
+    {isNavigating && <PageLoader />}
+    <div className={cn("glass-card h-full flex flex-col group overflow-hidden card")}>
+      <span className="glow"></span>
+      <div className="inner">
+        {post.photoUrl && (
+            <div className="relative aspect-video w-full">
+                <Image
+                    src={post.photoUrl}
+                    alt={post.caption || 'Feed post'}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+            </div>
+        )}
+
+        <div className={cn("flex flex-col flex-1 justify-between p-4")}>
+            <div>
+                 <div className="flex flex-row items-center gap-4">
+                    {author ? (
+                        <button onClick={handleAvatarClick} className="cursor-pointer" disabled={!author.uid}>
+                            <Avatar className="border-2 border-white/50 hover:border-primary transition-colors">
+                            <AvatarImage src={author.avatarUrl} alt={author.name} />
+                            <AvatarFallback>
+                                {author.name ? author.name.split(' ').map(n => n[0]).join('') : 'U'}
+                            </AvatarFallback>
+                            </Avatar>
+                        </button>
+                    ) : (
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                    )}
+                    <div className="text-shadow-lg">
+                        <button onClick={handleAvatarClick} className="cursor-pointer" disabled={!author?.uid}>
+                            <p className="text-sm text-white/80 hover:underline">{author ? `by ${author.name}`: 'Loading...'}</p>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-4">
+                    <p className="text-sm text-white/80 line-clamp-3">{post.caption}</p>
+                </div>
+            </div>
+
+             <div className="flex justify-between items-center mt-4 border-t border-white/10 pt-3">
+                <p className="text-xs text-white/60">
+                    {getFormattedDate()}
+                </p>
+                <div className="flex items-center -mr-2">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                        <Heart className="h-4 w-4" />
+                        <span>0</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                        <MessageCircle className="h-4 w-4" />
+                        <span>0</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                        <Share2 className="h-4 w-4" />
+                        <span>0</span>
+                    </Button>
+                </div>
+            </div>
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
+    </>
   );
 }

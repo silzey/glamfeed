@@ -33,4 +33,19 @@ export type Review = {
 export type PopulatedReview = Review & {
   user: User;
   product: Product;
+};
+
+export type AppUser = {
+  uid: string;
+  name?: string;
+  avatarUrl?: string;
+  [key: string]: any;
+}
+
+export type Post = {
+    id: string;
+    userId: string;
+    caption: string;
+    photoUrl?: string;
+    createdAt: any; // Can be a Date or a Firebase Timestamp
 }
