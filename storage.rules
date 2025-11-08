@@ -10,18 +10,18 @@ service firebase.storage {
       // Anyone can read files in the feed.
       allow read: if true;
 
-      // The admin has full create, update, and delete access.
-      allow write: if request.auth != null && request.auth.token.email == "reellookz@gmail.com";
-
-      // Any other authenticated user can only create new files under specific conditions.
-      // This rule is evaluated separately from the admin rule above.
-      allow create: if request.auth != null &&
+      // Allow write access if EITHER the user is an admin OR they are
+      // a regular user creating a valid new file. This single rule
+      // prevents conflicts and ensures admin has full C/U/D access.
+      allow write: if (request.auth != null && request.auth.token.email == 'reellookz@gmail.com') ||
+                     (request.auth != null &&
+                      request.method == 'create' &&
                       request.resource.size < 5 * 1024 * 1024 &&
-                      (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
+                      (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*')));
     }
 
-    // --- Full Admin Override ---
-    // This rule is a failsafe for any path not explicitly covered above.
+    // This is a fallback rule. The more specific /feed rule above will be checked first.
+    // This gives the admin access to any OTHER paths that might be created.
     match /{allPaths=**} {
       allow read, write: if request.auth != null && request.auth.token.email == "reellookz@gmail.com";
     }
