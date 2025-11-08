@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings';
 
 export default function AdminPage() {
-  const { user: authUser, signOut } = useAuth();
+  const { user: authUser, signOut, isUserLoading } = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
 
@@ -29,7 +29,8 @@ export default function AdminPage() {
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
   useEffect(() => {
-    if (!firestore) return;
+    if (isUserLoading || !firestore) return;
+
     if (!authUser?.isAdmin) {
       setLoading(false);
       return;
@@ -61,13 +62,7 @@ export default function AdminPage() {
       unsubPosts();
       unsubReports();
     };
-  }, [firestore, authUser?.isAdmin]);
-  
-  useEffect(() => {
-    if (authUser === null) {
-      setLoading(false);
-    }
-  }, [authUser]);
+  }, [firestore, authUser?.isAdmin, isUserLoading]);
 
 
   // --- User Actions ---
@@ -100,7 +95,7 @@ export default function AdminPage() {
     setBroadcastMessage('');
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
+  if (loading || isUserLoading) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
   if (!authUser?.isAdmin) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
 
   const navItems = [
