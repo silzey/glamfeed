@@ -1,7 +1,8 @@
+
 'use client';
 import { useMemo } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase/hooks/use-firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, where } from 'firebase/firestore';
 import { Post } from '@/lib/types';
 import { ReviewCard } from '@/components/review-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,7 +12,12 @@ export default function Home() {
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'feed'), orderBy('createdAt', 'desc'));
+    // Only show posts that are marked as visible
+    return query(
+        collection(firestore, 'feed'), 
+        where("visible", "==", true),
+        orderBy('createdAt', 'desc')
+    );
   }, [firestore]);
 
   const { data: posts, isLoading } = useCollection<Post>(postsQuery);
@@ -48,7 +54,7 @@ export default function Home() {
          {posts?.length === 0 && (
             <div className="text-center py-20 glass-card">
                 <p className="text-lg text-white/70">The feed is empty.</p>
-                <p className="text-sm text-white/50 mt-2">Be the first to post something!</p>
+                <p className="text-sm text-white/50 mt-2">Looks like there's nothing here right now.</p>
             </div>
          )}
       </div>

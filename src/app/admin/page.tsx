@@ -56,7 +56,7 @@ export default function AdminPage() {
     if (isUserLoading || !firestore) {
       return;
     }
-    if(!authUser || !authUser.isAdmin) {
+    if(!authUser || !isAdminUser) {
         setLoading(false);
         return;
     }
@@ -87,7 +87,7 @@ export default function AdminPage() {
       unsubPosts();
       unsubReports();
     };
-  }, [firestore, authUser, isUserLoading]);
+  }, [firestore, authUser, isUserLoading, isAdminUser]);
 
   // --- Post Actions ---
   const togglePostVisibility = async (postId: string, visible: boolean) => {
@@ -182,12 +182,23 @@ export default function AdminPage() {
     setBroadcastMessage('');
   };
 
-  if (loading || isUserLoading) {
+  if (isUserLoading) {
     return <PageLoader />;
   }
 
   if (!isAdminUser) {
-    return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black text-white">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Access Denied</h1>
+          <p className="text-white/70 mt-2">You do not have permission to view this page.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <PageLoader />;
   }
 
   const navItems = [
@@ -328,10 +339,9 @@ export default function AdminPage() {
                      <div>
                         <h1 className="text-3xl font-bold mb-6">Post Management</h1>
                         
-                        {/* Create Post Form */}
-                        <section className="glass-card p-6 mb-8">
+                        <section className="glass-card p-6 mb-6">
                             <h2 className="font-semibold text-lg mb-4">📢 Upload New Post to Feed</h2>
-
+                        
                             <div className="space-y-4">
                                <div className="flex flex-col md:flex-row gap-3">
                                 <Input
@@ -370,6 +380,9 @@ export default function AdminPage() {
                                         </Button>
                                          <p className="text-xs text-white/50 absolute bottom-2">{p.id}</p>
                                     </div>
+                                    {p.visible === false && (
+                                        <div className="absolute top-2 right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">HIDDEN</div>
+                                    )}
                                 </div>
                             ))}
                         </div>
