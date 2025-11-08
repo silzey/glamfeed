@@ -108,15 +108,15 @@ export default function AdminPage() {
 const handleCreatePost = async () => {
     if (!firestore || !authUser || !storage) return;
     if (!newPostFile && !newPostMediaUrl) {
-      toast({ variant: 'destructive', title: 'Please provide media', description: 'Upload a file or enter a media URL.' });
-      return;
+        toast({ variant: 'destructive', title: 'Please provide media', description: 'Upload a file or enter a media URL.' });
+        return;
     }
 
     setIsUploading(true);
     setUploadProgress(0);
 
     const createPostDocument = (mediaUrl: string) => {
-        const postData: Post = {
+        const postData: Omit<Post, 'id'> = {
             userId: authUser.uid,
             caption: newPostCaption,
             mediaUrl: mediaUrl,
@@ -130,7 +130,7 @@ const handleCreatePost = async () => {
             ctaLink: newPostCtaLink,
         };
 
-        // This is a non-blocking call, so we don't await it.
+        // Don't await this, let it run in the background
         addDocumentNonBlocking(collection(firestore, 'feed'), postData);
 
         toast({ title: 'Draft created successfully!', description: 'Review and publish it below.' });
@@ -146,42 +146,42 @@ const handleCreatePost = async () => {
     };
 
     try {
-      if (newPostFile) {
-        const fileName = `admin_${authUser.uid}_${Date.now()}`;
-        const storageRef = ref(storage, `feed/${fileName}`);
-        const uploadTask = uploadBytesResumable(storageRef, newPostFile);
+        if (newPostFile) {
+            const fileName = `admin_${authUser.uid}_${Date.now()}`;
+            const storageRef = ref(storage, `feed/${fileName}`);
+            const uploadTask = uploadBytesResumable(storageRef, newPostFile);
 
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(progress);
-          },
-          (error) => {
-            console.error("Upload failed:", error);
-            toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
-            setIsUploading(false); // Reset on failure
-          },
-          async () => {
-            try {
-              const finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
-              createPostDocument(finalMediaUrl);
-            } catch (err: any) {
-               toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
-            } finally {
-              setIsUploading(false); // Reset on success or final error
-            }
-          }
-        );
-      } else if (newPostMediaUrl) {
-        // If it's just a URL, create the document directly and reset state.
-        createPostDocument(newPostMediaUrl);
-        setIsUploading(false);
-      }
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                },
+                (error) => {
+                    console.error("Upload failed:", error);
+                    toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
+                    setIsUploading(false);
+                },
+                async () => {
+                    try {
+                        const finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                        createPostDocument(finalMediaUrl);
+                    } catch (err: any) {
+                        toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
+                    } finally {
+                        setIsUploading(false);
+                    }
+                }
+            );
+        } else if (newPostMediaUrl) {
+            // If it's just a URL, create the document directly.
+            createPostDocument(newPostMediaUrl);
+            setIsUploading(false); // Reset state here as well
+        }
     } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
-      setIsUploading(false); // Reset on outer catch
+        toast({ variant: 'destructive', title: 'Failed to start post creation', description: err.message });
+        setIsUploading(false);
     }
-  };
+};
 
 
   // --- User Actions ---
@@ -525,5 +525,7 @@ const handleCreatePost = async () => {
     </div>
   );
 }
+
+    
 
     
