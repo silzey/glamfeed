@@ -106,78 +106,74 @@ export default function AdminPage() {
   };
   
   const handleCreatePost = async () => {
-      if (!firestore || !authUser || !storage) return;
-      if (!newPostFile && !newPostMediaUrl) {
-          toast({ variant: 'destructive', title: 'Please provide media', description: 'Upload a file or enter a media URL.' });
-          return;
-      }
+    if (!firestore || !authUser || !storage) return;
+    if (!newPostFile && !newPostMediaUrl) {
+      toast({ variant: 'destructive', title: 'Please provide media', description: 'Upload a file or enter a media URL.' });
+      return;
+    }
 
-      setIsUploading(true);
-      setUploadProgress(0);
+    setIsUploading(true);
+    setUploadProgress(0);
 
-      try {
-          let finalMediaUrl = newPostMediaUrl;
+    const createPostDocument = (mediaUrl: string) => {
+        const postData: Post = {
+            userId: authUser.uid,
+            caption: newPostCaption,
+            mediaUrl: mediaUrl,
+            createdAt: serverTimestamp(),
+            visible: false, // Save as draft
+            likesCount: 0,
+            commentsCount: 0,
+            adminUpload: true,
+            postType: newPostType,
+            ctaText: newPostCtaText,
+            ctaLink: newPostCtaLink,
+        };
 
-          if (newPostFile) {
-              const fileName = `admin_${authUser.uid}_${Date.now()}`;
-              const storageRef = ref(storage, `feed/${fileName}`);
-              const uploadTask = uploadBytesResumable(storageRef, newPostFile);
+        addDocumentNonBlocking(collection(firestore, 'feed'), postData);
 
-              await new Promise<void>((resolve, reject) => {
-                  uploadTask.on('state_changed',
-                      (snapshot) => {
-                          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                          setUploadProgress(progress);
-                      },
-                      (error) => {
-                          console.error("Upload failed:", error);
-                          toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
-                          setIsUploading(false);
-                          reject(error);
-                      },
-                      async () => {
-                          finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                          resolve();
-                      }
-                  );
-              });
+        toast({ title: 'Draft created successfully!', description: 'Review and publish it below.' });
+        // Reset form
+        setNewPostCaption('');
+        setNewPostFile(null);
+        setNewPostMediaUrl('');
+        setNewPostCtaText('');
+        setNewPostCtaLink('');
+        setNewPostType('standard');
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    try {
+      if (newPostFile) {
+        const fileName = `admin_${authUser.uid}_${Date.now()}`;
+        const storageRef = ref(storage, `feed/${fileName}`);
+        const uploadTask = uploadBytesResumable(storageRef, newPostFile);
+
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress);
+          },
+          (error) => {
+            console.error("Upload failed:", error);
+            toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
+            setIsUploading(false); // Reset on failure
+          },
+          async () => {
+            const finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            createPostDocument(finalMediaUrl);
+            setIsUploading(false); // Reset on success
           }
-          
-          if (!finalMediaUrl) {
-            throw new Error("Media URL could not be generated.");
-          }
-
-          const postData: Post = {
-              userId: authUser.uid,
-              caption: newPostCaption,
-              mediaUrl: finalMediaUrl,
-              createdAt: serverTimestamp(),
-              visible: false, // Save as draft
-              likesCount: 0,
-              commentsCount: 0,
-              adminUpload: true,
-              postType: newPostType,
-              ctaText: newPostCtaText,
-              ctaLink: newPostCtaLink,
-          };
-
-          addDocumentNonBlocking(collection(firestore, 'feed'), postData);
-
-          toast({ title: 'Draft created successfully!', description: 'Review and publish it below.' });
-          // Reset form
-          setNewPostCaption('');
-          setNewPostFile(null);
-          setNewPostMediaUrl('');
-          setNewPostCtaText('');
-          setNewPostCtaLink('');
-          setNewPostType('standard');
-          if (fileInputRef.current) fileInputRef.current.value = '';
-
-      } catch (err: any) {
-          toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
-      } finally {
-          setIsUploading(false);
+        );
+      } else if (newPostMediaUrl) {
+        // If it's just a URL, create the document directly
+        createPostDocument(newPostMediaUrl);
+        setIsUploading(false); // Reset immediately
       }
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
+      setIsUploading(false); // Reset on catch
+    }
   };
 
 
@@ -522,6 +518,8 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
 
