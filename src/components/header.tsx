@@ -2,7 +2,6 @@
 import {
   Palette,
   PlusCircle,
-  Search,
   User,
   LogOut,
 } from 'lucide-react';
@@ -82,6 +81,13 @@ export function Header() {
                     </p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/upload">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <span>Create Post</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
