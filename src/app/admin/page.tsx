@@ -152,7 +152,7 @@ export default function AdminPage() {
               caption: newPostCaption,
               mediaUrl: finalMediaUrl,
               createdAt: serverTimestamp(),
-              visible: true,
+              visible: false, // Save as draft
               likesCount: 0,
               commentsCount: 0,
               adminUpload: true,
@@ -163,7 +163,7 @@ export default function AdminPage() {
 
           addDocumentNonBlocking(collection(firestore, 'feed'), postData);
 
-          toast({ title: 'Post created successfully!' });
+          toast({ title: 'Draft created successfully!', description: 'Review and publish it below.' });
           // Reset form
           setNewPostCaption('');
           setNewPostFile(null);
@@ -451,7 +451,7 @@ export default function AdminPage() {
                                 {isUploading && <Progress value={uploadProgress} className="h-2" />}
                                 
                                 <Button onClick={handleCreatePost} disabled={isUploading} className="w-full sm:w-auto">
-                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Publishing...</> : "Publish Post"}
+                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving Draft...</> : "Save as Draft"}
                                 </Button>
                             </div>
                         </section>
@@ -522,5 +522,7 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
