@@ -1,12 +1,10 @@
 'use client';
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// It is recommended to initialize Firebase without a config object.
+// Firebase App Hosting provides the configuration automatically.
+// See: https://firebase.google.com/docs/hosting/frameworks/nextjs?hl=en&authuser=0#initialize-firebase-in-your-app
+// The config object is included below as a reference.
+
 export const firebaseConfig = {
   apiKey: "AIzaSyCwmeORwHLnQ8ESauE9cobUYE-stkiq7fM",
   authDomain: "studio-9439717090-1fb6e.firebaseapp.com",
@@ -16,11 +14,3 @@ export const firebaseConfig = {
   appId: "1:779726117709:web:11b8676cd7b5fb2cec3504",
   measurementId: "G-FBRQCW4X60"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Conditionally initialize analytics only on the client side
-if (typeof window !== 'undefined') {
-  getAnalytics(app);
-}
