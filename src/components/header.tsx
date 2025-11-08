@@ -1,7 +1,8 @@
-import { PlusCircle, Search, User } from 'lucide-react';
+import { Palette, PlusCircle, Search, User } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 export function Header() {
   return (
@@ -25,6 +26,11 @@ export function Header() {
             <Button variant="ghost" size="icon" aria-label="Create new review">
               <PlusCircle className="h-5 w-5" />
             </Button>
+            <Link href="/theme">
+              <Button variant="ghost" size="icon" aria-label="Customize theme">
+                <Palette className="h-5 w-5" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" aria-label="User profile">
               <User className="h-5 w-5" />
             </Button>
