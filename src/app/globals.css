@@ -10,7 +10,7 @@
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-    --primary: 330 80% 50%;
+    --primary: 330 80% 60%;
     --primary-foreground: 330 80% 10%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
@@ -71,7 +71,7 @@
 
 @layer components {
   .glass-card {
-    @apply relative bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg;
+    @apply relative bg-black border-primary/20 rounded-2xl shadow-lg;
   }
 
   .glass-card > .inner {
