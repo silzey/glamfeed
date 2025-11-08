@@ -51,7 +51,7 @@ export function Header() {
                 </>
               ) : authUser ? (
                 <>
-                  <Link href="/theme" passHref>
+                  <Link href="/settings" passHref>
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
                         <Palette className="h-5 w-5" />
                     </Button>
@@ -106,7 +106,7 @@ export function Header() {
                         </DropdownMenuItem>
                        )}
                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/theme">
+                        <Link href="/settings">
                            <Settings className="mr-2 h-4 w-4" />
                             <span>Settings</span>
                         </Link>
@@ -127,7 +127,7 @@ export function Header() {
                 </>
               ) : (
                   <>
-                      <Link href="/theme" passHref>
+                      <Link href="/settings" passHref>
                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
                               <Palette className="h-5 w-5" />
                           </Button>
