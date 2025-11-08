@@ -72,7 +72,7 @@ export default function ThemePage() {
         </div>
 
         <div className="space-y-8">
-            <Card>
+            <Card className="glass-card">
                 <CardContent className="p-6">
                     <h2 className="text-lg font-semibold mb-4">Appearance</h2>
                     <div className="flex gap-2 rounded-lg bg-secondary p-1">
@@ -89,7 +89,7 @@ export default function ThemePage() {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="glass-card">
                 <CardContent className="p-6">
                     <h2 className="text-lg font-semibold mb-4">Accent Color</h2>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">

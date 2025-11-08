@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Palette, PlusCircle, LogOut, Gem } from 'lucide-react';
+import { Palette, PlusCircle, LogOut, Gem, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -89,6 +89,12 @@ export function Header() {
                         <Link href="/share">
                             <Gem className="mr-2 h-4 w-4" />
                             <span>Share</span>
+                        </Link>
+                      </DropdownMenuItem>
+                       <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
+                        <Link href="/theme">
+                           <Settings className="mr-2 h-4 w-4" />
+                            <span>Settings</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-primary focus:bg-white/10 focus:text-primary cursor-pointer">
