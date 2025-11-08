@@ -89,7 +89,7 @@ export default function LoginPage() {
               </p>
             </div>
             <div className="login-form">
-              <form className="sign-in-htm" onSubmit={handleSignIn}>
+              <form onSubmit={handleSignIn}>
                 <div className="group">
                   <label htmlFor="user" className="label">Email Address</label>
                   <input
