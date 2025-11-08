@@ -1,8 +1,8 @@
 
 'use client';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { useAuth, useStorage } from '@/firebase';
-import { useFirestore } from '@/firebase/hooks/use-firebase';
+import { useAuth } from '@/firebase';
+import { useFirestore, useStorage } from '@/firebase/hooks/use-firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Button } from '@/components/ui/button';
@@ -45,9 +45,6 @@ export default function AdminPage() {
   // New Post State
   const [newPostCaption, setNewPostCaption] = useState('');
   const [newPostFile, setNewPostFile] = useState<File | null>(null);
-  const [newPostCtaLink, setNewPostCtaLink] = useState('');
-  const [newPostCtaText, setNewPostCtaText] = useState('');
-  const [newPostType, setNewPostType] = useState('standard');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +56,7 @@ export default function AdminPage() {
     if (isUserLoading || !firestore) {
       return;
     }
-    if(!isAdminUser) {
+    if(!authUser || !authUser.isAdmin) {
         setLoading(false);
         return;
     }
@@ -90,7 +87,7 @@ export default function AdminPage() {
       unsubPosts();
       unsubReports();
     };
-  }, [firestore, isAdminUser, isUserLoading]);
+  }, [firestore, authUser, isUserLoading]);
 
   // --- Post Actions ---
   const togglePostVisibility = async (postId: string, visible: boolean) => {
@@ -135,15 +132,8 @@ export default function AdminPage() {
           visible: true,
           likesCount: 0,
           commentsCount: 0,
-          shareCount: 0,
-          postType: newPostType,
           adminUpload: true,
         };
-
-        if(newPostCtaLink && newPostCtaText) {
-            postData.ctaLink = newPostCtaLink;
-            postData.ctaText = newPostCtaText;
-        }
 
         addDocumentNonBlocking(collection(firestore, 'feed'), postData);
 
@@ -151,9 +141,6 @@ export default function AdminPage() {
         // Reset form
         setNewPostCaption('');
         setNewPostFile(null);
-        setNewPostCtaLink('');
-        setNewPostCtaText('');
-        setNewPostType('standard');
         if(fileInputRef.current) fileInputRef.current.value = '';
 
       } catch (err: any) {
@@ -342,40 +329,32 @@ export default function AdminPage() {
                         <h1 className="text-3xl font-bold mb-6">Post Management</h1>
                         
                         {/* Create Post Form */}
-                        <div className="glass-card p-6 mb-8">
-                            <h2 className="text-xl font-bold mb-4">Create New Feed Post</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <Textarea placeholder="What's on your mind? (Caption)" value={newPostCaption} onChange={(e) => setNewPostCaption(e.target.value)} className="bg-black/40 h-24"/>
-                                     <Input 
-                                        ref={fileInputRef}
-                                        type="file" 
-                                        accept="image/*,video/*" 
-                                        onChange={(e) => setNewPostFile(e.target.files?.[0] || null)}
-                                        className="bg-black/40 border-white/20 file:text-primary file:font-semibold"
-                                     />
-                                     <Select value={newPostType} onValueChange={setNewPostType}>
-                                        <SelectTrigger className="w-full bg-black/40">
-                                            <SelectValue placeholder="Post Type" />
-                                        </SelectTrigger>
-                                        <SelectContent className="glass-card">
-                                            <SelectItem value="standard">Standard</SelectItem>
-                                            <SelectItem value="sponsored">Sponsored</SelectItem>
-                                            <SelectItem value="featured">Featured</SelectItem>
-                                            <SelectItem value="advertisement">Advertisement</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                        <section className="glass-card p-6 mb-8">
+                            <h2 className="font-semibold text-lg mb-4">📢 Upload New Post to Feed</h2>
+
+                            <div className="space-y-4">
+                               <div className="flex flex-col md:flex-row gap-3">
+                                <Input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    onChange={(e) => setNewPostFile(e.target.files?.[0] || null)}
+                                    className="bg-black/40 border-white/20 file:text-primary file:font-semibold"
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Write a caption..."
+                                    value={newPostCaption}
+                                    onChange={(e) => setNewPostCaption(e.target.value)}
+                                    className="bg-black/40 border-white/20 flex-1"
+                                />
+                                <Button onClick={handleCreatePost} disabled={isUploading}>
+                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Publishing...</> : "Publish"}
+                                </Button>
                                 </div>
-                                 <div className="space-y-4">
-                                     <Input placeholder="CTA Button Text (e.g., Shop Now)" value={newPostCtaText} onChange={(e) => setNewPostCtaText(e.target.value)} className="bg-black/40"/>
-                                     <Input placeholder="CTA Link URL (https://...)" value={newPostCtaLink} onChange={(e) => setNewPostCtaLink(e.target.value)} className="bg-black/40"/>
-                                     {isUploading && <Progress value={uploadProgress} className="h-2" />}
-                                     <Button onClick={handleCreatePost} disabled={isUploading || !newPostFile} className="w-full">
-                                         {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Uploading...</> : "Create Post"}
-                                     </Button>
-                                 </div>
+                                {isUploading && <Progress value={uploadProgress} className="h-2" />}
                             </div>
-                        </div>
+                        </section>
 
                         <h2 className="text-2xl font-bold mb-4">Live Feed Control</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
