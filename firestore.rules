@@ -83,10 +83,10 @@ service cloud.firestore {
      * @allow (delete) Signed-in user accesses their own profile OR is an admin.
      */
     match /users/{userId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if true;
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       // Allow user to update their own non-admin fields. Admin can update anything.
-      allow update: if isOwner(userId) || isAdmin();
+      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys.hasAny(['isAdmin', 'isFrozen'])) || isAdmin();
       allow delete: if isOwner(userId) || isAdmin();
     }
 
