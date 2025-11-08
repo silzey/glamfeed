@@ -100,6 +100,11 @@ export function Header() {
                             <Palette className="h-5 w-5" />
                         </Button>
                     </Link>
+                     <Link href="/share" passHref>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                            <PlusCircle className="h-5 w-5" />
+                        </Button>
+                    </Link>
                     <Button onClick={() => router.push('/login')} className="glass-button h-10 sm:h-12 px-4 rounded-full text-sm sm:text-base">
                         Sign In
                     </Button>
