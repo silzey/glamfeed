@@ -75,6 +75,7 @@ export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
               totalComments: 0,
               totalShares: 0,
               coins: 100, // Welcome bonus
+              isAdmin: false, // Default isAdmin to false for new users
               // @ts-ignore
               createdAt: serverTimestamp(),
            };
@@ -108,6 +109,7 @@ export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
       totalComments: 0,
       totalShares: 0,
       coins: 100, // Welcome bonus
+      isAdmin: false, // Default isAdmin to false for new users
       // @ts-ignore
       createdAt: serverTimestamp(),
     };
@@ -138,6 +140,7 @@ export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
         totalComments: 0,
         totalShares: 0,
         coins: 100, // Welcome bonus
+        isAdmin: false, // Default isAdmin to false for new users
         createdAt: serverTimestamp(),
       });
     }

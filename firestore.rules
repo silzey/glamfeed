@@ -84,7 +84,7 @@ service cloud.firestore {
      */
     match /users/{userId} {
       allow get, list: if true;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow create: if isOwner(userId) && request.resource.data.id == userId && request.resource.data.isAdmin == false;
       // Allow user to update their own non-admin fields. Admin can update anything.
       allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys.hasAny(['isAdmin', 'isFrozen'])) || isAdmin();
       allow delete: if isOwner(userId) || isAdmin();
@@ -108,7 +108,7 @@ service cloud.firestore {
      * @allow (get, list, update, delete) Signed-in user accesses their own reviews, or is an admin.
      */
     match /users/{userId}/reviews/{reviewId} {
-      allow get, list: if isOwner(userId) || isAdmin();
+      allow get, list: if true;
       allow create: if isOwner(userId) && request.resource.data.userId == userId && isNotFrozen(userId);
       allow update: if (isExistingOwner(userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
       allow delete: if isExistingOwner(userId) || isAdmin();
@@ -121,10 +121,10 @@ service cloud.firestore {
      * @allow (get, list, update, delete) Signed-in user accesses their own comments.
      */
     match /users/{userId}/reviews/{reviewId}/comments/{commentId} {
-      allow get, list: if isSignedIn();
-      allow create: if isOwner(userId) && request.resource.data.userId == userId && isNotFrozen(userId);
-      allow update: if (isExistingOwner(userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
-      allow delete: if isExistingOwner(userId) || isAdmin();
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
+      allow update: if (isOwner(request.resource.data.userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
+      allow delete: if isOwner(request.resource.data.userId) || isAdmin();
     }
     
     /**
@@ -135,9 +135,16 @@ service cloud.firestore {
      * @allow (update, delete) Only admins can update or delete posts.
      */
      match /feed/{postId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
       allow update, delete: if isAdmin();
+
+      match /comments/{commentId} {
+        allow get, list: if true;
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
+        allow update: if (isOwner(request.resource.data.userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
+        allow delete: if isOwner(request.resource.data.userId) || isAdmin();
+      }
     }
     
     /**
