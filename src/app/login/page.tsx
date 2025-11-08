@@ -1,12 +1,10 @@
 'use client';
 import { useState } from 'react';
 import './styles.css';
-import { useAuth, initiateEmailSignIn, initiateGoogleSignIn, useFirestore } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
-import type { UserCredential } from 'firebase/auth';
 import Link from 'next/link';
 
 const GoogleIcon = () => (
@@ -19,8 +17,7 @@ const GoogleIcon = () => (
 );
 
 export default function LoginPage() {
-  const auth = useAuth();
-  const firestore = useFirestore();
+  const { signInWithEmail, signInWithGoogle } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -53,10 +50,9 @@ export default function LoginPage() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) return;
     setIsLoading(true);
     try {
-        await initiateEmailSignIn(auth, email, password);
+        await signInWithEmail(email, password);
         router.push('/');
     } catch (error) {
         handleAuthError(error);
@@ -66,24 +62,9 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!auth || !firestore) return;
     setIsLoading(true);
     try {
-      const userCredential: UserCredential = await initiateGoogleSignIn(auth);
-      const user = userCredential.user;
-      const userRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-
-      if (!userDoc.exists()) {
-        await setDoc(userRef, {
-            id: user.uid,
-            username: user.displayName,
-            name: user.displayName,
-            email: user.email,
-            avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
-            createdAt: new Date(),
-        });
-      }
+      await signInWithGoogle();
       router.push('/');
     } catch (error) {
       handleAuthError(error);

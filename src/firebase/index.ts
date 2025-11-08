@@ -47,6 +47,8 @@ export * from './client-provider';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './non-blocking-updates';
-export * from './non-blocking-login';
 export * from './errors';
 export * from './error-emitter';
+
+export { useUser } from './hooks/use-user';
+export { useFirestore, useStorage, useFirebaseApp, useMemoFirebase, FirebaseProvider } from './hooks/use-firebase.tsx';

@@ -2,7 +2,7 @@
 'use client';
 import { useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase/hooks/use-firebase';
 import { doc, collection } from 'firebase/firestore';
 import { Post, Comment as CommentType } from '@/lib/types';
 import { ReviewCard } from '@/components/review-card';

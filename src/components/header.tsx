@@ -13,20 +13,17 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { useUser, useAuth } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { PageLoader } from './page-loader';
 import { Skeleton } from './ui/skeleton';
 
 
 export function Header() {
-  const { user: authUser, isUserLoading } = useUser()
-  const auth = useAuth()
+  const { user: authUser, isUserLoading, signOut } = useAuth()
   const router = useRouter();
 
   const handleSignOut = () => {
-    if (auth) {
-      auth.signOut();
-    }
+    signOut();
     router.push('/');
   };
 
@@ -68,8 +65,8 @@ export function Header() {
                         className="relative h-10 w-10 rounded-full"
                       >
                         <Avatar className="h-10 w-10 border-2 border-primary/50">
-                            {authUser.photoURL && <AvatarImage src={authUser.photoURL} alt={authUser.displayName || ''} />}
-                            <AvatarFallback>{authUser.displayName ? authUser.displayName.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+                            {authUser.avatarUrl && <AvatarImage src={authUser.avatarUrl} alt={authUser.name || ''} />}
+                            <AvatarFallback>{authUser.name ? authUser.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
@@ -77,7 +74,7 @@ export function Header() {
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none text-white">
-                            {authUser.displayName}
+                            {authUser.name}
                           </p>
                           <p className="text-xs leading-none text-white/70">
                             {authUser.email}

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useAuth, useFirestore, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
@@ -8,8 +8,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import '../login/styles.css'; 
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-
 
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -22,8 +20,7 @@ const GoogleIcon = () => (
 );
 
 export default function SignupPage() {
-  const auth = useAuth();
-  const firestore = useFirestore();
+  const { signUpWithEmail, signInWithGoogle } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -34,7 +31,6 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firestore || !auth) return;
     if (password.length < 6) {
         toast({
             variant: 'destructive',
@@ -45,16 +41,7 @@ export default function SignupPage() {
     }
     setIsActionLoading(true);
     try {
-      const userCredential = await initiateEmailSignUp(auth, email, password);
-      const user = userCredential.user;
-      await setDoc(doc(firestore, 'users', user.uid), {
-        id: user.uid,
-        username: username,
-        name: username,
-        email: user.email,
-        avatarUrl: `https://i.pravatar.cc/150?u=${user.uid}`,
-        createdAt: new Date(),
-      });
+      await signUpWithEmail(email, password, username);
       router.push('/');
     } catch (error: any) {
       console.error("Sign up failed", error);
@@ -71,7 +58,6 @@ export default function SignupPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!firestore || !auth) return;
     if (!termsAccepted) {
         toast({
             variant: 'destructive',
@@ -82,20 +68,7 @@ export default function SignupPage() {
     }
     setIsActionLoading(true);
     try {
-      const userCredential = await initiateGoogleSignIn(auth);
-      const user = userCredential.user;
-      const userRef = doc(firestore, "users", user.uid);
-      const userDoc = await getDoc(userRef);
-      if (!userDoc.exists()) {
-        await setDoc(userRef, {
-            id: user.uid,
-            username: user.displayName,
-            name: user.displayName,
-            email: user.email,
-            avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
-            createdAt: new Date(),
-        });
-      }
+      await signInWithGoogle();
       router.push('/');
     } catch (error) {
       console.error("Google Sign-In failed", error);
@@ -112,7 +85,7 @@ export default function SignupPage() {
   return (
     <>
     {isActionLoading && <PageLoader />}
-    <div className="login-wrap">
+     <div className="login-wrap">
       <div className="login-html">
         <div className="login-form-container">
             <div className="login-header">
@@ -120,38 +93,39 @@ export default function SignupPage() {
               <p className="text-sm text-white/70">Already have an account? <span><Link href="/login" className="text-primary hover:underline">Sign In</Link></span>
               </p>
             </div>
-            <form name="signup" className="form" onSubmit={handleSignup}>
-              <div className="input-control">
+            <form name="signup" className="login-form" onSubmit={handleSignup}>
+              <div className="group">
+                <label htmlFor="username" className="label">Username</label>
                 <input
                   type="text"
                   name="username"
                   id="username"
                   className="input"
-                  placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
-              <div className="input-control">
+              <div className="group">
+                 <label htmlFor="email" className="label">Email Address</label>
                 <input
                   type="email"
                   name="email"
                   id="email"
                   className="input"
-                  placeholder="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
-              <div className="input-control">
+              <div className="group">
+                <label htmlFor="password" className="label">Password</label>
                 <input
                   type="password"
                   name="password"
                   id="password"
                   className="input"
-                  placeholder="Password (min. 6 characters)"
+                  data-type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -167,23 +141,19 @@ export default function SignupPage() {
                     .
                 </label>
               </div>
-              <div className="input-control">
-                <div/> 
+              <div className="group">
                 <input type="submit" name="submit" className="button" value="Sign Up" disabled={!termsAccepted}/>
               </div>
             </form>
             <div className="hr"></div>
-            <div className="method">
-               <div className="method-control">
-                    <Button variant="outline" className="w-full button flex items-center justify-center gap-2" onClick={handleGoogleSignIn}>
-                        <GoogleIcon />
-                        <span>Sign up with Google</span>
-                    </Button>
-                </div>
+            <div className="group">
+                <button type="button" onClick={handleGoogleSignIn} className="button flex items-center justify-center gap-2" disabled={!termsAccepted}>
+                    <GoogleIcon />
+                    Sign up with Google
+                </button>
             </div>
-          </section>
         </div>
-      </main>
+      </div>
     </div>
     </>
   );

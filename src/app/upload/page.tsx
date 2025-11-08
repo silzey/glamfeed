@@ -1,7 +1,6 @@
 'use client';
 import { useState, useRef } from "react";
-import { useAuth } from "@/firebase";
-import { useFirestore, useStorage } from "@/firebase";
+import { useAuth, useFirestore, useStorage } from "@/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, serverTimestamp } from "firebase/firestore";
 import { Button } from "@/components/ui/button";

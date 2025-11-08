@@ -1,12 +1,12 @@
 'use client';
 
-import { FirebaseClientProvider } from '@/firebase';
+import { AuthClientProvider } from '@/firebase/client-provider';
 import { WishlistProvider } from '@/context/wishlist-context';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <FirebaseClientProvider>
+    <AuthClientProvider>
       <WishlistProvider>{children}</WishlistProvider>
-    </FirebaseClientProvider>
+    </AuthClientProvider>
   );
 }

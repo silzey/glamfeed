@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from './page-loader';
-import { useFirestore, useUser, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useAuth, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 
@@ -22,7 +22,7 @@ type ReviewCardProps = {
 export function ReviewCard({ post }: ReviewCardProps) {
     const router = useRouter();
     const firestore = useFirestore();
-    const { user: currentUser, isUserLoading } = useUser();
+    const { isUserLoading } = useAuth();
     const [isNavigating, setIsNavigating] = useState(false);
     
     const [author, setAuthor] = useState<AppUser | null>(null);

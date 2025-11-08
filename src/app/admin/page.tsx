@@ -1,9 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
-import { useUser, useFirestore, useAuth } from '@/firebase';
+import { useAuth } from '@/firebase';
+import { useFirestore } from '@/firebase/hooks/use-firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { signOut as firebaseSignOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDashboard, FileText, Settings, LogOut, Ban, Award } from 'lucide-react';
@@ -15,8 +15,7 @@ import { cn } from '@/lib/utils';
 type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings';
 
 export default function AdminPage() {
-  const { user: authUser } = useUser();
-  const auth = useAuth();
+  const { user: authUser, signOut } = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
 
@@ -26,13 +25,12 @@ export default function AdminPage() {
   const [reports, setReports] = useState<Report[]>([]);
   
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
   useEffect(() => {
     if (!firestore) return;
-    if (!isAdmin) {
+    if (!authUser?.isAdmin) {
       setLoading(false);
       return;
     }
@@ -63,26 +61,14 @@ export default function AdminPage() {
       unsubPosts();
       unsubReports();
     };
-  }, [firestore, isAdmin]);
+  }, [firestore, authUser?.isAdmin]);
   
   useEffect(() => {
-    if (!firestore || !authUser) {
-      setIsAdmin(false);
+    if (authUser === null) {
       setLoading(false);
-      return;
     }
-    setLoading(true);
-    let mounted = true;
-    const check = async () => {
-      const uRef = doc(firestore, 'users', authUser.uid);
-      const uSnap = await getDoc(uRef);
-      if (!mounted) return;
-      setIsAdmin(!!uSnap.data()?.isAdmin);
-      setLoading(false);
-    };
-    check();
-    return () => { mounted = false; };
-  }, [firestore, authUser]);
+  }, [authUser]);
+
 
   // --- User Actions ---
   const toggleFreezeUser = async (userId: string, freeze: boolean) => {
@@ -115,7 +101,7 @@ export default function AdminPage() {
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
-  if (!isAdmin) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
+  if (!authUser?.isAdmin) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
@@ -150,7 +136,7 @@ export default function AdminPage() {
                 ))}
             </nav>
             <div className="px-2 py-4">
-                <button onClick={() => auth && firebaseSignOut(auth)} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-500/10 hover:text-red-500">
+                <button onClick={() => signOut()} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-500/10 hover:text-red-500">
                     <LogOut className="h-5 w-5" />
                     Sign Out
                 </button>

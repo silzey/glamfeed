@@ -1,18 +1,19 @@
 
 'use client';
 import { useState, useEffect } from 'react';
-import type { Comment, AppUser } from '@/lib/types';
+import type { Comment } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from './page-loader';
-import { useFirestore, useUser, updateDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore, updateDocumentNonBlocking } from '@/firebase';
 import { doc, getDoc, increment } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { AppUser } from '@/firebase/provider';
 
 
 type CommentCardProps = {
@@ -22,7 +23,7 @@ type CommentCardProps = {
 export default function CommentCard({ comment }: CommentCardProps) {
     const router = useRouter();
     const firestore = useFirestore();
-    const { user: currentUser, isUserLoading } = useUser();
+    const { user: currentUser, isUserLoading } = useAuth();
     const { toast } = useToast();
     const [isNavigating, setIsNavigating] = useState(false);
     const [author, setAuthor] = useState<AppUser | null>(null);
