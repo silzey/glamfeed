@@ -45,6 +45,10 @@ export default function AdminPage() {
   // New Post State
   const [newPostCaption, setNewPostCaption] = useState('');
   const [newPostFile, setNewPostFile] = useState<File | null>(null);
+  const [newPostMediaUrl, setNewPostMediaUrl] = useState('');
+  const [newPostCtaText, setNewPostCtaText] = useState('');
+  const [newPostCtaLink, setNewPostCtaLink] = useState('');
+  const [newPostType, setNewPostType] = useState<string>('standard');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -101,54 +105,79 @@ export default function AdminPage() {
     toast({ title: 'Post deleted' });
   };
   
-  const handleCreatePost = () => {
-    if (!newPostFile || !storage || !firestore || !authUser) {
-      toast({ variant: 'destructive', title: 'Please select a file to upload.' });
-      return;
-    }
-    setIsUploading(true);
-    setUploadProgress(0);
+  const handleCreatePost = async () => {
+      if (!firestore || !authUser || !storage) return;
+      if (!newPostFile && !newPostMediaUrl) {
+          toast({ variant: 'destructive', title: 'Please provide media', description: 'Upload a file or enter a media URL.' });
+          return;
+      }
 
-    const fileName = `admin_${authUser.uid}_${Date.now()}`;
-    const storageRef = ref(storage, `feed/${fileName}`);
-    const uploadTask = uploadBytesResumable(storageRef, newPostFile);
+      setIsUploading(true);
+      setUploadProgress(0);
 
-    uploadTask.on('state_changed', (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      setUploadProgress(progress);
-    }, (error) => {
-      console.error("Upload failed:", error);
-      toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
-      setIsUploading(false);
-    }, async () => {
       try {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        
-        const postData: Post = {
-          userId: authUser.uid,
-          caption: newPostCaption,
-          mediaUrl: downloadURL,
-          createdAt: serverTimestamp(),
-          visible: true,
-          likesCount: 0,
-          commentsCount: 0,
-          adminUpload: true,
-        };
+          let finalMediaUrl = newPostMediaUrl;
 
-        addDocumentNonBlocking(collection(firestore, 'feed'), postData);
+          if (newPostFile) {
+              const fileName = `admin_${authUser.uid}_${Date.now()}`;
+              const storageRef = ref(storage, `feed/${fileName}`);
+              const uploadTask = uploadBytesResumable(storageRef, newPostFile);
 
-        toast({ title: 'Post created successfully!' });
-        // Reset form
-        setNewPostCaption('');
-        setNewPostFile(null);
-        if(fileInputRef.current) fileInputRef.current.value = '';
+              await new Promise<void>((resolve, reject) => {
+                  uploadTask.on('state_changed',
+                      (snapshot) => {
+                          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                          setUploadProgress(progress);
+                      },
+                      (error) => {
+                          console.error("Upload failed:", error);
+                          toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
+                          setIsUploading(false);
+                          reject(error);
+                      },
+                      async () => {
+                          finalMediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                          resolve();
+                      }
+                  );
+              });
+          }
+          
+          if (!finalMediaUrl) {
+            throw new Error("Media URL could not be generated.");
+          }
+
+          const postData: Post = {
+              userId: authUser.uid,
+              caption: newPostCaption,
+              mediaUrl: finalMediaUrl,
+              createdAt: serverTimestamp(),
+              visible: true,
+              likesCount: 0,
+              commentsCount: 0,
+              adminUpload: true,
+              postType: newPostType,
+              ctaText: newPostCtaText,
+              ctaLink: newPostCtaLink,
+          };
+
+          addDocumentNonBlocking(collection(firestore, 'feed'), postData);
+
+          toast({ title: 'Post created successfully!' });
+          // Reset form
+          setNewPostCaption('');
+          setNewPostFile(null);
+          setNewPostMediaUrl('');
+          setNewPostCtaText('');
+          setNewPostCtaLink('');
+          setNewPostType('standard');
+          if (fileInputRef.current) fileInputRef.current.value = '';
 
       } catch (err: any) {
-        toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
+          toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
       } finally {
-        setIsUploading(false);
+          setIsUploading(false);
       }
-    });
   };
 
 
@@ -339,30 +368,91 @@ export default function AdminPage() {
                      <div>
                         <h1 className="text-3xl font-bold mb-6">Post Management</h1>
                         
-                        <section className="glass-card p-6 mb-6">
-                            <h2 className="font-semibold text-lg mb-4">📢 Upload New Post to Feed</h2>
-                        
+                        <section className="glass-card p-6 mb-8">
+                            <h2 className="font-semibold text-xl mb-4">📢 Creator Studio</h2>
                             <div className="space-y-4">
-                               <div className="flex flex-col md:flex-row gap-3">
-                                <Input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*,video/*"
-                                    onChange={(e) => setNewPostFile(e.target.files?.[0] || null)}
-                                    className="bg-black/40 border-white/20 file:text-primary file:font-semibold"
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Write a caption..."
-                                    value={newPostCaption}
-                                    onChange={(e) => setNewPostCaption(e.target.value)}
-                                    className="bg-black/40 border-white/20 flex-1"
-                                />
-                                <Button onClick={handleCreatePost} disabled={isUploading}>
-                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Publishing...</> : "Publish"}
-                                </Button>
+                                <div>
+                                    <label className="text-sm font-medium text-white/80">Media</label>
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                                        <Input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*,video/*"
+                                            onChange={(e) => {
+                                                setNewPostFile(e.target.files?.[0] || null);
+                                                if (e.target.files?.[0]) setNewPostMediaUrl(''); // Clear URL if file is selected
+                                            }}
+                                            className="bg-black/40 border-white/20 file:text-primary file:font-semibold flex-1"
+                                        />
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-white/50">or</span>
+                                            <Input
+                                                type="text"
+                                                placeholder="Enter Media URL"
+                                                value={newPostMediaUrl}
+                                                onChange={(e) => {
+                                                    setNewPostMediaUrl(e.target.value);
+                                                    if (e.target.value && fileInputRef.current) {
+                                                        setNewPostFile(null); // Clear file if URL is entered
+                                                        fileInputRef.current.value = '';
+                                                    }
+                                                }}
+                                                className="bg-black/40 border-white/20 flex-1"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-white/80">Caption</label>
+                                    <Textarea
+                                        placeholder="Write a caption for your post..."
+                                        value={newPostCaption}
+                                        onChange={(e) => setNewPostCaption(e.target.value)}
+                                        className="bg-black/40 border-white/20 mt-1"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="text-sm font-medium text-white/80">Call to Action (Optional)</label>
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                                        <Input
+                                            type="text"
+                                            placeholder="Button Text (e.g., 'Shop Now')"
+                                            value={newPostCtaText}
+                                            onChange={(e) => setNewPostCtaText(e.target.value)}
+                                            className="bg-black/40 border-white/20"
+                                        />
+                                        <Input
+                                            type="url"
+                                            placeholder="https://example.com"
+                                            value={newPostCtaLink}
+                                            onChange={(e) => setNewPostCtaLink(e.target.value)}
+                                            className="bg-black/40 border-white/20"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                     <label className="text-sm font-medium text-white/80">Post Type</label>
+                                     <Select onValueChange={setNewPostType} value={newPostType}>
+                                        <SelectTrigger className="w-full sm:w-[180px] bg-black/40 border-white/20 mt-1">
+                                            <SelectValue placeholder="Select post type" />
+                                        </SelectTrigger>
+                                        <SelectContent className="glass-card">
+                                            <SelectItem value="standard">Standard</SelectItem>
+                                            <SelectItem value="advertisement">Advertisement</SelectItem>
+                                            <SelectItem value="promotion">Promotion</SelectItem>
+                                            <SelectItem value="featured">Featured</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                
                                 {isUploading && <Progress value={uploadProgress} className="h-2" />}
+                                
+                                <Button onClick={handleCreatePost} disabled={isUploading} className="w-full sm:w-auto">
+                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Publishing...</> : "Publish Post"}
+                                </Button>
                             </div>
                         </section>
 
