@@ -1,39 +1,56 @@
 'use client';
-import { reviews, users, products } from '@/lib/data';
-import { ReviewCard } from '@/components/review-card';
-import type { PopulatedReview } from '@/lib/types';
 import { useMemo } from 'react';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase/hooks/use-firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { Post } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ReviewCard } from '@/components/review-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  // In a real app, this data fetching and joining would happen on the server/database.
-  const populatedReviews: PopulatedReview[] = reviews.map(review => {
-    const user = users.find(u => u.id === review.userId)!;
-    const product = products.find(p => p.id === review.productId)!;
-    return { ...review, user, product };
-  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const firestore = useFirestore();
 
-  const posts: Post[] = useMemo(() => {
-    return populatedReviews.map(review => {
-        const image = PlaceHolderImages.find(img => img.id === review.imageId);
-        return {
-            id: review.id,
-            userId: review.userId,
-            caption: review.text,
-            photoUrl: image?.imageUrl,
-            createdAt: review.createdAt,
-        };
-    });
-  }, [populatedReviews]);
+  const postsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'feed'), orderBy('createdAt', 'desc'));
+  }, [firestore]);
 
+  const { data: posts, isLoading } = useCollection<Post>(postsQuery);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto max-w-2xl px-4 py-8">
+        <div className="space-y-8">
+          {[...Array(3)].map((_, i) => (
+             <div key={i} className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
+                <Skeleton className="relative aspect-square w-full rounded" />
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                        <Skeleton className="h-4 w-[200px]" />
+                    </div>
+                </div>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
       <div className="space-y-8">
-        {posts.map(post => (
+        {posts?.map(post => (
           <ReviewCard key={post.id} post={post} />
         ))}
+         {posts?.length === 0 && (
+            <div className="text-center py-20 glass-card">
+                <p className="text-lg text-white/70">The feed is empty.</p>
+                <p className="text-sm text-white/50 mt-2">Be the first to post something!</p>
+            </div>
+         )}
       </div>
     </div>
   );
