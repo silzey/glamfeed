@@ -1,5 +1,4 @@
 
-
 'use client';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/firebase';
@@ -7,14 +6,14 @@ import { useFirestore } from '@/firebase/hooks/use-firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDashboard, FileText, Settings, LogOut, Ban, Award } from 'lucide-react';
+import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDashboard, FileText, Settings, LogOut, Ban, Award, Newspaper, Leaf, Wallet, Landmark, LifeBuoy, HeartPulse, Compass, Banknote, Store, Coins, LineChart, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { AppUser, Post, Report } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { PageLoader } from '@/components/page-loader';
 
 
-type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings' | 'CRM';
+type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings' | 'CRM' | 'CMS (News)' | 'CMS (Yoga)' | 'Wallets' | 'Banking' | 'Support' | 'Terms' | 'CMS (Health)' | 'CMS (Explore)' | 'Cashout' | 'Shop' | 'Coin Shop' | 'Analytics' | 'Podcast';
 
 export default function AdminPage() {
   const { user: authUser, signOut, isUserLoading } = useAuth();
@@ -131,18 +130,36 @@ export default function AdminPage() {
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
+    { name: 'Analytics', icon: LineChart },
     { name: 'CRM', icon: Users },
     { name: 'Users', icon: Users },
     { name: 'Posts', icon: FileText },
     { name: 'Reports', icon: Ban },
+    { name: 'CMS (News)', icon: Newspaper },
+    { name: 'CMS (Yoga)', icon: Leaf },
+    { name: 'CMS (Health)', icon: HeartPulse },
+    { name: 'CMS (Explore)', icon: Compass },
+    { name: 'Shop', icon: Store },
+    { name: 'Coin Shop', icon: Coins },
+    { name: 'Wallets', icon: Wallet },
+    { name: 'Banking', icon: Landmark },
+    { name: 'Cashout', icon: Banknote },
+    { name: 'Podcast', icon: Mic },
+    { name: 'Support', icon: LifeBuoy },
+    { name: 'Terms', icon: FileText },
     { name: 'Notifications', icon: Bell },
     { name: 'Settings', icon: Settings },
+  ];
+  
+  const comingSoonPanels: AdminPanel[] = [
+    'CMS (News)', 'CMS (Yoga)', 'Wallets', 'Banking', 'Support', 'Terms',
+    'CMS (Health)', 'CMS (Explore)', 'Cashout', 'Shop', 'Coin Shop', 'Analytics', 'Podcast'
   ];
 
   return (
     <div className="flex min-h-screen w-full bg-black text-white">
         {/* Sidebar */}
-        <aside className="hidden md:flex flex-col w-64 h-screen bg-black/50 border-r border-primary/20 shadow-lg fixed">
+        <aside className="hidden md:flex flex-col w-64 h-screen bg-black/50 border-r border-primary/20 shadow-lg fixed overflow-y-auto">
             <div className="px-6 py-4 text-2xl font-bold flex items-center gap-2">
                 <ShieldCheck className="text-primary"/>
                 <span>Admin</span>
@@ -162,7 +179,7 @@ export default function AdminPage() {
                     </button>
                 ))}
             </nav>
-            <div className="px-2 py-4">
+            <div className="px-2 py-4 mt-auto">
                 <button onClick={() => signOut()} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-500/10 hover:text-red-500">
                     <LogOut className="h-5 w-5" />
                     Sign Out
@@ -326,12 +343,19 @@ export default function AdminPage() {
                          </div>
                     </div>
                 )}
+                
+                {comingSoonPanels.includes(activePanel as AdminPanel) && (
+                    <div>
+                        <h1 className="text-3xl font-bold mb-6">{activePanel}</h1>
+                        <div className="glass-card p-4">
+                            <p className="text-white/60">This section is under construction.</p>
+                        </div>
+                    </div>
+                )}
             </div>
         </main>
     </div>
   );
 }
 
-
-
-    
+  
