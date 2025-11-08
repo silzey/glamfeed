@@ -1,4 +1,5 @@
 
+
 'use client';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/firebase';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { PageLoader } from '@/components/page-loader';
 
 
-type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings';
+type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings' | 'CRM';
 
 export default function AdminPage() {
   const { user: authUser, signOut, isUserLoading } = useAuth();
@@ -130,6 +131,7 @@ export default function AdminPage() {
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
+    { name: 'CRM', icon: Users },
     { name: 'Users', icon: Users },
     { name: 'Posts', icon: FileText },
     { name: 'Reports', icon: Ban },
@@ -192,9 +194,9 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {activePanel === 'Users' && (
+                {(activePanel === 'Users' || activePanel === 'CRM') && (
                     <div>
-                        <h1 className="text-3xl font-bold mb-6">User Management</h1>
+                        <h1 className="text-3xl font-bold mb-6">{activePanel === 'CRM' ? 'CRM' : 'User Management'}</h1>
                         <div className="glass-card p-4 overflow-x-auto">
                             <table className="w-full text-white text-sm">
                                 <thead className="border-b border-white/10">
@@ -330,3 +332,6 @@ export default function AdminPage() {
   );
 }
 
+
+
+    
