@@ -1,8 +1,9 @@
 'use client';
-import { useState } from "react";
-import { useAuth, useFirestore, useStorage, FirestorePermissionError, errorEmitter } from "@/firebase";
+import { useState, useRef } from "react";
+import { useAuth } from "@/firebase";
+import { useFirestore, useStorage } from "@/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { collection, serverTimestamp } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -18,13 +19,15 @@ export default function FeedUpload() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { user } = useAuth();
   const firestore = useFirestore();
   const storage = useStorage();
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!user) {
       router.push('/login');
       return;
@@ -35,31 +38,30 @@ export default function FeedUpload() {
       return;
     }
 
-    try {
-      setUploading(true);
-      setProgress(0);
+    setUploading(true);
+    setProgress(0);
 
-      const fileName = `${user.uid}_${Date.now()}`;
-      const fileRef = ref(storage, `feed/${fileName}`);
+    const fileName = `${user.uid}_${Date.now()}`;
+    const fileRef = ref(storage, `feed/${fileName}`);
+    const uploadTask = uploadBytesResumable(fileRef, file);
 
-      const uploadTask = uploadBytesResumable(fileRef, file);
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(progress);
-        },
-        (error) => {
-          console.error("Upload failed:", error);
-          toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
-          setUploading(false);
-        },
-        async () => {
+    uploadTask.on(
+      'state_changed',
+      snapshot => {
+        const prog = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(prog);
+      },
+      error => {
+        console.error("Upload failed:", error);
+        toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
+        setUploading(false);
+        setProgress(0);
+      },
+      async () => {
+        try {
           const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
-          
-          const feedCollection = collection(firestore, "feed");
 
-          addDocumentNonBlocking(feedCollection, {
+          addDocumentNonBlocking(collection(firestore, "feed"), {
             userId: user.uid,
             photoUrl,
             caption,
@@ -72,21 +74,18 @@ export default function FeedUpload() {
           toast({ title: 'Post uploaded successfully!' });
           setFile(null);
           setCaption("");
-          setUploading(false);
           setProgress(0);
-          
-          // Clear file input
-          const fileInput = document.getElementById('file-input') as HTMLInputElement;
-          if (fileInput) fileInput.value = '';
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        } catch (err: any) {
+          console.error("Firestore upload failed:", err);
+          toast({ variant: 'destructive', title: 'Post creation failed', description: err.message });
+        } finally {
+          setUploading(false);
         }
-      );
-    } catch (error: any) {
-      console.error("Upload failed:", error);
-      toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
-      setUploading(false);
-    }
+      }
+    );
   };
-  
+
   if (!user) {
       return (
         <div className="container mx-auto max-w-md py-8 mt-16">
@@ -107,6 +106,7 @@ export default function FeedUpload() {
         <div className="space-y-4">
             <Input
             id="file-input"
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
