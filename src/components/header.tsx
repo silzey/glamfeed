@@ -32,7 +32,7 @@ export function Header() {
     router.push('/login');
   }
 
-  const isAdminUser = authUser?.email === 'kim@admincentral.com';
+  const isAdminUser = authUser?.email === 'mcculloughkenya65@gmail.com';
 
   return (
     <>
@@ -148,3 +148,5 @@ export function Header() {
     </>
   );
 }
+
+    
