@@ -40,6 +40,7 @@ import {
   PenTool,
   Camera,
   AppWindow,
+  Shield,
 } from 'lucide-react';
 
 export const socialIcons = [
@@ -81,7 +82,8 @@ export const socialIcons = [
   { name: 'Help', icon: HelpCircle },
   { name: 'Health', icon: HeartPulse },
   { name: 'Growth', icon: TrendingUp },
-  { name: 'Explore', icon: Compass },
+  { namee: 'Explore', icon: Compass },
   { name: 'Creator', icon: PenTool },
   { name: 'Camera', icon: Camera },
+  { name: 'Admin', icon: Shield },
 ];

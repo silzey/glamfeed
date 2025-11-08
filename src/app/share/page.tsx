@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
 const SharePage = () => {
     const router = useRouter();
@@ -26,19 +27,21 @@ const SharePage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {socialIcons.map((item) => {
                         const Icon = item.icon;
+                        const href = item.name === 'Admin' ? '/admin' : '#';
+                        const target = item.name === 'Admin' ? '_self' : '_blank';
 
                         return (
-                            <a
+                            <Link
                                 key={item.name}
-                                href="#"
-                                target="_blank"
+                                href={href}
+                                target={target}
                                 rel="noopener noreferrer"
                                 className="flex flex-col items-center justify-center gap-2 p-4 bg-secondary/30 rounded-lg transition-all transform hover:scale-105 hover:bg-primary/20 hover:text-primary border border-primary/20 hover:border-primary"
                                 title={item.name}
                             >
-                                <Icon className="w-8 h-8 text-primary/80" />
+                                <Icon className="w-8 h-8 text-primary" />
                                 <span className="text-xs text-center">{item.name}</span>
-                            </a>
+                            </Link>
                         );
                     })}
                 </div>
