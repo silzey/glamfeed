@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './styles.css';
 import { useAuth, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
@@ -20,11 +20,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
   
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+
+  // Hide the loader once the component has mounted
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
