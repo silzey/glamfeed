@@ -1,3 +1,4 @@
+
 'use client';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
@@ -48,6 +49,11 @@ export function ReviewCard({ post }: ReviewCardProps) {
             
     }, [post.userId, firestore]);
 
+    const handleNavigation = (path: string) => {
+        setIsNavigating(true);
+        router.push(path);
+    };
+
     if (isUserLoading || !post) {
          return (
             <div className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
@@ -64,12 +70,6 @@ export function ReviewCard({ post }: ReviewCardProps) {
             </div>
         );
     }
-
-    const handleAvatarClick = () => {
-        if (!author?.uid) return;
-        setIsNavigating(true);
-        router.push(`/users/${author.uid}`);
-    };
 
     const getFormattedDate = () => {
       if (!post.createdAt) return 'just now';
@@ -92,7 +92,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
       <span className="glow"></span>
       <div className="inner">
         {post.photoUrl && (
-            <div className="relative aspect-square w-full">
+            <button className="relative aspect-square w-full block" onClick={() => handleNavigation(`/reviews/${post.id}`)}>
                 <Image
                     src={post.photoUrl}
                     alt={post.caption || 'Feed post'}
@@ -100,14 +100,14 @@ export function ReviewCard({ post }: ReviewCardProps) {
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
-            </div>
+            </button>
         )}
 
         <div className={cn("flex flex-col flex-1 justify-between p-4")}>
             <div>
                  <div className="flex flex-row items-center gap-4">
                     {author ? (
-                        <button onClick={handleAvatarClick} className="cursor-pointer" disabled={!author.uid}>
+                        <button onClick={() => handleNavigation(`/users/${author.uid}`)} className="cursor-pointer" disabled={!author.uid}>
                             <Avatar className="border-2 border-white/50 hover:border-primary transition-colors">
                             <AvatarImage src={author.avatarUrl} alt={author.name} />
                             <AvatarFallback>
@@ -119,7 +119,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
                         <Skeleton className="h-10 w-10 rounded-full" />
                     )}
                     <div className="text-shadow-lg">
-                        <button onClick={handleAvatarClick} className="cursor-pointer" disabled={!author?.uid}>
+                        <button onClick={() => handleNavigation(`/users/${author?.uid}`)} className="cursor-pointer" disabled={!author?.uid}>
                             <p className="text-sm text-white/80 hover:underline">{author ? `by ${author.name}`: 'Loading...'}</p>
                         </button>
                     </div>
@@ -139,13 +139,12 @@ export function ReviewCard({ post }: ReviewCardProps) {
                         <Heart className="h-4 w-4" />
                         <span>0</span>
                     </Button>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                    <Button variant="ghost" size="sm" onClick={() => handleNavigation(`/reviews/${post.id}`)} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <MessageCircle className="h-4 w-4" />
                         <span>0</span>
                     </Button>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                    <Button variant="ghost" size="sm" onClick={() => router.push('/share')} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <Share2 className="h-4 w-4" />
-                        <span>0</span>
                     </Button>
                 </div>
             </div>

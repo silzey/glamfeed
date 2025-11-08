@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   name: string;
@@ -16,10 +17,12 @@ export type Comment = {
   userId: string;
   text: string;
   createdAt: string;
+  likes: number;
+  reviewId: string;
 };
 
 export type Review = {
-  id: string;
+  id:string;
   userId: string;
   productId: string;
   rating: number; // 1-5
