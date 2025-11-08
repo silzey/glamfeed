@@ -50,14 +50,9 @@ export function Header() {
           </Link>
             {authUser ? (
               <>
-                <Link href="/upload" passHref>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
-                        <PlusCircle className="h-5 w-5" />
-                    </Button>
-                </Link>
-                 <Link href="/share" passHref>
+                <Link href="/share" passHref>
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
-                        <LayoutGrid className="h-5 w-5" />
+                        <PlusCircle className="h-5 w-5" />
                     </Button>
                 </Link>
                 <DropdownMenu>

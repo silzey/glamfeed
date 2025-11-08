@@ -1,7 +1,7 @@
 'use client';
 import { socialIcons } from '@/components/social-icons';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const SharePage = () => {
