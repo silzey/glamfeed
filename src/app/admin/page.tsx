@@ -29,12 +29,7 @@ export default function AdminPage() {
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
   useEffect(() => {
-    if (isUserLoading || !firestore) return;
-
-    if (!authUser?.isAdmin) {
-      setLoading(false);
-      return;
-    }
+    if (isUserLoading || !firestore || !authUser?.isAdmin) return;
 
     setLoading(true);
 
@@ -95,8 +90,13 @@ export default function AdminPage() {
     setBroadcastMessage('');
   };
 
-  if (loading || isUserLoading) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
-  if (!authUser?.isAdmin) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
+  if (isUserLoading) {
+    return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
+  }
+
+  if (!authUser?.isAdmin) {
+    return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
+  }
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
