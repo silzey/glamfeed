@@ -132,13 +132,12 @@ service cloud.firestore {
      * @description Security rules for public feed posts.
      * @path /feed/{postId}
      * @allow (get, list) Any user can read posts.
-     * @allow (create) Any signed-in user can create a post, if not frozen.
+     * @allow (create) Any signed-in admin user can create a post.
      * @allow (update, delete) Only admins can update or delete posts.
      */
      match /feed/{postId} {
       allow get, list: if true;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
-      allow update, delete: if isAdmin();
+      allow create, update, delete: if isAdmin();
 
       match /comments/{commentId} {
         allow get, list: if true;
