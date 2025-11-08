@@ -1,16 +1,18 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
-import AdminRow from '@/components/admin-row';
 import { useUser, useFirestore, useAuth } from '@/firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut as firebaseSignOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell } from 'lucide-react';
+import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDashboard, FileText, Settings, LogOut, Ban, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { AppUser, Post, Report } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
+
+type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings';
 
 export default function AdminPage() {
   const { user: authUser } = useUser();
@@ -18,6 +20,7 @@ export default function AdminPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
+  const [activePanel, setActivePanel] = useState<AdminPanel>('Dashboard');
   const [users, setUsers] = useState<AppUser[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
@@ -25,10 +28,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   
-  const [adminEmail, setAdminEmail] = useState('');
-  const [isMakingAdmin, setIsMakingAdmin] = useState(false);
-
-  const [feedBlackout, setFeedBlackout] = useState(false);
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
   useEffect(() => {
@@ -85,58 +84,7 @@ export default function AdminPage() {
     return () => { mounted = false; };
   }, [firestore, authUser]);
 
-  const makeAdminClientSide = async (email: string) => {
-    if (!firestore) return;
-    setIsMakingAdmin(true);
-    try {
-      const found = users.find(u => u.email === email);
-      if (!found) throw new Error('User document not found for that email.');
-      const uRef = doc(firestore, 'users', found.uid);
-      await updateDoc(uRef, { isAdmin: true });
-      toast({ title: 'Success', description: `${email} marked as admin.` });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to set admin flag' });
-    } finally {
-      setIsMakingAdmin(false);
-    }
-  };
-
-  const toggleVisibility = async (postId: string, visible: boolean) => {
-    if (!firestore) return;
-    try {
-      const pRef = doc(firestore, 'feed', postId);
-      await updateDoc(pRef, { visible });
-      toast({ title: 'Visibility updated' });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message });
-    }
-  };
-
-  const deletePost = async (postId: string) => {
-    if (!firestore) return;
-    try {
-      await deleteDoc(doc(firestore, 'feed', postId));
-      toast({ title: 'Post deleted' });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message });
-    }
-  };
-
-  const resolveReport = async (reportId: string, postId?: string, deletePostAlso = false) => {
-    if (!firestore) return;
-    try {
-      const rRef = doc(firestore, 'reports', reportId);
-      await updateDoc(rRef, { resolved: true, resolvedAt: new Date() });
-      if (deletePostAlso && postId) {
-        await deleteDoc(doc(firestore, 'feed', postId));
-      }
-      toast({ title: 'Report resolved' });
-    } catch (err: any) {
-      toast({ variant: 'destructive', title: 'Error', description: err.message });
-    }
-  };
-  
-    // --- User Actions ---
+  // --- User Actions ---
   const toggleFreezeUser = async (userId: string, freeze: boolean) => {
     if (!firestore) return;
     await updateDoc(doc(firestore, 'users', userId), { isFrozen: freeze });
@@ -149,15 +97,9 @@ export default function AdminPage() {
   };
   const adjustPoints = async (userId: string, currentPoints: number, amount: number) => {
     if (!firestore) return;
-    await updateDoc(doc(firestore, 'users', userId), { points: (currentPoints || 0) + amount });
-    toast({ title: `Points updated` });
-  };
-
-  // --- Feed Blackout ---
-  const toggleFeedBlackout = async () => {
-    setFeedBlackout(!feedBlackout);
-    // In a real app, this would likely write to a global config document in Firestore
-    toast({ title: feedBlackout ? 'Feed restored' : 'Feed blacked out (simulated)' });
+    const newPoints = (currentPoints || 0) + amount;
+    await updateDoc(doc(firestore, 'users', userId), { points: newPoints });
+    toast({ title: `Points updated to ${newPoints}` });
   };
 
   // --- Broadcast / Notifications ---
@@ -175,118 +117,162 @@ export default function AdminPage() {
   if (loading) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
   if (!isAdmin) return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
 
+  const navItems = [
+    { name: 'Dashboard', icon: LayoutDashboard },
+    { name: 'Users', icon: Users },
+    { name: 'Posts', icon: FileText },
+    { name: 'Reports', icon: Ban },
+    { name: 'Notifications', icon: Bell },
+    { name: 'Settings', icon: Settings },
+  ];
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-black text-white">
-      <Header />
-      <main className="container mx-auto max-w-7xl px-4 pt-20 sm:pt-24 flex-1 pb-16 md:pb-24 space-y-6">
-        <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-3xl font-bold">🔥 Enterprise Admin Console</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => auth && firebaseSignOut(auth)}>Sign out</Button>
-          </div>
-        </div>
-
-        {/* --- Top Level Controls --- */}
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <section className="glass-card p-6">
-              <h2 className="text-xl font-semibold mb-4">Feed Controls</h2>
-              <Button onClick={toggleFeedBlackout} variant={feedBlackout ? 'destructive' : 'default'}>
-                {feedBlackout ? 'Restore Feed' : 'Blackout Feed'}
-              </Button>
-            </section>
-
-            <section className="glass-card p-6">
-              <h2 className="text-xl font-semibold mb-4">Broadcast Message</h2>
-              <div className="flex gap-2">
-                <Input placeholder="Message to all users..." value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} className="bg-black/40"/>
-                <Button onClick={sendBroadcast}><Bell className="mr-2 h-4 w-4" /> Send</Button>
-              </div>
-            </section>
-         </div>
-
-
-        <section className="glass-card p-6 md:p-8">
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-            <div>
-              <h2 className="font-semibold flex items-center gap-2"><ShieldCheck /> Grant Admin</h2>
-              <p className="text-sm text-white/70">This writes `isAdmin: true` to the users document. Secured via Firestore Rules.</p>
+    <div className="flex min-h-screen w-full bg-black text-white">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 h-screen bg-black/50 border-r border-primary/20 shadow-lg fixed">
+            <div className="px-6 py-4 text-2xl font-bold flex items-center gap-2">
+                <ShieldCheck className="text-primary"/>
+                <span>Admin</span>
             </div>
-            <div className="flex gap-2 w-full md:w-auto">
-              <Input value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className="bg-black/40" placeholder="user@example.com" />
-              <Button onClick={() => makeAdminClientSide(adminEmail)} disabled={isMakingAdmin}>{isMakingAdmin ? <Loader2 className="animate-spin" /> : 'Make Admin'}</Button>
+            <nav className="flex-1 px-2 py-4 space-y-2">
+                {navItems.map(item => (
+                    <button 
+                        key={item.name}
+                        onClick={() => setActivePanel(item.name as AdminPanel)}
+                        className={cn(
+                            "w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-colors",
+                            activePanel === item.name ? "bg-primary text-primary-foreground" : "hover:bg-primary/10 hover:text-primary"
+                        )}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        {item.name}
+                    </button>
+                ))}
+            </nav>
+            <div className="px-2 py-4">
+                <button onClick={() => auth && firebaseSignOut(auth)} className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-500/10 hover:text-red-500">
+                    <LogOut className="h-5 w-5" />
+                    Sign Out
+                </button>
             </div>
-          </div>
-        </section>
+        </aside>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 glass-card p-4">
-            <h3 className="font-semibold mb-2">Users ({users.length})</h3>
-            <div className="max-h-[600px] overflow-y-auto pr-2">
-                {users.map(u => (
-                  <AdminRow key={u.uid}>
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <img src={u.avatarUrl || '/avatar-placeholder.png'} className="h-10 w-10 rounded-full object-cover" alt={u.name || u.email}/>
-                          <div>
-                            <div className="text-sm font-medium">{u.name || u.email}</div>
-                            <div className="text-xs text-white/60">{u.email}</div>
-                            <div className="text-xs mt-1 space-x-2">
-                                {u.isAdmin && <span className="font-bold text-primary">ADMIN</span>}
-                                {u.isFrozen && <span className="font-bold text-red-500">FROZEN</span>}
+        {/* Main Content */}
+        <main className="flex-1 md:ml-64">
+            <Header />
+            <div className="container mx-auto max-w-7xl px-4 py-8 pt-24 sm:pt-28 space-y-8">
+
+                {activePanel === 'Dashboard' && (
+                    <div>
+                        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="glass-card p-6">
+                                <h2 className="text-lg font-bold mb-2">Total Users</h2>
+                                <p className="text-4xl font-semibold">{users.length}</p>
                             </div>
-                             <div className="text-xs text-white/60 mt-1">Points: {u.points || 0}</div>
-                          </div>
-                        </div>
-
-                         <div className="flex flex-wrap items-center gap-1 justify-end">
-                            <Button size="sm" variant="outline" onClick={() => toggleFreezeUser(u.uid, !(u.isFrozen || false))}>{u.isFrozen ? <Eye /> : <EyeOff />}</Button>
-                            <Button size="sm" variant="destructive" onClick={() => deleteUser(u.uid)}><Trash2 /></Button>
-                            <Button size="sm" variant="secondary" onClick={() => adjustPoints(u.uid, u.points || 0, 10)}>+10</Button>
-                            <Button size="sm" variant="secondary" onClick={() => adjustPoints(u.uid, u.points || 0, -10)}>-10</Button>
+                            <div className="glass-card p-6">
+                                <h2 className="text-lg font-bold mb-2">Total Posts</h2>
+                                <p className="text-4xl font-semibold">{posts.length}</p>
+                            </div>
+                            <div className="glass-card p-6">
+                                <h2 className="text-lg font-bold mb-2">Active Reports</h2>
+                                <p className="text-4xl font-semibold">{reports.filter(r => !r.resolved).length}</p>
+                            </div>
                         </div>
                     </div>
-                  </AdminRow>
-                ))}
-            </div>
-          </div>
+                )}
 
-          <div className="glass-card p-4">
-            <h3 className="font-semibold mb-2">Recent Posts ({posts.length})</h3>
-             <div className="max-h-[600px] overflow-y-auto pr-2">
-                {posts.map(p => (
-                  <AdminRow key={p.id} actions={<>
-                    <Button size="sm" variant="ghost" onClick={() => toggleVisibility(p.id, !p.visible)} title="Toggle visibility">
-                      {p.visible ? <EyeOff /> : <Eye />}
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)} title="Delete post"><Trash2 /></Button>
-                  </>}>
-                    <div className="text-sm">{p.caption || '—'}</div>
-                    <div className="text-xs text-white/60">by {p.userId} • {p.createdAt?.seconds ? new Date(p.createdAt.seconds * 1000).toLocaleString() : 'just now'}</div>
-                     <div className="text-xs text-white/60">Likes: {p.likeCount || 0} • Comments: {p.commentCount || 0} • Shares: {p.shareCount || 0}</div>
-                  </AdminRow>
-                ))}
-            </div>
-          </div>
+                {activePanel === 'Users' && (
+                    <div>
+                        <h1 className="text-3xl font-bold mb-6">User Management</h1>
+                        <div className="glass-card p-4 overflow-x-auto">
+                            <table className="w-full text-white text-sm">
+                                <thead className="border-b border-white/10">
+                                    <tr className="text-left">
+                                        <th className="p-3">User</th>
+                                        <th className="p-3">Email</th>
+                                        <th className="p-3">Points</th>
+                                        <th className="p-3">Status</th>
+                                        <th className="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {users.map(u => (
+                                    <tr key={u.uid} className="border-b border-white/10 last:border-0 hover:bg-white/5">
+                                        <td className="p-3 flex items-center gap-3">
+                                            <img src={u.avatarUrl || '/avatar-placeholder.png'} className="h-8 w-8 rounded-full object-cover" alt={u.name || u.email}/>
+                                            <span>{u.name || 'N/A'}</span>
+                                        </td>
+                                        <td className="p-3">{u.email}</td>
+                                        <td className="p-3">{u.points || 0}</td>
+                                        <td className="p-3">
+                                            {u.isAdmin && <span className="font-bold text-primary mr-2">ADMIN</span>}
+                                            {u.isFrozen && <span className="font-bold text-red-500">FROZEN</span>}
+                                            {!u.isFrozen && !u.isAdmin && <span className="text-green-400">Active</span>}
+                                        </td>
+                                        <td className="p-3">
+                                            <div className="flex gap-1 justify-end">
+                                                <Button size="sm" variant="ghost" onClick={() => toggleFreezeUser(u.uid, !(u.isFrozen || false))}>
+                                                    <Ban className="h-4 w-4" />
+                                                </Button>
+                                                <Button size="sm" variant="ghost" onClick={() => adjustPoints(u.uid, u.points || 0, 10)}>
+                                                    <Award className="h-4 w-4" />+10
+                                                </Button>
+                                                <Button size="sm" variant="ghost" onClick={() => adjustPoints(u.uid, u.points || 0, -10)}>
+                                                     <Award className="h-4 w-4" />-10
+                                                </Button>
+                                                <Button size="sm" variant="destructive" onClick={() => deleteUser(u.uid)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+                 {activePanel === 'Posts' && (
+                     <div>
+                        <h1 className="text-3xl font-bold mb-6">Post Management</h1>
+                         <div className="glass-card p-4">
+                            <p className="text-white/60">Post management UI coming soon.</p>
+                         </div>
+                    </div>
+                )}
 
-        </div>
-        
-        <div className="glass-card p-4">
-            <h3 className="font-semibold mb-2">Reports ({reports.filter(r => !r.resolved).length})</h3>
-             <div className="max-h-[400px] overflow-y-auto pr-2">
-                {reports.filter(r => !r.resolved).map(r => (
-                  <AdminRow key={r.id} actions={<>
-                    <Button size="sm" variant="outline" onClick={() => resolveReport(r.id)} title="Resolve"><Check /></Button>
-                    <Button size="sm" variant="destructive" onClick={() => resolveReport(r.id, r.postId, true)} title="Delete post & resolve"><Trash2 /></Button>
-                  </>}>
-                    <div className="text-sm">{r.reason || 'Flagged content'}</div>
-                    <div className="text-xs text-white/60">post: {r.postId} • by {r.reporterId} • {r.resolved ? 'resolved' : 'open'}</div>
-                  </AdminRow>
-                ))}
-            </div>
-          </div>
+                 {activePanel === 'Reports' && (
+                     <div>
+                        <h1 className="text-3xl font-bold mb-6">Report Queue</h1>
+                         <div className="glass-card p-4">
+                            <p className="text-white/60">Report management UI coming soon.</p>
+                         </div>
+                    </div>
+                )}
 
-      </main>
+                 {activePanel === 'Notifications' && (
+                     <div>
+                        <h1 className="text-3xl font-bold mb-6">Notifications</h1>
+                         <div className="glass-card p-6">
+                            <h2 className="text-xl font-semibold mb-4">Send Broadcast Message</h2>
+                            <div className="flex gap-2">
+                                <Input placeholder="Message to all users..." value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} className="bg-black/40"/>
+                                <Button onClick={sendBroadcast}><Bell className="mr-2 h-4 w-4" /> Send</Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                 {activePanel === 'Settings' && (
+                     <div>
+                        <h1 className="text-3xl font-bold mb-6">Settings</h1>
+                         <div className="glass-card p-4">
+                            <p className="text-white/60">Global settings UI coming soon.</p>
+                         </div>
+                    </div>
+                )}
+            </div>
+        </main>
     </div>
   );
 }
