@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import './styles.css';
 import { useAuth, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
+import { UserCredential } from 'firebase/auth';
 
 const GoogleIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -21,103 +22,93 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [isLoading, setIsLoading] = useState(false);
   
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
-  // Hide the loader once the component has mounted
-  useEffect(() => {
+  const handleAuthSuccess = (userCredential: UserCredential) => {
+    router.push('/');
     setIsLoading(false);
-  }, []);
+  };
+  
+  const handleAuthError = (error: any, context: 'Sign In' | 'Sign Up' | 'Google Sign In') => {
+    console.error(`${context} Error:`, error);
+    toast({
+      variant: 'destructive',
+      title: `${context} Failed`,
+      description: error.code === 'auth/invalid-credential' 
+        ? 'Invalid email or password. Please try again.'
+        : error.message || 'An unexpected error occurred. Please try again.',
+    });
+    setIsLoading(false);
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
     setIsLoading(true);
-    if (auth) {
-      try {
-        await initiateEmailSignIn(auth, email, password);
-        router.push('/');
-      } catch (error) {
-        setIsLoading(false);
-        console.error("Sign in error:", error);
-        toast({
-          variant: 'destructive',
-          title: 'Login Failed',
-          description: 'Invalid credentials. Please check your email and password, or sign up if you are a new user.'
-        });
-      }
-    } else {
-        setIsLoading(false);
+    try {
+      const userCredential = await initiateEmailSignIn(auth, email, password);
+      handleAuthSuccess(userCredential);
+    } catch (error) {
+      handleAuthError(error, 'Sign In');
     }
+    setIsLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== repeatPassword) {
-      alert("Passwords don't match");
+      toast({ variant: 'destructive', title: "Passwords don't match" });
       return;
     }
+    if (!auth || !firestore) return;
     setIsLoading(true);
-    if (auth && firestore) {
-      try {
-        const userCredential = await initiateEmailSignUp(auth, email, password);
-        if (userCredential && userCredential.user) {
-          const user = userCredential.user;
-          // Create a user document in Firestore
-          const userRef = doc(firestore, 'users', user.uid);
-          await setDoc(userRef, {
-            id: user.uid,
-            username: username,
-            email: user.email,
-            name: username, // Using username as name for simplicity
-            avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
-            createdAt: new Date(),
-          });
-          router.push('/');
-        }
-      } catch (error) {
-        setIsLoading(false);
-        console.error("Sign up error:", error);
-        alert("Could not sign up. Please try again.");
-      }
-    } else {
-        setIsLoading(false);
+    try {
+      const userCredential = await initiateEmailSignUp(auth, email, password);
+      const user = userCredential.user;
+      const userRef = doc(firestore, 'users', user.uid);
+      await setDoc(userRef, {
+        id: user.uid,
+        username: username,
+        email: user.email,
+        name: username,
+        avatarUrl: `https://i.pravatar.cc/150?u=${user.uid}`,
+        createdAt: new Date(),
+      });
+      handleAuthSuccess(userCredential);
+    } catch (error) {
+      handleAuthError(error, 'Sign Up');
     }
+    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
+    if (!auth || !firestore) return;
     setIsLoading(true);
-    if (auth && firestore) {
-       try {
-        const userCredential = await initiateGoogleSignIn(auth);
-        if (userCredential && userCredential.user) {
-          const user = userCredential.user;
-          // Create a user document in Firestore if it doesn't exist
-          const userRef = doc(firestore, 'users', user.uid);
-           const userDoc = await getDoc(userRef);
-           if (!userDoc.exists()) {
-             await setDoc(userRef, {
-                id: user.uid,
-                username: user.displayName,
-                email: user.email,
-                name: user.displayName,
-                avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
-                createdAt: new Date(),
-             });
-           }
-          router.push('/');
-        }
-      } catch (error) {
-        setIsLoading(false);
-        console.error("Google sign in error:", error);
-        alert("Could not sign in with Google. Please try again.");
+    try {
+      const userCredential = await initiateGoogleSignIn(auth);
+      const user = userCredential.user;
+      const userRef = doc(firestore, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          id: user.uid,
+          username: user.displayName,
+          email: user.email,
+          name: user.displayName,
+          avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
+          createdAt: new Date(),
+        });
       }
-    } else {
-        setIsLoading(false);
+      handleAuthSuccess(userCredential);
+    } catch (error) {
+      handleAuthError(error, 'Google Sign In');
     }
+    setIsLoading(false);
   }
 
   return (
@@ -151,7 +142,7 @@ export default function LoginPage() {
                 className="input" 
                 data-type="password" 
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.targe.value)}
                 />
             </div>
             <div className="group">
@@ -159,11 +150,11 @@ export default function LoginPage() {
               <label htmlFor="check"><span className="icon"></span> Keep me Signed in</label>
             </div>
             <div className="group">
-              <input type="submit" className="button" value="Sign In" />
+              <input type="submit" className="button" value="Sign In" disabled={isLoading}/>
             </div>
             <div className="hr"></div>
              <div className="group">
-                <button type="button" onClick={handleGoogleSignIn} className="button flex items-center justify-center gap-2">
+                <button type="button" onClick={handleGoogleSignIn} className="button flex items-center justify-center gap-2" disabled={isLoading}>
                     <GoogleIcon />
                     Sign In with Google
                 </button>
@@ -216,7 +207,7 @@ export default function LoginPage() {
                 />
             </div>
             <div className="group">
-              <input type="submit" className="button" value="Sign Up" />
+              <input type="submit" className="button" value="Sign Up" disabled={isLoading}/>
             </div>
             <div className="hr"></div>
             <div className="foot-lnk">
@@ -229,5 +220,3 @@ export default function LoginPage() {
     </>
   );
 }
-
-    
