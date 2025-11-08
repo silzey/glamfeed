@@ -1,0 +1,259 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the GlamFeed application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's chosen username."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biography or description of the user."
+        },
+        "savedProductIds": {
+          "type": "array",
+          "description": "References to Products saved by the user. (Relationship: User N:N Product)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a cosmetic product.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the cosmetic product."
+        },
+        "brand": {
+          "type": "string",
+          "description": "The brand of the cosmetic product."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the cosmetic product."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the product image.",
+          "format": "uri"
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "The average rating of the product."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "brand"
+      ]
+    },
+    "Review": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Review",
+      "type": "object",
+      "description": "Represents a review of a cosmetic product.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Review entity."
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N Review)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Review)"
+        },
+        "rating": {
+          "type": "number",
+          "description": "The rating given to the product in the review."
+        },
+        "text": {
+          "type": "string",
+          "description": "The text content of the review."
+        },
+        "reviewSummary": {
+          "type": "string",
+          "description": "AI-generated summary of the review text."
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "URLs of images associated with the review.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of when the review was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "userId",
+        "rating",
+        "text",
+        "createdAt"
+      ]
+    },
+    "Comment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Comment",
+      "type": "object",
+      "description": "Represents a comment on a review.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Comment entity."
+        },
+        "reviewId": {
+          "type": "string",
+          "description": "Reference to Review. (Relationship: Review 1:N Comment)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Comment)"
+        },
+        "text": {
+          "type": "string",
+          "description": "The text content of the comment."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of when the comment was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "reviewId",
+        "userId",
+        "text",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. The `userId` parameter corresponds to the Firebase Authentication UID. Includes denormalized `savedProductIds` for efficient access control during product saving.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, matching their Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores cosmetic product information.  No explicit ownership as all users can view all products.  Filtering (if needed) should be done through indexing and query optimization, not security rules.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier for the cosmetic product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/reviews/{reviewId}",
+        "definition": {
+          "entityName": "Review",
+          "schema": {
+            "$ref": "#/backend/entities/Review"
+          },
+          "description": "Stores reviews created by a specific user. The `userId` parameter ensures ownership, and the `reviewId` provides a unique identifier for each review. Includes denormalized `productId` for efficient product association.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (owner) of the review."
+            },
+            {
+              "name": "reviewId",
+              "description": "The unique identifier for the review."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/reviews/{reviewId}/comments/{commentId}",
+        "definition": {
+          "entityName": "Comment",
+          "schema": {
+            "$ref": "#/backend/entities/Comment"
+          },
+          "description": "Stores comments on a specific review.  `userId` and `reviewId` link to the user and review, providing clear ownership and context for the comment. `userId` is also included within the document data. This enables security rules to easily verify ownership of comments and ensure only the owner can delete it.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (owner) of the review."
+            },
+            {
+              "name": "reviewId",
+              "description": "The unique identifier for the review."
+            },
+            {
+              "name": "commentId",
+              "description": "The unique identifier for the comment."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support GlamFeed's core features while adhering to the principles of Authorization Independence, Clarity of Intent, and DBAC (Database-Based Access Control). \n\n1.  **Authorization Independence:** User-specific data like reviews and comments are nested under `/users/{userId}` collections. This ensures that security rules can be written based on the `request.auth.uid` and data within those subcollections, without needing `get()` calls to parent documents. For the N:N relationship between Users and Products (saved products), the `savedProductIds` array is denormalized inside the User document, eliminating the need for additional reads during authorization.\n2.  **Clarity of Intent:** The structure clearly separates different types of data into dedicated collections.  User profiles are stored in `/users/{userId}`, reviews are nested under `/users/{userId}/reviews`, and comments are under `/users/{userId}/reviews/{reviewId}/comments`. This makes the purpose of each collection clear and simplifies security rules.\n3.  **DBAC (No Custom Claims):**  There are no global roles required based on current functionality. Access is determined based on `request.auth.uid` matching the `userId` in relevant documents, or through ownership of the document via the path (`/users/{userId}/...`).\n4.  **QAPs (Rules are not Filters):** The segregation of data into user-specific subcollections directly supports secure `list` operations. Listing reviews under `/users/{userId}/reviews` only requires checking `request.auth.uid == userId`. The structure also enables secure listing of products, since they are global (`/products`).\n\nDenormalization is achieved primarily by embedding authorization information (user ID) within documents to avoid `get()` calls in security rules. This ensures that document creation and modification remain atomic operations, and simplifies the overall security rule set.  Specifically, `productId` and `userId` are present in the Review schema, and `reviewId` and `userId` are present in the Comment schema. The `User.savedProductIds` implements further denormalization.\n\nThe chosen paths directly reflect the user-owned or collaborative nature of the data. For instance, reviews are owned by users (`/users/{userId}/reviews`) while comments are owned by users within the context of a review (`/users/{userId}/reviews/{reviewId}/comments`)."
+  }
+}
