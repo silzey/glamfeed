@@ -43,13 +43,13 @@ export function Header() {
         </Link>
         
         <div className="flex items-center justify-end space-x-2 sm:space-x-4">
-            <Link href="/theme" passHref>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
-                  <Palette className="h-5 w-5" />
-              </Button>
-          </Link>
             {authUser ? (
               <>
+                <Link href="/theme" passHref>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                      <Palette className="h-5 w-5" />
+                  </Button>
+                </Link>
                 <Link href="/share" passHref>
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
                         <PlusCircle className="h-5 w-5" />
@@ -94,9 +94,16 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              <Button onClick={() => router.push('/login')} className="glass-button h-10 sm:h-12 px-4 rounded-full text-sm sm:text-base">
-                Sign In
-              </Button>
+                <>
+                    <Link href="/theme" passHref>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                            <Palette className="h-5 w-5" />
+                        </Button>
+                    </Link>
+                    <Button onClick={() => router.push('/login')} className="glass-button h-10 sm:h-12 px-4 rounded-full text-sm sm:text-base">
+                        Sign In
+                    </Button>
+                </>
             )}
         </div>
       </div>
