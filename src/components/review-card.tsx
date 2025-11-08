@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from './page-loader';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 
@@ -27,17 +27,25 @@ export function ReviewCard({ post }: ReviewCardProps) {
     const [author, setAuthor] = useState<AppUser | null>(null);
     
     useEffect(() => {
-        const fetchAuthor = async () => {
-            if (post.userId && firestore) {
-                const userDoc = await getDoc(doc(firestore, 'users', post.userId));
+        if (!post.userId || !firestore) {
+            return;
+        }
+
+        const docRef = doc(firestore, 'users', post.userId);
+        getDoc(docRef)
+            .then(userDoc => {
                 if (userDoc.exists()) {
                     setAuthor({ uid: userDoc.id, ...userDoc.data() } as AppUser);
                 }
-            }
-        };
-        if (firestore) {
-            fetchAuthor();
-        }
+            })
+            .catch(serverError => {
+                const permissionError = new FirestorePermissionError({
+                    path: docRef.path,
+                    operation: 'get',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            });
+            
     }, [post.userId, firestore]);
 
     if (isUserLoading || !post) {
