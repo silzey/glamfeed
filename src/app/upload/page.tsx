@@ -61,11 +61,11 @@ export default function FeedUpload() {
         try {
           const mediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-          const postData: Post = {
+          const postData: Omit<Post, 'id'> = {
             userId: user.uid,
             mediaUrl,
             caption,
-            visible: true,
+            visible: true, // Ensure all new posts are visible
             createdAt: serverTimestamp(),
             likesCount: 0,
             commentsCount: 0,
@@ -77,6 +77,7 @@ export default function FeedUpload() {
           setFile(null);
           setCaption("");
           if (fileInputRef.current) fileInputRef.current.value = '';
+          router.push('/'); // Redirect to the main feed
         } catch (err: any) {
           console.error("Firestore upload failed:", err);
           toast({ variant: 'destructive', title: 'Post creation failed', description: err.message });
@@ -136,4 +137,3 @@ export default function FeedUpload() {
     </div>
   );
 }
-
