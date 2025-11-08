@@ -33,10 +33,10 @@ const SharePage = () => {
                                 href="#"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex flex-col items-center justify-center gap-2 p-4 bg-secondary/30 rounded-lg transition-all transform hover:scale-105 hover:bg-primary/20 hover:text-primary"
+                                className="flex flex-col items-center justify-center gap-2 p-4 bg-secondary/30 rounded-lg transition-all transform hover:scale-105 hover:bg-primary/20 hover:text-primary border border-primary/20 hover:border-primary"
                                 title={item.name}
                             >
-                                <Icon className="w-8 h-8" />
+                                <Icon className="w-8 h-8 text-primary/80" />
                                 <span className="text-xs text-center">{item.name}</span>
                             </a>
                         );
