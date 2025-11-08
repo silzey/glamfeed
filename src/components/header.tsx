@@ -22,7 +22,6 @@ export function Header() {
   const { user: authUser, isUserLoading } = useUser()
   const auth = useAuth()
   const router = useRouter();
-  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleSignOut = () => {
     if (auth) {
@@ -32,13 +31,11 @@ export function Header() {
   };
 
   const handleSignInClick = () => {
-    setIsNavigating(true);
     router.push('/login');
   }
 
   return (
     <>
-      {isNavigating && <PageLoader />}
       <header className="fixed top-0 z-50 w-full p-2 sm:p-4">
         <div className="container mx-auto flex h-14 sm:h-16 items-center glass-card px-4 sm:px-6">
           <Link href="/" className="mr-auto flex items-center space-x-2">
