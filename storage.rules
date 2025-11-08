@@ -3,19 +3,26 @@ rules_version = '2';
 // These rules apply to the bucket: studio-9439717090-1fb6e.firebasestorage.app
 service firebase.storage {
   match /b/{bucket}/o {
+    
+    // Helper function to check for admin email
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'reellookz@gmail.com';
+    }
 
-    // Rule for all files in the project.
+    // 1. Unrestricted admin access to all storage paths. This rule is checked first.
     match /{allPaths=**} {
-      // 1. The Admin has universal read/write access to all storage paths.
-      allow read, write: if request.auth != null && request.auth.token.email == 'reellookz@gmail.com';
-      
-      // 2. Any user can read files from the 'feed' directory.
-      allow read: if allPaths.matches('feed/.*');
+      allow read, write: if isAdmin();
+    }
 
-      // 3. Authenticated users can create new files in the 'feed' directory.
+    // --- Feed Files ---
+    match /feed/{path=**} {
+      // 2. Any user can read files from the 'feed' directory.
+      allow read: if true;
+
+      // 3. Authenticated (non-admin) users can create new files in the 'feed' directory.
+      // The admin is already covered by the global rule above.
       allow create: if request.auth != null &&
-                       allPaths.matches('feed/.*') &&
-                       request.resource.size < 5 * 1024 * 1024 &&
+                       request.resource.size < 15 * 1024 * 1024 && // Increased limit to 15MB
                        (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
     }
   }

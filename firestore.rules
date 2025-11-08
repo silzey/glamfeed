@@ -17,7 +17,7 @@ service cloud.firestore {
     match /users/{userId} {
       // Any authenticated user can read public user profiles
       allow get: if request.auth != null;
-      // Only the admin can list all users
+      // Only the admin can list all users (covered by the global admin rule)
       allow list: if isAdmin();
       // Users can update their own document
       allow update: if request.auth != null && request.auth.uid == userId;
@@ -32,7 +32,7 @@ service cloud.firestore {
       // Authenticated users can create posts
       allow create: if request.auth != null;
       // Only the author or an admin can update/delete
-      allow update, delete: if isAdmin() || (request.auth != null && request.resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
     }
 
     // --- Reports Collection ---
