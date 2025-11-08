@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -28,7 +28,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <div className="flex min-h-screen w-full flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pt-24">{children}</main>
           </div>
           <Toaster />
         </FirebaseClientProvider>
