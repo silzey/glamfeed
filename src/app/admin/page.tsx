@@ -1,7 +1,6 @@
 
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Header } from '@/components/header';
 import { useAuth } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/use-firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -149,8 +148,7 @@ export default function AdminPage() {
 
         {/* Main Content */}
         <main className="flex-1 md:ml-64">
-            <Header />
-            <div className="container mx-auto max-w-7xl px-4 py-8 pt-24 sm:pt-28 space-y-8">
+            <div className="container mx-auto max-w-7xl px-4 py-8 space-y-8">
 
                 {activePanel === 'Dashboard' && (
                     <div>
