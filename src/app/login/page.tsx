@@ -5,6 +5,7 @@ import { useAuth, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn
 import { useRouter } from 'next/navigation';
 import { setDoc, doc } from 'firebase/firestore';
 import { PageLoader } from '@/components/page-loader';
+import { useToast } from '@/hooks/use-toast';
 
 const GoogleIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 48 48">
@@ -25,18 +26,29 @@ export default function LoginPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
 
   // Hide the loader once the component has mounted
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     if (auth) {
-      initiateEmailSignIn(auth, email, password);
-      router.push('/');
+      try {
+        await initiateEmailSignIn(auth, email, password);
+        router.push('/');
+      } catch (error) {
+        setIsLoading(false);
+        console.error("Sign in error:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: 'Invalid credentials. Please check your email and password, or sign up if you are a new user.'
+        });
+      }
     } else {
         setIsLoading(false);
     }
@@ -61,7 +73,8 @@ export default function LoginPage() {
             username: username,
             email: user.email,
             name: username, // Using username as name for simplicity
-            avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`
+            avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
+            createdAt: new Date(),
           });
           router.push('/');
         }
@@ -75,11 +88,33 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    if (auth) {
-      initiateGoogleSignIn(auth);
-      router.push('/');
+    if (auth && firestore) {
+       try {
+        const userCredential = await initiateGoogleSignIn(auth);
+        if (userCredential && userCredential.user) {
+          const user = userCredential.user;
+          // Create a user document in Firestore if it doesn't exist
+          const userRef = doc(firestore, 'users', user.uid);
+           const userDoc = await getDoc(userRef);
+           if (!userDoc.exists()) {
+             await setDoc(userRef, {
+                id: user.uid,
+                username: user.displayName,
+                email: user.email,
+                name: user.displayName,
+                avatarUrl: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
+                createdAt: new Date(),
+             });
+           }
+          router.push('/');
+        }
+      } catch (error) {
+        setIsLoading(false);
+        console.error("Google sign in error:", error);
+        alert("Could not sign in with Google. Please try again.");
+      }
     } else {
         setIsLoading(false);
     }
@@ -194,3 +229,5 @@ export default function LoginPage() {
     </>
   );
 }
+
+    
