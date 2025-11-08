@@ -130,7 +130,7 @@ service cloud.firestore {
     /**
      * @description Security rules for public feed posts.
      * @path /feed/{postId}
-     * @allow (get, list) Any signed-in user can read posts.
+     * @allow (get, list) Any user can read posts.
      * @allow (create) Any signed-in user can create a post, if not frozen.
      * @allow (update, delete) Only admins can update or delete posts.
      */
