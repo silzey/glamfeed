@@ -6,9 +6,10 @@ service cloud.firestore {
 
     // --- USERS COLLECTION ---
     match /users/{userId} {
-      // Admins can read any user document.
-      // A user can read their own document.
-      allow read: if request.auth.token.email == "reellookz@gmail.com" || request.auth.uid == userId;
+      // Allow anyone to read a single user's public profile data.
+      allow get: if true;
+      // Only admins can list all users. Authenticated users can read their own document.
+      allow list: if request.auth.token.email == "reellookz@gmail.com";
       // Any authenticated user can create their own user document.
       allow create: if request.auth != null;
       // Admins or the user themselves can update/delete their own document.
