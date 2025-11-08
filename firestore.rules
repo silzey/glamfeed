@@ -3,43 +3,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- USERS COLLECTION ---
-    match /users/{userId} {
-      // Allow anyone to read a single user's public profile data.
-      allow get: if true;
-      // Only admins can list all users. Authenticated users can read their own document.
-      allow list: if request.auth.token.email == "reellookz@gmail.com";
-      // Any authenticated user can create their own user document.
-      allow create: if request.auth != null;
-      // Admins or the user themselves can update/delete their own document.
-      allow update, delete: if request.auth.uid == userId || request.auth.token.email == "reellookz@gmail.com";
-    }
-
-    // --- FEED (Posts) ---
-    match /feed/{postId} {
-      allow read: if true; // public feed visible to all
-      allow create: if request.auth != null;
-      allow update, delete: if (
-        // Owner can edit their own posts
-        (resource.data.userId != null && request.auth.uid == resource.data.userId)
-        ||
-        // Admins can edit any post
-        request.auth.token.email == "reellookz@gmail.com"
-      );
-    }
-
-    // --- REPORTS (Flagged content) ---
-    match /reports/{reportId} {
-      allow read, write: if (
-        request.auth != null &&
-        request.auth.token.email == "reellookz@gmail.com"
-      );
-    }
-
-    // --- ANALYTICS, SETTINGS, ETC. ---
-    match /admin/{document=**} {
-      allow read, write: if request.auth.token.email == "reellookz_@gmail.com";
+    match /{document=**} {
+      allow read, write: if request.auth != null; // ✅ only signed-in users
     }
   }
 }
