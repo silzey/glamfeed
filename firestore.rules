@@ -2,9 +2,51 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Helper function to check for admin email
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'reellookz@gmail.com';
+    }
 
+    // Unrestricted admin access to all documents
     match /{document=**} {
-      allow read, write: if request.auth != null; // ✅ only signed-in users
+      allow read, write: if isAdmin();
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      // Any authenticated user can read public user profiles
+      allow get: if request.auth != null;
+      // Only the admin can list all users
+      allow list: if isAdmin();
+      // Users can update their own document
+      allow update: if request.auth != null && request.auth.uid == userId;
+       // Users can create their own document
+      allow create: if request.auth != null;
+    }
+    
+    // --- Feed Collection ---
+    match /feed/{postId} {
+      // Anyone can read the feed
+      allow read: if true;
+      // Authenticated users can create posts
+      allow create: if request.auth != null;
+      // Only the author or an admin can update/delete
+      allow update, delete: if isAdmin() || (request.auth != null && request.resource.data.userId == request.auth.uid);
+    }
+
+    // --- Reports Collection ---
+    match /reports/{reportId} {
+        // Only admin can read/write reports
+        allow read, write: if isAdmin();
+    }
+
+    // --- Broadcasts Collection ---
+    match /broadcasts/{broadcastId} {
+        // Only admin can create broadcasts
+        allow create: if isAdmin();
+        // All authenticated users can read broadcasts
+        allow read: if request.auth != null;
     }
   }
 }
