@@ -19,7 +19,12 @@ service firebase.storage {
                       );
 
       // Allow delete & overwrite by the admin
-      allow delete, update: if request.auth != null && request.auth.token.email == "kim@admincenral.com";
+      allow update, delete: if request.auth != null &&
+                            (
+                                 request.auth.token.email == "kim@admincenral.com"
+                                 ||
+                                 (photoId.matches('admin_.*'))
+                               );
     }
 
     // Allow admin to read/write anywhere in bucket for moderation
