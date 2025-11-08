@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/use-firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -30,14 +30,24 @@ export default function AdminPage() {
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
   const isAdminUser = authUser?.email === 'kim@admincenral.com';
+  
+  const postAuthors = useMemo(() => {
+    const authors = new Map<string, AppUser>();
+    users.forEach(user => {
+        authors.set(user.uid, user);
+    });
+    return authors;
+  }, [users]);
+
 
   useEffect(() => {
-    if (isUserLoading || !firestore || !isAdminUser) {
-      if (!isUserLoading) {
-        setLoading(false);
-      }
+    if (isUserLoading || !firestore) {
       return;
-    };
+    }
+    if(!isAdminUser) {
+        setLoading(false);
+        return;
+    }
 
     setLoading(true);
 
@@ -66,6 +76,18 @@ export default function AdminPage() {
       unsubReports();
     };
   }, [firestore, isAdminUser, isUserLoading]);
+
+  // --- Post Actions ---
+  const togglePostVisibility = async (postId: string, visible: boolean) => {
+    if (!firestore) return;
+    await updateDoc(doc(firestore, 'feed', postId), { visible: visible });
+    toast({ title: visible ? 'Post is now visible' : 'Post has been hidden' });
+  };
+  const deletePost = async (postId: string) => {
+    if (!firestore) return;
+    await deleteDoc(doc(firestore, 'feed', postId));
+    toast({ title: 'Post deleted' });
+  };
 
 
   // --- User Actions ---
@@ -98,7 +120,7 @@ export default function AdminPage() {
     setBroadcastMessage('');
   };
 
-  if (isUserLoading) {
+  if (loading || isUserLoading) {
     return <PageLoader />;
   }
 
@@ -224,9 +246,52 @@ export default function AdminPage() {
                  {activePanel === 'Posts' && (
                      <div>
                         <h1 className="text-3xl font-bold mb-6">Post Management</h1>
-                         <div className="glass-card p-4">
-                            <p className="text-white/60">Post management UI coming soon.</p>
-                         </div>
+                        <div className="glass-card p-4 overflow-x-auto">
+                           <table className="w-full text-white text-sm">
+                                <thead className="border-b border-white/10">
+                                    <tr className="text-left">
+                                        <th className="p-3">Post</th>
+                                        <th className="p-3">Author</th>
+                                        <th className="p-3">Status</th>
+                                        <th className="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {posts.map(p => {
+                                        const author = postAuthors.get(p.userId);
+                                        return (
+                                            <tr key={p.id} className="border-b border-white/10 last:border-0 hover:bg-white/5">
+                                                <td className="p-3 flex items-center gap-3">
+                                                    <img src={p.photoUrl} className="h-10 w-10 rounded-md object-cover" alt="Post content"/>
+                                                    <span className="truncate max-w-xs">{p.caption || 'No caption'}</span>
+                                                </td>
+                                                <td className="p-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <img src={author?.avatarUrl} className="h-6 w-6 rounded-full object-cover" alt={author?.name}/>
+                                                        <span>{author?.name || 'Unknown'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-3">
+                                                    {p.visible === false ? 
+                                                        <span className="font-bold text-red-500">Hidden</span> : 
+                                                        <span className="text-green-400">Visible</span>}
+                                                </td>
+                                                <td className="p-3">
+                                                    <div className="flex gap-1 justify-end">
+                                                        <Button size="sm" variant="ghost" onClick={() => togglePostVisibility(p.id, p.visible === false)}>
+                                                           {p.visible === false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                                        </Button>
+                                                        <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)}>
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                           </table>
+                        </div>
                     </div>
                 )}
 
@@ -264,3 +329,4 @@ export default function AdminPage() {
     </div>
   );
 }
+
