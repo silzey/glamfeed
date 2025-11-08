@@ -54,7 +54,6 @@ export default function FeedUpload() {
         console.error("Upload failed:", error);
         toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
         setUploading(false);
-        setProgress(0);
       },
       async () => {
         try {
@@ -73,13 +72,13 @@ export default function FeedUpload() {
           toast({ title: 'Post uploaded successfully!' });
           setFile(null);
           setCaption("");
-          setProgress(0);
           if (fileInputRef.current) fileInputRef.current.value = '';
         } catch (err: any) {
           console.error("Firestore upload failed:", err);
           toast({ variant: 'destructive', title: 'Post creation failed', description: err.message });
         } finally {
           setUploading(false);
+          setProgress(0);
         }
       }
     );
