@@ -7,10 +7,10 @@ service cloud.firestore {
     // --- USERS COLLECTION ---
     match /users/{userId} {
       // Admins can read all user data, other users can only read.
-      allow read: if request.auth.token.email == "mcculloughkenya65@gmail.com" || request.auth != null;
+      allow read: if request.auth.token.email == "reellookz@gmail.com" || request.auth != null;
       allow create: if request.auth != null;
       // Admins or the user themselves can update/delete.
-      allow update, delete: if request.auth.uid == userId || request.auth.token.email == "mcculloughkenya65@gmail.com";
+      allow update, delete: if request.auth.uid == userId || request.auth.token.email == "reellookz@gmail.com";
     }
 
     // --- FEED (Posts) ---
@@ -22,7 +22,7 @@ service cloud.firestore {
         (resource.data.userId != null && request.auth.uid == resource.data.userId)
         ||
         // Admins can edit any post
-        request.auth.token.email == "mcculloughkenya65@gmail.com"
+        request.auth.token.email == "reellookz@gmail.com"
       );
     }
 
@@ -30,15 +30,16 @@ service cloud.firestore {
     match /reports/{reportId} {
       allow read, write: if (
         request.auth != null &&
-        request.auth.token.email == "mcculloughkenya65@gmail.com"
+        request.auth.token.email == "reellookz@gmail.com"
       );
     }
 
     // --- ANALYTICS, SETTINGS, ETC. ---
     match /admin/{document=**} {
-      allow read, write: if request.auth.token.email == "mcculloughkenya65@gmail.com";
+      allow read, write: if request.auth.token.email == "reellookz_@gmail.com";
     }
   }
 }
 
+    
     

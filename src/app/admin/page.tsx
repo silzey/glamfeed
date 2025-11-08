@@ -54,7 +54,7 @@ export default function AdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
-  const isAdminUser = authUser?.email === 'mcculloughkenya65@gmail.com';
+  const isAdminUser = authUser?.email === 'reellookz@gmail.com';
   
   useEffect(() => {
     if (isUserLoading || !firestore) {
@@ -524,6 +524,8 @@ const handleCreatePost = async () => {
     </div>
   );
 }
+
+    
 
     
 
