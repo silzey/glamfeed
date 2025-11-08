@@ -38,6 +38,8 @@ export type PopulatedReview = Review & {
 export type AppUser = {
   uid: string;
   name?: string;
+  username?: string;
+  email?: string;
   avatarUrl?: string;
   [key: string]: any;
 }
