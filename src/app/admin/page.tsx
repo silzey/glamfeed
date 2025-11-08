@@ -94,10 +94,10 @@ export default function AdminPage() {
   }, [firestore, authUser, isUserLoading, isAdminUser]);
 
   // --- Post Actions ---
-  const togglePostVisibility = async (postId: string, visible: boolean) => {
+  const togglePostVisibility = async (postId: string, currentVisibility: boolean) => {
     if (!firestore) return;
-    await updateDoc(doc(firestore, 'feed', postId), { visible: visible });
-    toast({ title: visible ? 'Post is now visible' : 'Post has been hidden' });
+    await updateDoc(doc(firestore, 'feed', postId), { visible: !currentVisibility });
+    toast({ title: !currentVisibility ? 'Post is now visible' : 'Post has been hidden' });
   };
   const deletePost = async (postId: string) => {
     if (!firestore) return;
@@ -121,7 +121,7 @@ const handleCreatePost = async () => {
             caption: newPostCaption,
             mediaUrl: mediaUrl,
             createdAt: serverTimestamp(),
-            visible: false, // Save as draft
+            visible: true, // Set to true to appear on feed by default
             likesCount: 0,
             commentsCount: 0,
             adminUpload: true,
@@ -132,7 +132,7 @@ const handleCreatePost = async () => {
 
         await addDoc(collection(firestore, 'feed'), postData);
 
-        toast({ title: 'Draft created successfully!', description: 'Review and publish it below.' });
+        toast({ title: 'Post created successfully!', description: 'It is now live on the feed.' });
         
         // Reset form
         setNewPostCaption('');
@@ -453,7 +453,7 @@ const handleCreatePost = async () => {
                                 {isUploading && <Progress value={uploadProgress} className="h-2" />}
                                 
                                 <Button onClick={handleCreatePost} disabled={isUploading} className="w-full sm:w-auto">
-                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving Draft...</> : "Save as Draft"}
+                                    {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Creating Post...</> : "Create Post"}
                                 </Button>
                             </div>
                         </section>
@@ -464,8 +464,8 @@ const handleCreatePost = async () => {
                                 <div key={p.id} className="relative group">
                                     <ReviewCard post={p} />
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 z-20">
-                                        <Button size="sm" variant="secondary" onClick={() => togglePostVisibility(p.id!, p.visible === false)}>
-                                           {p.visible === false ? <><Eye className="mr-2" /> Make Visible</> : <><EyeOff className="mr-2"/> Hide Post</>}
+                                        <Button size="sm" variant="secondary" onClick={() => togglePostVisibility(p.id!, p.visible ?? false)}>
+                                           {p.visible ? <><EyeOff className="mr-2"/> Hide Post</> : <><Eye className="mr-2" /> Make Visible</>}
                                         </Button>
                                         <Button size="sm" variant="destructive" onClick={() => deletePost(p.id!)}>
                                             <Trash2 className="mr-2" /> Delete Post
