@@ -5,7 +5,6 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
-  signInWithPopup,
   GoogleAuthProvider,
   Auth,
 } from 'firebase/auth';
@@ -19,6 +18,7 @@ import {
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { initiateGoogleSignIn } from './non-blocking-login';
 
 // The shape of the user object, extending the base Firebase User
 export type AppUser = User & {
@@ -120,30 +120,7 @@ export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
   
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const firebaseUser = result.user;
-    
-    const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-    const userDoc = await getDoc(userDocRef);
-
-    if (!userDoc.exists()) {
-      // Create user document for new user
-      await setDoc(userDocRef, {
-        id: firebaseUser.uid,
-        name: firebaseUser.displayName || 'New User',
-        username: firebaseUser.email?.split('@')[0] || `user_${Date.now()}`,
-        email: firebaseUser.email,
-        avatarUrl: firebaseUser.photoURL || `https://i.pravatar.cc/150?u=${firebaseUser.uid}`,
-        postCount: 0,
-        totalLikes: 0,
-        totalComments: 0,
-        totalShares: 0,
-        coins: 100, // Welcome bonus
-        isAdmin: false, // Default isAdmin to false for new users
-        createdAt: serverTimestamp(),
-      });
-    }
+    initiateGoogleSignIn(auth);
   };
 
   const signOut = () => {
