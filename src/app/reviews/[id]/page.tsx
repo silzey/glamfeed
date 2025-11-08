@@ -1,6 +1,6 @@
 
 'use client';
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
@@ -14,27 +14,17 @@ export default function ReviewDetailsPage() {
     const id = params.id as string;
     const firestore = useFirestore();
     
-    // We need to find which user created the review to build the path
-    // This is not ideal. A better structure would be a top-level `reviews` collection.
-    // For now, we will assume the post ID is in the format `userId_...` to extract the user ID
-    // This is a temporary workaround.
-    const userId = id.split('_')[0];
-
+    // We are fetching from the top-level 'feed' collection, which is where posts are stored.
     const postRef = useMemoFirebase(() => {
-        if (!firestore || !userId || !id) return null;
-        // This path is incorrect based on backend.json, but we're trying to match what might exist
-        // A better structure would be a top-level reviews collection.
-        // Assuming review `id` might be the doc id in a top level `feed` collection for now.
-        // The prompt implies a Post object from `feed` is what's being clicked.
+        if (!firestore || !id) return null;
         return doc(firestore, 'feed', id);
     }, [firestore, id]);
 
     const { data: post, isLoading: isPostLoading } = useDoc<Post>(postRef);
 
+    // Comments are stored in a subcollection under each post in the 'feed'.
     const commentsRef = useMemoFirebase(() => {
         if (!firestore || !post) return null;
-        // This path is also a guess. The backend.json shows comments nested under /users/{userId}/reviews/{reviewId}
-        // But the Post object doesn't have a reviewId. We'll assume a `comments` subcollection on the `feed` post.
         return collection(firestore, 'feed', post.id, 'comments');
     }, [firestore, post]);
 
