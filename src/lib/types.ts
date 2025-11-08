@@ -1,4 +1,5 @@
 
+
 export type User = {
   id: string;
   name: string;
@@ -16,7 +17,7 @@ export type Comment = {
   id: string;
   userId: string;
   text: string;
-  createdAt: string;
+  createdAt: any;
   likes: number;
   reviewId: string;
 };
@@ -44,6 +45,7 @@ export type AppUser = {
   username?: string;
   email?: string;
   avatarUrl?: string;
+  isAdmin?: boolean;
   [key: string]: any;
 }
 
@@ -53,4 +55,15 @@ export type Post = {
     caption: string;
     photoUrl?: string;
     createdAt: any; // Can be a Date or a Firebase Timestamp
+    visible?: boolean;
+}
+
+export type Report = {
+    id: string;
+    postId: string;
+    reporterId: string;
+    reason: string;
+    createdAt: any;
+    resolved: boolean;
+    resolvedAt?: any;
 }

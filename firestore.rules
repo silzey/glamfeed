@@ -3,19 +3,23 @@
  *
  * Core Philosophy: This ruleset enforces a strict user-ownership model for user profiles, reviews, and comments.
  * Products are publicly readable.  All write operations require authentication and proper authorization.
+ * Admin users have special privileges.
  *
  * Data Structure:
  * - /users/{userId}: User profile information, owned by the user with matching UID.
  * - /products/{productId}: Publicly accessible product information.  No write access.
  * - /users/{userId}/reviews/{reviewId}: Reviews created by a specific user.
  * - /users/{userId}/reviews/{reviewId}/comments/{commentId}: Comments on reviews, owned by the user.
+ * - /feed/{postId}: Public feed posts.
+ * - /reports/{reportId}: Reports on posts.
  *
  * Key Security Decisions:
  * - Users can only write to their own profile data, but anyone can read it.
+ * - Admins can write to any user's profile data.
  * - Product data is publicly readable but not writable through the API.
  * - Reviews and comments can only be created, updated, or deleted by their respective owners.
- * - Listing operations are secured within user-owned subcollections.
- * - No global admin roles are implemented.
+ * - Feed posts can be created by any signed-in user, but only modified/deleted by admins.
+ * - Reports can be created by any signed-in user. Only admins can update/delete them.
  *
  * Denormalization for Authorization:
  * - Reviews contain the `userId` of the author.
@@ -31,6 +35,14 @@ service cloud.firestore {
      */
     function isSignedIn() {
       return request.auth != null;
+    }
+    
+    /**
+     * @description Checks if the signed-in user is an admin.
+     * @return {bool} True if the user is an admin, false otherwise.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
     /**
@@ -54,20 +66,15 @@ service cloud.firestore {
     /**
      * @description Security rules for user profiles.
      * @path /users/{userId}
-     * @allow (get) Any user can view a profile.
+     * @allow (get, list) Any user can view a profile.
      * @allow (create) Signed-in user creates their own profile.
-     * @allow (update, delete) Signed-in user accesses their own profile.
-     * @deny (create) Signed-in user attempts to create a profile with a mismatched userId.
-     * @deny (update, delete) Signed-in user attempts to access another user's profile.
-     * @principle Enforces document ownership for user profiles on write, public read.
+     * @allow (update, delete) Signed-in user accesses their own profile OR is an admin.
      */
     match /users/{userId} {
-      allow get: if true;
-      allow list: if false; // Prevent listing all users
-
+      allow get, list: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      allow update: if (isExistingOwner(userId) && request.resource.data.id == resource.data.id) || isAdmin();
+      allow delete: if isExistingOwner(userId) || isAdmin();
     }
 
     /**
@@ -75,7 +82,6 @@ service cloud.firestore {
      * @path /products/{productId}
      * @allow (get, list) Any user can read product information.
      * @deny (create, update, delete) No user can create, update, or delete product information through the API.
-     * @principle Public read access, no write access.
      */
     match /products/{productId} {
       allow get, list: if true;
@@ -89,15 +95,12 @@ service cloud.firestore {
      * @allow (get, list, update, delete) Signed-in user accesses their own reviews.
      * @deny (create) Signed-in user attempts to create a review under a different user ID.
      * @deny (get, list, update, delete) Signed-in user attempts to access another user's reviews.
-     * @principle Enforces document ownership for reviews.
      */
     match /users/{userId}/reviews/{reviewId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-
+      allow get, list: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
+      allow update: if (isExistingOwner(userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
+      allow delete: if isExistingOwner(userId) || isAdmin();
     }
 
     /**
@@ -105,17 +108,40 @@ service cloud.firestore {
      * @path /users/{userId}/reviews/{reviewId}/comments/{commentId}
      * @allow (create) Signed-in user creates a comment on a review.
      * @allow (get, list, update, delete) Signed-in user accesses their own comments.
-     * @deny (create) Signed-in user attempts to create a comment with a mismatched userId or reviewId.
-     * @deny (get, list, update, delete) Signed-in user attempts to access another user's comments.
-     * @principle Enforces document ownership for comments within a specific review.
      */
     match /users/{userId}/reviews/{reviewId}/comments/{commentId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-
+      allow get, list: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
+      allow update: if (isExistingOwner(userId) && request.resource.data.userId == resource.data.userId) || isAdmin();
+      allow delete: if isExistingOwner(userId) || isAdmin();
     }
+    
+    /**
+     * @description Security rules for public feed posts.
+     * @path /feed/{postId}
+     * @allow (list) Any user can list visible posts.
+     * @allow (get) Any user can get a visible post, or an admin can get any post.
+     * @allow (create) Any signed in user can create a post.
+     * @allow (update, delete) Only admins can update or delete posts.
+     */
+    match /feed/{postId} {
+      allow list: if isSignedIn();
+      allow get: if resource.data.visible == true || isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+    
+    /**
+     * @description Security rules for reports.
+     * @path /reports/{reportId}
+     * @allow (list, get) Only admins can read reports.
+     * @allow (create) Any signed-in user can create a report.
+     * @allow (update, delete) Only admins can modify or delete reports.
+     */
+     match /reports/{reportId} {
+       allow list, get: if isAdmin();
+       allow create: if isSignedIn() && request.resource.data.reporterId == request.auth.uid;
+       allow update, delete: if isAdmin();
+     }
   }
 }
