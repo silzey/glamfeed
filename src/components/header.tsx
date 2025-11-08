@@ -3,10 +3,8 @@ import { useState } from 'react';
 import {
   Palette,
   PlusCircle,
-  User,
   LogOut,
   Gem,
-  LayoutGrid,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,7 +58,7 @@ export function Header() {
                         <Palette className="h-5 w-5" />
                     </Button>
                   </Link>
-                  <Link href="/share" passHref>
+                  <Link href="/upload" passHref>
                       <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
                           <PlusCircle className="h-5 w-5" />
                       </Button>
@@ -90,11 +88,17 @@ export function Header() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-white/20"/>
                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/upload">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            <span>Create Post</span>
+                        <Link href="/share">
+                            <Gem className="mr-2 h-4 w-4" />
+                            <span>Share</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="text-primary focus:bg-white/10 focus:text-primary cursor-pointer">
+                       <Link href="/upload">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <span>Create Post</span>
+                      </Link>
+                    </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-white/20"/>
                       <DropdownMenuItem onClick={handleSignOut} className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
                         <LogOut className="mr-2 h-4 w-4" />
@@ -110,7 +114,7 @@ export function Header() {
                               <Palette className="h-5 w-5" />
                           </Button>
                       </Link>
-                       <Link href="/share" passHref>
+                       <Link href="/upload" passHref>
                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
                               <PlusCircle className="h-5 w-5" />
                           </Button>
