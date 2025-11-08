@@ -86,7 +86,7 @@ service cloud.firestore {
       allow get, list: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       // Allow user to update their own non-admin fields. Admin can update anything.
-      allow update: if (isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
       allow delete: if isOwner(userId) || isAdmin();
     }
 
@@ -134,7 +134,7 @@ service cloud.firestore {
      * @allow (create) Any signed-in user can create a post, if not frozen.
      * @allow (update, delete) Only admins can update or delete posts.
      */
-    match /feed/{postId} {
+     match /feed/{postId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
       allow update, delete: if isAdmin();
