@@ -130,14 +130,12 @@ service cloud.firestore {
     /**
      * @description Security rules for public feed posts.
      * @path /feed/{postId}
-     * @allow (list) Any user can list visible posts.
-     * @allow (get) Any user can get a visible post, or an admin can get any post.
-     * @allow (create) Any signed in user can create a post, if not frozen.
+     * @allow (get, list) Any signed-in user can read posts.
+     * @allow (create) Any signed-in user can create a post, if not frozen.
      * @allow (update, delete) Only admins can update or delete posts.
      */
     match /feed/{postId} {
-      allow list: if isSignedIn();
-      allow get: if resource.data.visible == true || isAdmin();
+      allow get, list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && isNotFrozen(request.auth.uid);
       allow update, delete: if isAdmin();
     }
