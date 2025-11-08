@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
@@ -10,6 +11,7 @@ import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDa
 import { useToast } from '@/hooks/use-toast';
 import type { AppUser, Post, Report } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { PageLoader } from '@/components/page-loader';
 
 
 type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings';
@@ -28,8 +30,15 @@ export default function AdminPage() {
   
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
+  const isAdminUser = authUser?.email === 'kim@admincenral.com';
+
   useEffect(() => {
-    if (isUserLoading || !firestore || !authUser?.isAdmin) return;
+    if (isUserLoading || !firestore || !isAdminUser) {
+      if (!isUserLoading) {
+        setLoading(false);
+      }
+      return;
+    };
 
     setLoading(true);
 
@@ -57,7 +66,7 @@ export default function AdminPage() {
       unsubPosts();
       unsubReports();
     };
-  }, [firestore, authUser?.isAdmin, isUserLoading]);
+  }, [firestore, isAdminUser, isUserLoading]);
 
 
   // --- User Actions ---
@@ -91,10 +100,10 @@ export default function AdminPage() {
   };
 
   if (isUserLoading) {
-    return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>;
+    return <PageLoader />;
   }
 
-  if (!authUser?.isAdmin) {
+  if (!isAdminUser) {
     return <div className="flex items-center justify-center min-h-screen bg-black text-white">Access Denied.</div>;
   }
 

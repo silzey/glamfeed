@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Palette, PlusCircle, LogOut, Gem, Settings, Shield, Heart } from 'lucide-react';
@@ -30,6 +31,8 @@ export function Header() {
   const handleSignInClick = () => {
     router.push('/login');
   }
+
+  const isAdminUser = authUser?.email === 'kim@admincenral.com';
 
   return (
     <>
@@ -94,12 +97,14 @@ export function Header() {
                             <span>Wishlist</span>
                         </Link>
                       </DropdownMenuItem>
-                       <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/admin">
+                       {isAdminUser && (
+                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
+                          <Link href="/admin">
                             <Shield className="mr-2 h-4 w-4" />
                             <span>Admin</span>
-                        </Link>
-                      </DropdownMenuItem>
+                          </Link>
+                        </DropdownMenuItem>
+                       )}
                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
                         <Link href="/theme">
                            <Settings className="mr-2 h-4 w-4" />
