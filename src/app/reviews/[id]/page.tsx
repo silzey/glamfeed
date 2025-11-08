@@ -25,7 +25,10 @@ export default function ReviewDetailsPage() {
     // Comments are stored in a subcollection under each post in the 'feed'.
     const commentsRef = useMemoFirebase(() => {
         if (!firestore || !post) return null;
-        return collection(firestore, 'feed', post.id, 'comments');
+        // This path is incorrect for the nested structure.
+        // It should probably be /feed/{postId}/comments/{commentId}
+        // Let's assume for now comments are nested under posts in the 'feed' collection.
+        return collection(firestore, 'feed', post.id!, 'comments');
     }, [firestore, post]);
 
     const { data: comments, isLoading: areCommentsLoading } = useCollection<CommentType>(commentsRef);
@@ -56,9 +59,12 @@ export default function ReviewDetailsPage() {
                 <ReviewCard post={post} />
                 <div className="glass-card p-4 sm:p-6">
                     <h2 className="text-lg font-semibold mb-4 text-white">Comments</h2>
-                    <CommentList comments={comments || []} />
+                    {/* The comment list needs to be wired up to a subcollection on the post */}
+                    <p className="text-white/50">Comment functionality is under construction.</p>
+                    {/* <CommentList comments={comments || []} /> */}
                 </div>
             </div>
         </div>
     );
 }
+

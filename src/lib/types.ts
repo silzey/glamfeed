@@ -55,16 +55,16 @@ export type Post = {
     id?: string;
     userId: string;
     caption: string;
-    photoUrl?: string;
-    videoUrl?: string;
+    mediaUrl?: string;
     createdAt: any; // Can be a Date or a Firebase Timestamp
     visible?: boolean;
-    likeCount?: number;
-    commentCount?: number;
+    likesCount?: number;
+    commentsCount?: number;
     shareCount?: number;
     postType?: 'standard' | 'sponsored' | 'featured' | 'advertisement' | string;
     ctaText?: string;
     ctaLink?: string;
+    adminUpload?: boolean;
 }
 
 export type Report = {

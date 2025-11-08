@@ -112,9 +112,8 @@ export default function AdminPage() {
     setIsUploading(true);
     setUploadProgress(0);
 
-    const fileType = newPostFile.type.startsWith('video') ? 'videos' : 'images';
     const fileName = `admin_${authUser.uid}_${Date.now()}`;
-    const storageRef = ref(storage, `feed/${fileType}/${fileName}`);
+    const storageRef = ref(storage, `feed/${fileName}`);
     const uploadTask = uploadBytesResumable(storageRef, newPostFile);
 
     uploadTask.on('state_changed', (snapshot) => {
@@ -131,19 +130,15 @@ export default function AdminPage() {
         const postData: Post = {
           userId: authUser.uid,
           caption: newPostCaption,
+          mediaUrl: downloadURL,
           createdAt: serverTimestamp(),
           visible: true,
-          likeCount: 0,
-          commentCount: 0,
+          likesCount: 0,
+          commentsCount: 0,
           shareCount: 0,
           postType: newPostType,
+          adminUpload: true,
         };
-
-        if (fileType === 'videos') {
-          postData.videoUrl = downloadURL;
-        } else {
-          postData.photoUrl = downloadURL;
-        }
 
         if(newPostCtaLink && newPostCtaText) {
             postData.ctaLink = newPostCtaLink;
@@ -388,10 +383,10 @@ export default function AdminPage() {
                                 <div key={p.id} className="relative group">
                                     <ReviewCard post={p} />
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 z-20">
-                                        <Button size="sm" variant="secondary" onClick={() => togglePostVisibility(p.id, p.visible === false)}>
+                                        <Button size="sm" variant="secondary" onClick={() => togglePostVisibility(p.id!, p.visible === false)}>
                                            {p.visible === false ? <><Eye className="mr-2" /> Make Visible</> : <><EyeOff className="mr-2"/> Hide Post</>}
                                         </Button>
-                                        <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)}>
+                                        <Button size="sm" variant="destructive" onClick={() => deletePost(p.id!)}>
                                             <Trash2 className="mr-2" /> Delete Post
                                         </Button>
                                          <p className="text-xs text-white/50 absolute bottom-2">{p.id}</p>

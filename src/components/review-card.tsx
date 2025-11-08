@@ -30,6 +30,9 @@ export function ReviewCard({ post }: ReviewCardProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isMuted, setIsMuted] = useState(true);
 
+    const isVideo = post.mediaUrl && (post.mediaUrl.includes('.mp4') || post.mediaUrl.includes('.mov') || post.mediaUrl.includes('video'));
+
+
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.muted = isMuted;
@@ -103,14 +106,14 @@ export function ReviewCard({ post }: ReviewCardProps) {
     <div className={cn("glass-card h-full flex flex-col group overflow-hidden card min-h-[550px]")}>
       <span className="glow"></span>
       <div className="inner">
-        {(post.photoUrl || post.videoUrl) && (
+        {post.mediaUrl && (
             <div className="relative aspect-square w-full">
-                {post.videoUrl ? (
-                     <video ref={videoRef} src={post.videoUrl} loop autoPlay playsInline muted={isMuted} className="w-full h-full object-cover"/>
+                {isVideo ? (
+                     <video ref={videoRef} src={post.mediaUrl} loop autoPlay playsInline muted={isMuted} className="w-full h-full object-cover"/>
                 ) : (
                     <button className="w-full h-full block" onClick={() => handleNavigation(`/reviews/${post.id}`)}>
                         <Image
-                            src={post.photoUrl!}
+                            src={post.mediaUrl!}
                             alt={post.caption || 'Feed post'}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -168,11 +171,11 @@ export function ReviewCard({ post }: ReviewCardProps) {
                 <div className="flex items-center -mr-2">
                     <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <Heart className="h-4 w-4" />
-                        <span>{post.likeCount || 0}</span>
+                        <span>{post.likesCount || 0}</span>
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => post.id && handleNavigation(`/reviews/${post.id}`)} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <MessageCircle className="h-4 w-4" />
-                        <span>{post.commentCount || 0}</span>
+                        <span>{post.commentsCount || 0}</span>
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => router.push('/share')} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <Share2 className="h-4 w-4" />

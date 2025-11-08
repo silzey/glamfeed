@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef } from "react";
 import { useAuth, useFirestore, useStorage } from "@/firebase";
@@ -11,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useRouter } from "next/navigation";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { Post } from "@/lib/types";
 
 export default function FeedUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -33,7 +35,7 @@ export default function FeedUpload() {
     }
 
     if (!file || !firestore || !storage) {
-      toast({ variant: 'destructive', title: 'Please choose a photo!' });
+      toast({ variant: 'destructive', title: 'Please choose a photo or video!' });
       return;
     }
 
@@ -57,17 +59,19 @@ export default function FeedUpload() {
       },
       async () => {
         try {
-          const photoUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          const mediaUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-          addDocumentNonBlocking(collection(firestore, "feed"), {
+          const postData: Post = {
             userId: user.uid,
-            photoUrl,
+            mediaUrl,
             caption,
             visible: true,
             createdAt: serverTimestamp(),
-            likeCount: 0,
-            commentCount: 0,
-          });
+            likesCount: 0,
+            commentsCount: 0,
+          };
+
+          addDocumentNonBlocking(collection(firestore, "feed"), postData);
 
           toast({ title: 'Post uploaded successfully!' });
           setFile(null);
@@ -106,7 +110,7 @@ export default function FeedUpload() {
             id="file-input"
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
             className="bg-black/40 border-white/20 file:text-primary file:font-semibold placeholder:text-white/40"
             />
@@ -132,3 +136,4 @@ export default function FeedUpload() {
     </div>
   );
 }
+
