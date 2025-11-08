@@ -90,8 +90,12 @@ export default function LoginPage() {
     {isLoading && <PageLoader />}
     <div className="login-wrap">
       <div className="login-html">
-        <input id="tab-1" type="radio" name="tab" className="sign-in" defaultChecked /><label htmlFor="tab-1" className="tab">Sign In</label>
-        <input id="tab-2" type="radio" name="tab" className="sign-up" /><label htmlFor="tab-2" className="tab">Sign Up</label>
+        <input id="tab-1" type="radio" name="tab" className="sign-in" defaultChecked />
+        <input id="tab-2" type="radio" name="tab" className="sign-up" />
+        <div className="tab-container">
+          <label htmlFor="tab-1" className="tab">Sign In</label>
+          <label htmlFor="tab-2" className="tab">Sign Up</label>
+        </div>
         <div className="login-form">
           <form className="sign-in-htm" onSubmit={handleSignIn}>
             <div className="group">
