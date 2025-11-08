@@ -4,10 +4,10 @@ import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import type { Post, AppUser } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from './page-loader';
 import { useAuth, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
@@ -26,6 +26,15 @@ export function ReviewCard({ post }: ReviewCardProps) {
     const [isNavigating, setIsNavigating] = useState(false);
     
     const [author, setAuthor] = useState<AppUser | null>(null);
+
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isMuted, setIsMuted] = useState(true);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.muted = isMuted;
+        }
+    }, [isMuted]);
     
     useEffect(() => {
         if (!post.userId || !firestore) {
@@ -54,7 +63,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
         router.push(path);
     };
 
-    if (isUserLoading || !post) {
+    if (isUserLoading || !post.id) { // Added check for post.id
          return (
             <div className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
                 <Skeleton className="relative aspect-video w-full rounded" />
@@ -84,6 +93,9 @@ export function ReviewCard({ post }: ReviewCardProps) {
         return 'a while ago';
       }
     };
+    
+    const isSponsored = post.postType === 'sponsored' || post.postType === 'advertisement';
+
 
     return (
     <>
@@ -91,16 +103,22 @@ export function ReviewCard({ post }: ReviewCardProps) {
     <div className={cn("glass-card h-full flex flex-col group overflow-hidden card min-h-[550px]")}>
       <span className="glow"></span>
       <div className="inner">
-        {post.photoUrl && (
-            <button className="relative aspect-square w-full block" onClick={() => handleNavigation(`/reviews/${post.id}`)}>
-                <Image
-                    src={post.photoUrl}
-                    alt={post.caption || 'Feed post'}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-            </button>
+        {(post.photoUrl || post.videoUrl) && (
+            <div className="relative aspect-square w-full">
+                {post.videoUrl ? (
+                     <video ref={videoRef} src={post.videoUrl} loop autoPlay playsInline muted={isMuted} className="w-full h-full object-cover"/>
+                ) : (
+                    <button className="w-full h-full block" onClick={() => handleNavigation(`/reviews/${post.id}`)}>
+                        <Image
+                            src={post.photoUrl!}
+                            alt={post.caption || 'Feed post'}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                    </button>
+                )}
+            </div>
         )}
 
         <div className={cn("flex flex-col flex-1 justify-between p-4")}>
@@ -118,16 +136,29 @@ export function ReviewCard({ post }: ReviewCardProps) {
                     ) : (
                         <Skeleton className="h-10 w-10 rounded-full" />
                     )}
-                    <div className="text-shadow-lg">
+                    <div className="text-shadow-lg flex-1">
                         <button onClick={() => handleNavigation(`/users/${author?.uid}`)} className="cursor-pointer" disabled={!author?.uid}>
                             <p className="text-sm text-white/80 hover:underline">{author ? `by ${author.name}`: 'Loading...'}</p>
                         </button>
+                         {isSponsored && (
+                            <div className="flex items-center gap-1.5 text-xs text-amber-400">
+                                <Star className="w-3 h-3 fill-current"/>
+                                <span>Sponsored</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 <div className="mt-4">
                     <p className="text-sm text-primary line-clamp-3">{post.caption}</p>
                 </div>
+                 {post.ctaLink && post.ctaText && (
+                    <div className="mt-4">
+                        <a href={post.ctaLink} target="_blank" rel="noopener noreferrer">
+                            <Button className="w-full" variant="outline">{post.ctaText}</Button>
+                        </a>
+                    </div>
+                )}
             </div>
 
              <div className="flex justify-between items-center mt-4 border-t border-white/10 pt-3">
@@ -137,11 +168,11 @@ export function ReviewCard({ post }: ReviewCardProps) {
                 <div className="flex items-center -mr-2">
                     <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <Heart className="h-4 w-4" />
-                        <span>0</span>
+                        <span>{post.likeCount || 0}</span>
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleNavigation(`/reviews/${post.id}`)} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                    <Button variant="ghost" size="sm" onClick={() => post.id && handleNavigation(`/reviews/${post.id}`)} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <MessageCircle className="h-4 w-4" />
-                        <span>0</span>
+                        <span>{post.commentCount || 0}</span>
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => router.push('/share')} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <Share2 className="h-4 w-4" />
@@ -154,3 +185,5 @@ export function ReviewCard({ post }: ReviewCardProps) {
     </>
   );
 }
+
+    

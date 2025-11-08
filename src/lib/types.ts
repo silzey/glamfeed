@@ -52,15 +52,19 @@ export type AppUser = {
 }
 
 export type Post = {
-    id: string;
+    id?: string;
     userId: string;
     caption: string;
     photoUrl?: string;
+    videoUrl?: string;
     createdAt: any; // Can be a Date or a Firebase Timestamp
     visible?: boolean;
     likeCount?: number;
     commentCount?: number;
     shareCount?: number;
+    postType?: 'standard' | 'sponsored' | 'featured' | 'advertisement' | string;
+    ctaText?: string;
+    ctaLink?: string;
 }
 
 export type Report = {
@@ -72,3 +76,5 @@ export type Report = {
     resolved: boolean;
     resolvedAt?: any;
 }
+
+    

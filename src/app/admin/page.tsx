@@ -1,16 +1,28 @@
 
 'use client';
-import React, { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '@/firebase';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useAuth, useStorage } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/use-firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDashboard, FileText, Settings, LogOut, Ban, Award, Newspaper, Leaf, Wallet, Landmark, LifeBuoy, HeartPulse, Compass, Banknote, Store, Coins, LineChart, Mic } from 'lucide-react';
+import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDashboard, FileText, Settings, LogOut, Ban, Award, Newspaper, Leaf, Wallet, Landmark, LifeBuoy, HeartPulse, Compass, Banknote, Store, Coins, LineChart, Mic, Image as ImageIcon, Video, Link as LinkIcon, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { AppUser, Post, Report } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { PageLoader } from '@/components/page-loader';
+import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import { ReviewCard } from '@/components/review-card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
 type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' | 'Settings' | 'CRM' | 'CMS (News)' | 'CMS (Yoga)' | 'Wallets' | 'Banking' | 'Support' | 'Terms' | 'CMS (Health)' | 'CMS (Explore)' | 'Cashout' | 'Shop' | 'Coin Shop' | 'Analytics' | 'Podcast';
@@ -18,9 +30,10 @@ type AdminPanel = 'Dashboard' | 'Users' | 'Posts' | 'Reports' | 'Notifications' 
 export default function AdminPage() {
   const { user: authUser, signOut, isUserLoading } = useAuth();
   const firestore = useFirestore();
+  const storage = useStorage();
   const { toast } = useToast();
 
-  const [activePanel, setActivePanel] = useState<AdminPanel>('Dashboard');
+  const [activePanel, setActivePanel] = useState<AdminPanel>('Posts');
   const [users, setUsers] = useState<AppUser[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
@@ -29,17 +42,19 @@ export default function AdminPage() {
   
   const [broadcastMessage, setBroadcastMessage] = useState('');
 
+  // New Post State
+  const [newPostCaption, setNewPostCaption] = useState('');
+  const [newPostFile, setNewPostFile] = useState<File | null>(null);
+  const [newPostCtaLink, setNewPostCtaLink] = useState('');
+  const [newPostCtaText, setNewPostCtaText] = useState('');
+  const [newPostType, setNewPostType] = useState('standard');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
   const isAdminUser = authUser?.email === 'kim@admincenral.com';
   
-  const postAuthors = useMemo(() => {
-    const authors = new Map<string, AppUser>();
-    users.forEach(user => {
-        authors.set(user.uid, user);
-    });
-    return authors;
-  }, [users]);
-
-
   useEffect(() => {
     if (isUserLoading || !firestore) {
       return;
@@ -51,7 +66,7 @@ export default function AdminPage() {
 
     setLoading(true);
 
-    const unsubUsers = onSnapshot(query(collection(firestore, 'users'), orderBy('username', 'desc')), (snap) => {
+    const unsubUsers = onSnapshot(query(collection(firestore, 'users'), orderBy('createdAt', 'desc')), (snap) => {
       const arr: AppUser[] = [];
       snap.forEach((d) => arr.push({ uid: d.id, ...d.data() } as AppUser));
       setUsers(arr);
@@ -87,6 +102,71 @@ export default function AdminPage() {
     if (!firestore) return;
     await deleteDoc(doc(firestore, 'feed', postId));
     toast({ title: 'Post deleted' });
+  };
+  
+  const handleCreatePost = () => {
+    if (!newPostFile || !storage || !firestore || !authUser) {
+      toast({ variant: 'destructive', title: 'Please select a file to upload.' });
+      return;
+    }
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const fileType = newPostFile.type.startsWith('video') ? 'videos' : 'images';
+    const fileName = `admin_${authUser.uid}_${Date.now()}`;
+    const storageRef = ref(storage, `feed/${fileType}/${fileName}`);
+    const uploadTask = uploadBytesResumable(storageRef, newPostFile);
+
+    uploadTask.on('state_changed', (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      setUploadProgress(progress);
+    }, (error) => {
+      console.error("Upload failed:", error);
+      toast({ variant: 'destructive', title: 'Upload failed', description: error.message });
+      setIsUploading(false);
+    }, async () => {
+      try {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        
+        const postData: Post = {
+          userId: authUser.uid,
+          caption: newPostCaption,
+          createdAt: serverTimestamp(),
+          visible: true,
+          likeCount: 0,
+          commentCount: 0,
+          shareCount: 0,
+          postType: newPostType,
+        };
+
+        if (fileType === 'videos') {
+          postData.videoUrl = downloadURL;
+        } else {
+          postData.photoUrl = downloadURL;
+        }
+
+        if(newPostCtaLink && newPostCtaText) {
+            postData.ctaLink = newPostCtaLink;
+            postData.ctaText = newPostCtaText;
+        }
+
+        addDocumentNonBlocking(collection(firestore, 'feed'), postData);
+
+        toast({ title: 'Post created successfully!' });
+        // Reset form
+        setNewPostCaption('');
+        setNewPostFile(null);
+        setNewPostCtaLink('');
+        setNewPostCtaText('');
+        setNewPostType('standard');
+        if(fileInputRef.current) fileInputRef.current.value = '';
+
+      } catch (err: any) {
+        toast({ variant: 'destructive', title: 'Failed to create post', description: err.message });
+      } finally {
+        setIsUploading(false);
+      }
+    });
   };
 
 
@@ -265,51 +345,59 @@ export default function AdminPage() {
                  {activePanel === 'Posts' && (
                      <div>
                         <h1 className="text-3xl font-bold mb-6">Post Management</h1>
-                        <div className="glass-card p-4 overflow-x-auto">
-                           <table className="w-full text-white text-sm">
-                                <thead className="border-b border-white/10">
-                                    <tr className="text-left">
-                                        <th className="p-3">Post</th>
-                                        <th className="p-3">Author</th>
-                                        <th className="p-3">Status</th>
-                                        <th className="p-3 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {posts.map(p => {
-                                        const author = postAuthors.get(p.userId);
-                                        return (
-                                            <tr key={p.id} className="border-b border-white/10 last:border-0 hover:bg-white/5">
-                                                <td className="p-3 flex items-center gap-3">
-                                                    <img src={p.photoUrl} className="h-10 w-10 rounded-md object-cover" alt="Post content"/>
-                                                    <span className="truncate max-w-xs">{p.caption || 'No caption'}</span>
-                                                </td>
-                                                <td className="p-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <img src={author?.avatarUrl} className="h-6 w-6 rounded-full object-cover" alt={author?.name}/>
-                                                        <span>{author?.name || 'Unknown'}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-3">
-                                                    {p.visible === false ? 
-                                                        <span className="font-bold text-red-500">Hidden</span> : 
-                                                        <span className="text-green-400">Visible</span>}
-                                                </td>
-                                                <td className="p-3">
-                                                    <div className="flex gap-1 justify-end">
-                                                        <Button size="sm" variant="ghost" onClick={() => togglePostVisibility(p.id, p.visible === false)}>
-                                                           {p.visible === false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                                                        </Button>
-                                                        <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)}>
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )
-                                    })}
-                                </tbody>
-                           </table>
+                        
+                        {/* Create Post Form */}
+                        <div className="glass-card p-6 mb-8">
+                            <h2 className="text-xl font-bold mb-4">Create New Feed Post</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <Textarea placeholder="What's on your mind? (Caption)" value={newPostCaption} onChange={(e) => setNewPostCaption(e.target.value)} className="bg-black/40 h-24"/>
+                                     <Input 
+                                        ref={fileInputRef}
+                                        type="file" 
+                                        accept="image/*,video/*" 
+                                        onChange={(e) => setNewPostFile(e.target.files?.[0] || null)}
+                                        className="bg-black/40 border-white/20 file:text-primary file:font-semibold"
+                                     />
+                                     <Select value={newPostType} onValueChange={setNewPostType}>
+                                        <SelectTrigger className="w-full bg-black/40">
+                                            <SelectValue placeholder="Post Type" />
+                                        </SelectTrigger>
+                                        <SelectContent className="glass-card">
+                                            <SelectItem value="standard">Standard</SelectItem>
+                                            <SelectItem value="sponsored">Sponsored</SelectItem>
+                                            <SelectItem value="featured">Featured</SelectItem>
+                                            <SelectItem value="advertisement">Advertisement</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                 <div className="space-y-4">
+                                     <Input placeholder="CTA Button Text (e.g., Shop Now)" value={newPostCtaText} onChange={(e) => setNewPostCtaText(e.target.value)} className="bg-black/40"/>
+                                     <Input placeholder="CTA Link URL (https://...)" value={newPostCtaLink} onChange={(e) => setNewPostCtaLink(e.target.value)} className="bg-black/40"/>
+                                     {isUploading && <Progress value={uploadProgress} className="h-2" />}
+                                     <Button onClick={handleCreatePost} disabled={isUploading || !newPostFile} className="w-full">
+                                         {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Uploading...</> : "Create Post"}
+                                     </Button>
+                                 </div>
+                            </div>
+                        </div>
+
+                        <h2 className="text-2xl font-bold mb-4">Live Feed Control</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {posts.map(p => (
+                                <div key={p.id} className="relative group">
+                                    <ReviewCard post={p} />
+                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 z-20">
+                                        <Button size="sm" variant="secondary" onClick={() => togglePostVisibility(p.id, p.visible === false)}>
+                                           {p.visible === false ? <><Eye className="mr-2" /> Make Visible</> : <><EyeOff className="mr-2"/> Hide Post</>}
+                                        </Button>
+                                        <Button size="sm" variant="destructive" onClick={() => deletePost(p.id)}>
+                                            <Trash2 className="mr-2" /> Delete Post
+                                        </Button>
+                                         <p className="text-xs text-white/50 absolute bottom-2">{p.id}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
@@ -358,4 +446,4 @@ export default function AdminPage() {
   );
 }
 
-  
+    
