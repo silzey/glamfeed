@@ -88,11 +88,11 @@ export function ReviewCard({ post }: ReviewCardProps) {
     return (
     <>
     {isNavigating && <PageLoader />}
-    <div className={cn("glass-card h-full flex flex-col group overflow-hidden card")}>
+    <div className={cn("glass-card h-full flex flex-col group overflow-hidden card border-primary/20 min-h-[550px]")}>
       <span className="glow"></span>
       <div className="inner">
         {post.photoUrl && (
-            <div className="relative aspect-video w-full">
+            <div className="relative aspect-[4/3] w-full">
                 <Image
                     src={post.photoUrl}
                     alt={post.caption || 'Feed post'}
@@ -126,7 +126,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
                 </div>
 
                 <div className="mt-4">
-                    <p className="text-sm text-white/80 line-clamp-3">{post.caption}</p>
+                    <p className="text-sm text-primary/80 line-clamp-3">{post.caption}</p>
                 </div>
             </div>
 
