@@ -19,8 +19,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { useUser } from '@/firebase/provider';
-import { useAuth } from '@/firebase/provider';
+import { useUser, useAuth } from '@/firebase';
 
 
 export function Header() {
@@ -43,9 +42,11 @@ export function Header() {
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="icon" aria-label="Create new review">
-            <PlusCircle className="h-5 w-5" />
-          </Button>
+          <Link href="/upload" passHref>
+            <Button variant="ghost" size="icon" aria-label="Create new review">
+              <PlusCircle className="h-5 w-5" />
+            </Button>
+          </Link>
           <Link href="/theme" passHref>
             <Button variant="ghost" size="icon" aria-label="Customize theme">
               <Palette className="h-5 w-5" />
