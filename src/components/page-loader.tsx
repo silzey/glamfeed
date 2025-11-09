@@ -1,10 +1,11 @@
+
 'use client';
 
 export function PageLoader() {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <svg
-        className="h-16 w-16 animate-spin text-primary"
+        className="h-16 w-16 animate-spin-fast text-primary"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
