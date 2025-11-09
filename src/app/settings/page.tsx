@@ -1,33 +1,29 @@
 
 'use client';
-import { useState, useEffect } from 'react';
-import { Palette, Sun, Moon, Contrast, Check, ArrowLeft, User as UserIcon, Loader2, Volume2, ChevronRight } from 'lucide-react';
+
+import { Header } from '@/components/header';
+import { Settings, Palette, Bell, Shield, Info, ArrowLeft, User as UserIcon, Volume2, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
 import { useAuth, useStorage, useFirestore } from '@/firebase';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
-import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 
-const themes = [
-  { name: 'Glam Pink', hsl: '340 90% 65%' },
-  { name: 'Sapphire', hsl: '210 80% 55%' },
-  { name: 'Emerald', hsl: '150 80% 45%' },
-  { name: 'Goldenrod', hsl: '45 80% 55%' },
-  { name: 'Amethyst', hsl: '270 80% 60%' },
-  { name: 'Ruby Red', hsl: '0 80% 55%' },
+const settingsItems = [
+    { href: '/settings', Icon: UserIcon, title: 'Profile', description: 'Manage your profile picture and public info.'},
+    { href: '/settings', Icon: Palette, title: 'Appearance', description: 'Customize the app\'s look and feel.' },
+    { href: '/sound', Icon: Volume2, title: 'Sound', description: 'Manage audio and sound preferences.' },
+    { href: '/settings', Icon: Bell, title: 'Notifications', description: 'Choose what you want to be notified about.' },
+    { href: '/settings', Icon: Shield, title: 'Privacy & Safety', description: 'Control your data and account privacy.' },
 ];
 
 export default function SettingsPage() {
-  const [activeTheme, setActiveTheme] = useState('');
-  const [mode, setMode] = useState('dark');
   const router = useRouter();
   const { user, isUserLoading } = useAuth();
   const storage = useStorage();
@@ -36,30 +32,6 @@ export default function SettingsPage() {
 
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem('theme-mode') || 'dark';
-    const savedTheme = localStorage.getItem('theme-accent') || themes[0].hsl;
-    setMode(savedMode);
-    setActiveTheme(savedTheme);
-  }, []);
-
-  useEffect(() => {
-    if (activeTheme) {
-      document.documentElement.style.setProperty('--primary', activeTheme);
-      localStorage.setItem('theme-accent', activeTheme);
-    }
-  }, [activeTheme]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (mode === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('theme-mode', mode);
-  }, [mode]);
 
   const handleProfilePicUpload = async () => {
     if (!profilePicFile || !user || !storage || !firestore) {
@@ -87,7 +59,6 @@ export default function SettingsPage() {
         description: 'Your profile picture has been updated. It may take a moment to reflect across the app.',
       });
       
-      // Force reload to see changes, or ideally use a state management to update user object
       window.location.reload();
 
     } catch (error: any) {
@@ -104,6 +75,7 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
+      <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8 sm:py-12">
         <div className="mb-8">
             <Button variant="ghost" onClick={() => router.back()} className="text-muted-foreground hover:text-foreground -ml-4">
@@ -126,6 +98,23 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-8">
+            {settingsItems.map((item) => (
+              <Card className="glass-card" key={item.title}>
+                  <CardContent className="p-4">
+                      <Link href={item.href} passHref>
+                          <div className="flex items-center gap-4">
+                              <item.Icon className="h-6 w-6 text-muted-foreground"/>
+                              <div className="flex-1">
+                                  <p className="font-semibold">{item.title}</p>
+                                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                              </div>
+                              <ChevronRight className="h-5 w-5 text-muted-foreground"/>
+                          </div>
+                      </Link>
+                  </CardContent>
+              </Card>
+            ))}
+
             <Card className="glass-card">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold mb-4">Profile</h2>
@@ -141,66 +130,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-                <CardContent className="p-6">
-                    <h2 className="text-lg font-semibold mb-4">Sound</h2>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Volume2 className="h-6 w-6 text-muted-foreground"/>
-                            <p className="text-foreground">Manage audio preferences</p>
-                        </div>
-                        <Button asChild variant="ghost" size="icon">
-                            <Link href="/sound">
-                                <ChevronRight className="h-5 w-5 text-muted-foreground"/>
-                            </Link>
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-                <CardContent className="p-6">
-                    <h2 className="text-lg font-semibold mb-4">Appearance</h2>
-                    <div className="flex gap-2 rounded-lg bg-secondary p-1">
-                        <Button onClick={() => setMode('light')} variant={mode === 'light' ? 'outline' : 'ghost'} className="flex-1 bg-transparent data-[state=active]:bg-background data-[state=active]:text-foreground" data-state={mode === 'light' ? 'active' : 'inactive'}>
-                            <Sun className="mr-2 h-4 w-4"/> Light
-                        </Button>
-                        <Button onClick={() => setMode('dark')} variant={mode === 'dark' ? 'outline' : 'ghost'} className="flex-1 bg-transparent data-[state=active]:bg-background data-[state=active]:text-foreground" data-state={mode === 'dark' ? 'active' : 'inactive'}>
-                            <Moon className="mr-2 h-4 w-4"/> Dark
-                        </Button>
-                         <Button onClick={() => {}} variant="ghost" className="flex-1" disabled>
-                            <Contrast className="mr-2 h-4 w-4"/> System
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-                <CardContent className="p-6">
-                    <h2 className="text-lg font-semibold mb-4">Accent Color</h2>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                        {themes.map(theme => (
-                            <div key={theme.name} className="flex flex-col items-center gap-2">
-                                 <button
-                                    onClick={() => setActiveTheme(theme.hsl)}
-                                    className={cn(
-                                      "h-14 w-14 rounded-full border-2 flex items-center justify-center transition-all",
-                                      activeTheme === theme.hsl ? 'border-primary' : 'border-transparent'
-                                    )}
-                                    style={{ 
-                                        backgroundColor: `hsl(${theme.hsl})`
-                                    }}
-                                    aria-label={`Set theme to ${theme.name}`}
-                                >
-                                  {activeTheme === theme.hsl && <Check className="h-6 w-6 text-primary-foreground" />}
-                                </button>
-                                <p className="text-xs text-muted-foreground">{theme.name}</p>
-                            </div>
-                        ))}
-                    </div>
-                </CardContent>
             </Card>
         </div>
       </main>
