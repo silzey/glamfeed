@@ -1,3 +1,4 @@
+
 'use client';
 
 import { AuthClientProvider } from '@/firebase/client-provider';
