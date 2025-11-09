@@ -66,7 +66,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
         router.push(path);
     };
 
-    if (isUserLoading || !post.id) { // Added check for post.id
+    if (isUserLoading || !post.id) {
          return (
             <div className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
                 <Skeleton className="relative aspect-video w-full rounded" />
@@ -188,5 +188,3 @@ export function ReviewCard({ post }: ReviewCardProps) {
     </>
   );
 }
-
-    

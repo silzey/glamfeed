@@ -56,10 +56,12 @@ export default function ReviewDetailsPage() {
                 userId: user.uid,
                 createdAt: serverTimestamp(),
                 likes: 0,
-                reviewId: id, // Link back to the post
+                reviewId: id,
             };
             await addDocumentNonBlocking(commentsRef!, commentData);
             setCommentText('');
+            toast({ title: 'Comment posted!', description: 'Your comment is now live.' });
+            router.push('/');
         } catch (error) {
             toast({ variant: 'destructive', title: 'Failed to post comment.' });
         } finally {
