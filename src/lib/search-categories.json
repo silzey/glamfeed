@@ -24,6 +24,12 @@
       "Body Care": ["Body Wash", "Scrub", "Lotion", "Body Butter", "Deodorant", "Hand Cream", "Foot Care", "Bath Salts", "Bath Bombs"],
       "Nails": ["Nail Polish", "Nail Art Tools", "Press-ons", "Base Coat", "Top Coat", "Nail Treatment", "Cuticle Oil"]
     },
+    "Brands": {
+        "Luxury / High-End": ["Chanel", "Dior Beauty", "Tom Ford Beauty", "Guerlain", "Yves Saint Laurent Beauty", "Armani Beauty", "Clé de Peau Beauté", "Hourglass", "Pat McGrath Labs", "Illamasqua", "Kevyn Aucoin Beauty", "Westman Atelier", "ByTerry", "Giorgio Armani Beauty", "Lancôme"],
+        "Premium / Mid-Tier": ["MAC Cosmetics", "NARS", "Charlotte Tilbury", "Huda Beauty", "Fenty Beauty", "Anastasia Beverly Hills", "Urban Decay", "Tarte", "Too Faced", "Makeup By Mario", "Milk Makeup", "Kosas", "Ilia Beauty", "Patricia Bright Beauty", "Beautyblender"],
+        "Affordable / Drugstore": ["Maybelline", "L’Oréal Paris", "NYX Professional Makeup", "e.l.f. Cosmetics", "ColourPop", "Rimmel London", "Milani", "CoverGirl", "Essence", "Wet n Wild", "Catrice", "Kiko Milano", "Sleek MakeUP", "Revlon"],
+        "Indie / Niche": ["Rare Beauty", "Tower 28 Beauty", "Saie", "ILIA Beauty", "Westman Atelier", "Danessa Myricks Beauty", "Patrick Ta Beauty", "Haus Labs", "Kosas Beauty", "Lisa Eldridge Beauty", "Victoria Beckham Beauty", "Uoma Beauty"]
+    },
     "Fashion": {
       "Clothing": {
         "By Type": ["Dresses", "Tops", "Bottoms", "Outerwear", "Activewear", "Swimwear", "Loungewear", "Jumpsuits", "Rompers"],
