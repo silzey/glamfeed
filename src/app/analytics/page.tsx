@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -17,7 +18,7 @@ import { useAuth } from '@/firebase';
 import { PageLoader } from '@/components/page-loader';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import type { Review } from '@/lib/types';
+import type { Post } from '@/lib/types';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -40,7 +41,7 @@ export default function AnalyticsPage() {
     return query(collection(firestore, 'feed'), where('userId', '==', authUser.uid));
   }, [firestore, authUser]);
 
-  const { data: reviews, isLoading: isLoadingReviews } = useCollection<Review>(reviewsQuery);
+  const { data: reviews, isLoading: isLoadingReviews } = useCollection<Post>(reviewsQuery);
 
   const engagementData = useMemo(() => {
     const months = Array.from({ length: 6 }, (_, i) => {
@@ -57,8 +58,8 @@ export default function AnalyticsPage() {
         const monthStr = format(reviewDate, 'MMM');
         const monthData = months.find(m => m.month === monthStr);
         if (monthData) {
-          monthData.likes += review.likeCount || 0;
-          monthData.comments += review.commentCount || 0;
+          monthData.likes += review.likesCount || 0;
+          monthData.comments += review.commentsCount || 0;
         }
       }
     });
@@ -93,8 +94,8 @@ export default function AnalyticsPage() {
     const totalShares = authUser.totalShares || 0;
 
     const topPost = reviews.reduce((top, current) => {
-      const topEngagement = (top?.likeCount || 0) + (top?.commentCount || 0);
-      const currentEngagement = (current.likeCount || 0) + (current.commentCount || 0);
+      const topEngagement = (top?.likesCount || 0) + (top?.commentsCount || 0);
+      const currentEngagement = (current.likesCount || 0) + (current.commentsCount || 0);
       return currentEngagement > topEngagement ? current : top;
     }, reviews[0]);
     
@@ -121,7 +122,7 @@ export default function AnalyticsPage() {
     return <PageLoader />;
   }
 
-  const topPostImage = analytics?.topPost ? PlaceHolderImages.find(p => p.imageUrl === analytics.topPost.imageUrl) : null;
+  const topPostImage = analytics?.topPost ? PlaceHolderImages.find(p => p.imageUrl === analytics.topPost.mediaUrl) : null;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
@@ -227,17 +228,17 @@ export default function AnalyticsPage() {
                         <Link href={`/reviews/${analytics.topPost.id}`}>
                             <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted group">
                                 <Image 
-                                    src={topPostImage?.imageUrl || analytics.topPost.imageUrl!}
-                                    alt={analytics.topPost.text}
+                                    src={topPostImage?.imageUrl || analytics.topPost.mediaUrl!}
+                                    alt={analytics.topPost.caption || 'Top post'}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform"
                                     data-ai-hint={topPostImage?.imageHint || 'cosmetics'}
                                 />
                             </div>
-                            <h3 className="font-semibold mt-4 group-hover:underline">{analytics.topPost.text}</h3>
+                            <h3 className="font-semibold mt-4 group-hover:underline">{analytics.topPost.caption}</h3>
                             <div className="flex items-center gap-4 text-sm text-white/80 mt-1">
-                                <span className="flex items-center gap-1"><Heart className="h-4 w-4"/> {analytics.topPost.likeCount || 0}</span>
-                                <span className="flex items-center gap-1"><MessageCircle className="h-4 w-4"/> {analytics.topPost.commentCount || 0}</span>
+                                <span className="flex items-center gap-1"><Heart className="h-4 w-4"/> {analytics.topPost.likesCount || 0}</span>
+                                <span className="flex items-center gap-1"><MessageCircle className="h-4 w-4"/> {analytics.topPost.commentsCount || 0}</span>
                             </div>
                         </Link>
                     ) : (

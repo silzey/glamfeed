@@ -1,70 +1,19 @@
 
-
-
-
-
-
-
-
-
+import type { Timestamp } from 'firebase/firestore';
 
 export type User = {
   id: string;
-  name: string;
   username: string;
-  avatarUrl: string;
-};
-
-export type Product = {
-  id: string;
   name: string;
-  brand: string;
-  imageUrl: string;
-  price: string;
-  rating: number;
+  email: string;
+  avatarUrl: string;
+  postCount: number;
+  totalLikes: number;
+  totalComments: number;
+  totalShares: number;
+  coins: number;
+  createdAt: Timestamp;
 };
-
-export type Comment = {
-  id: string;
-  userId: string;
-  text: string;
-  createdAt: any;
-  likes: number;
-  reviewId: string;
-};
-
-export type Review = {
-  id:string;
-  authorId: string;
-  productId: string;
-  rating: number; // 1-5
-  text: string;
-  imageId: string;
-  imageUrl?: string;
-  likes: number;
-  likeCount?: number;
-  comments: Comment[];
-  commentCount?: number;
-  createdAt: any;
-};
-
-export type PopulatedReview = Review & {
-  user: User;
-  product: Product;
-};
-
-export type AppUser = {
-  uid: string;
-  name?: string;
-  username?: string;
-  email?: string;
-  avatarUrl?: string;
-  isAdmin?: boolean;
-  isFrozen?: boolean;
-  points?: number;
-  coins?: number;
-  [key: string]: any;
-}
 
 export type Post = {
     id?: string;
@@ -82,6 +31,65 @@ export type Post = {
     adminUpload?: boolean;
 }
 
+// Deprecated, use Post instead
+export type Review = {
+  id: string;
+  authorId: string;
+  productName: string;
+  rating: number;
+  text: string;
+  mediaUrl?: string;
+  imageUrl: string;
+  mediaType?: 'image' | 'video';
+  createdAt: Timestamp;
+  likeCount?: number;
+  commentCount?: number;
+  shareCount?: number;
+  author: User;
+};
+
+
+export interface Product {
+  id: string;
+  name: string;
+  price: string;
+  rating: number;
+  imageUrl: string;
+  brand: string;
+}
+
+export type Transaction = {
+  id: string;
+  uid: string;
+  type: 'earn' | 'spend';
+  action: string;
+  amount: number;
+  description: string;
+  date: string;
+};
+
+export type Comment = {
+  id: string;
+  reviewId: string;
+  userId: string;
+  text: string;
+  createdAt: Timestamp;
+  likes: number;
+};
+
+export type AppUser = {
+  uid: string;
+  name?: string;
+  username?: string;
+  email?: string;
+  avatarUrl?: string;
+  isAdmin?: boolean;
+  isFrozen?: boolean;
+  points?: number;
+  coins?: number;
+  [key: string]: any;
+}
+
 export type Report = {
     id: string;
     postId: string;
@@ -92,16 +100,11 @@ export type Report = {
     resolvedAt?: any;
 }
 
-export type Transaction = {
-    id: string;
-    uid: string;
-    action: string;
-    type: 'earn' | 'spend';
-    description: string;
-    amount: number;
-    date: string; // ISO 8601 format
+export type PopulatedReview = Review & {
+  user: User;
+  product: Product;
 };
-    
+
 export type Notification = {
   id: string;
   type: 'like' | 'comment' | 'follow' | 'system';
