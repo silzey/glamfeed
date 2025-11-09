@@ -16,7 +16,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
 
 const themes = [
-  { name: 'Glam Pink', hsl: '330 80% 60%' },
+  { name: 'Glam Pink', hsl: '340 90% 65%' },
   { name: 'Sapphire', hsl: '210 80% 55%' },
   { name: 'Emerald', hsl: '150 80% 45%' },
   { name: 'Goldenrod', hsl: '45 80% 55%' },
@@ -26,7 +26,7 @@ const themes = [
 
 export default function SettingsPage() {
   const [activeTheme, setActiveTheme] = useState('');
-  const [mode, setMode] = useState('light');
+  const [mode, setMode] = useState('dark');
   const router = useRouter();
   const { user, isUserLoading } = useAuth();
   const storage = useStorage();
