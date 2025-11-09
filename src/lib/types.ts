@@ -5,6 +5,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -112,6 +113,15 @@ export type Notification = {
   createdAt: string; // ISO 8601 string
   read: boolean;
 };
+
+export type Message = {
+    id?: string;
+    senderId: string;
+    text: string;
+    createdAt: any;
+    isBot?: boolean;
+};
+
 
 
 
