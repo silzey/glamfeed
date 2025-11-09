@@ -1,0 +1,71 @@
+{
+    "categories": {
+      "Products": {
+        "Skincare": [
+          "Cleansers",
+          "Serums",
+          "Moisturizers",
+          "Sunscreens",
+          "Masks",
+          "Eye Creams"
+        ],
+        "Makeup": {
+          "Face": [
+            "Foundation",
+            "Concealer",
+            "Powder",
+            "Blush",
+            "Bronzer",
+            "Highlighter"
+          ],
+          "Eyes": [
+            "Mascara",
+            "Eyeshadow",
+            "Eyeliner",
+            "Eyebrow"
+          ],
+          "Lips": [
+            "Lipstick",
+            "Lip Gloss",
+            "Lip Liner"
+          ]
+        },
+        "Haircare": [
+          "Shampoo",
+          "Conditioner",
+          "Styling Products",
+          "Treatments"
+        ],
+        "Fragrance": [
+          "Perfume",
+          "Cologne",
+          "Body Mist"
+        ]
+      },
+      "Trends": {
+        "Looks": [
+          "Natural Glow",
+          "Bold Lip",
+          "Smokey Eye",
+          "Glass Skin",
+          "Graphic Liner"
+        ],
+        "Ingredients": [
+          "Hyaluronic Acid",
+          "Retinol",
+          "Vitamin C",
+          "Niacinamide",
+          "Squalane"
+        ]
+      },
+      "Brands": [
+        "Giorgio Armani",
+        "NARS",
+        "YSL Beauty",
+        "Dior",
+        "Urban Decay",
+        "Fenty Beauty",
+        "Glossier"
+      ]
+    }
+  }

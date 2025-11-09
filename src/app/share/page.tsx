@@ -61,7 +61,7 @@ export default function SharePage() {
     { Icon: Home, name: 'Home', href: '/' },
     { Icon: Compass, name: 'Explore', href: '/explore' },
     { Icon: Search, name: 'Search', href: '/search' },
-    { Icon: PenSquare, name: 'Creator', href: '/creator' },
+    { Icon: PenSquare, name: 'Creator', href: '/upload' },
     { Icon: User, name: 'Profile', href: user ? `/users/${user.uid}` : '/login' },
     { Icon: Heart, name: 'Wishlist', href: '/wishlist' },
     { Icon: Mail, name: 'Messages', href: '/messages' },
