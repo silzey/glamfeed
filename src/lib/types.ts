@@ -6,6 +6,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -122,7 +123,17 @@ export type Message = {
     isBot?: boolean;
 };
 
-
-
-
-
+export type Conversation = {
+    id: string;
+    participants: string[];
+    participantDetails: {
+        id: string;
+        name: string;
+        avatarUrl: string;
+    }[];
+    lastMessage: string;
+    lastMessageTimestamp: any;
+    unreadCounts: {
+        [userId: string]: number;
+    }
+}

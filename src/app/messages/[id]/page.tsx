@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -5,27 +6,14 @@ import { Header } from '@/components/header';
 import { ArrowLeft, User, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import type { AppUser } from '@/lib/types';
+import type { AppUser, Conversation } from '@/lib/types';
 import { useAuth } from '@/firebase';
 import { PageLoader } from '@/components/page-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Link from 'next/link';
 import { Chat } from '@/components/chat';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
-
-
-interface Conversation {
-    id: string;
-    user: {
-        id: string;
-        name: string;
-        avatarUrl: string;
-    };
-    lastMessage: string;
-    time: string;
-    unread: number;
-}
+import { useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
+import { doc, collection, query, where } from 'firebase/firestore';
 
 
 export default function ChatPage() {
@@ -43,7 +31,15 @@ export default function ChatPage() {
 
     const { data: otherUser, isLoading: isLoadingOtherUser } = useDoc<AppUser>(otherUserDocRef);
     
-    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const conversationsQuery = useMemoFirebase(() => {
+        if (!firestore || !authUser) return null;
+        return query(
+            collection(firestore, 'conversations'),
+            where('participants', 'array-contains', authUser.uid)
+        );
+    }, [firestore, authUser]);
+
+    const { data: conversations, isLoading: isLoadingConversations } = useCollection<Conversation>(conversationsQuery);
     
     const conversationId = useMemo(() => {
         if (!authUser || !otherUserId) return null;
@@ -97,17 +93,21 @@ export default function ChatPage() {
                          <div className="space-y-2">
                              <h3 className="font-semibold flex items-center gap-2"><Users className="h-4 w-4"/> Switch Conversation</h3>
                              <div className="max-h-60 overflow-y-auto">
-                                {conversations.map(convo => (
-                                    <Link href={`/messages/${convo.user.id}`} key={convo.user.id}>
-                                         <div className="p-2 flex items-center gap-3 hover:bg-muted rounded-md">
-                                             <Avatar className="h-9 w-9">
-                                                <AvatarImage src={convo.user.avatarUrl} />
-                                                <AvatarFallback>{convo.user.name.charAt(0)}</AvatarFallback>
-                                             </Avatar>
-                                             <span className="text-sm font-medium">{convo.user.name}</span>
-                                         </div>
-                                    </Link>
-                                ))}
+                                {conversations?.map(convo => {
+                                    const convoUser = convo.participantDetails.find(p => p.id !== authUser.uid);
+                                    if (!convoUser) return null;
+                                    return (
+                                        <Link href={`/messages/${convoUser.id}`} key={convo.id}>
+                                             <div className="p-2 flex items-center gap-3 hover:bg-muted rounded-md">
+                                                 <Avatar className="h-9 w-9">
+                                                    <AvatarImage src={convoUser.avatarUrl} />
+                                                    <AvatarFallback>{convoUser.name.charAt(0)}</AvatarFallback>
+                                                 </Avatar>
+                                                 <span className="text-sm font-medium">{convoUser.name}</span>
+                                             </div>
+                                        </Link>
+                                    )
+                                })}
                             </div>
                          </div>
                     </PopoverContent>

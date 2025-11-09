@@ -1,8 +1,8 @@
+
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useAuth, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useAuth, useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection, query, orderBy, serverTimestamp, doc, setDoc, getDoc } from 'firebase/firestore';
 import type { AppUser, Message } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,7 @@ export function Chat({ chatId, otherUser }: ChatProps) {
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !currentUser || !messagesCollectionRef) return;
+        if (!newMessage.trim() || !currentUser || !firestore || !messagesCollectionRef) return;
         
         const messageData: Omit<Message, 'id'> = {
             text: newMessage,
@@ -51,8 +51,53 @@ export function Chat({ chatId, otherUser }: ChatProps) {
             isBot: false,
         };
 
+        const tempMessage = newMessage;
         setNewMessage('');
+        
         await addDocumentNonBlocking(messagesCollectionRef, messageData);
+        
+        // Also update or create the conversation document
+        const conversationRef = doc(firestore, 'conversations', chatId);
+        const convoDoc = await getDoc(conversationRef);
+
+        const otherParticipant = {
+          id: otherUser.uid,
+          name: otherUser.name || 'User',
+          avatarUrl: otherUser.avatarUrl || ''
+        };
+        
+        const currentUserParticipant = {
+            id: currentUser.uid,
+            name: currentUser.name || 'User',
+            avatarUrl: currentUser.avatarUrl || ''
+        }
+        
+        if (convoDoc.exists()) {
+             // Conversation exists, update it
+             const currentUnread = convoDoc.data().unreadCounts?.[otherUser.uid] || 0;
+             await setDoc(conversationRef, { 
+                lastMessage: tempMessage,
+                lastMessageTimestamp: serverTimestamp(),
+                unreadCounts: {
+                    ...convoDoc.data().unreadCounts,
+                    [otherUser.uid]: currentUnread + 1,
+                    [currentUser.uid]: 0 // reset sender's unread count
+                }
+             }, { merge: true });
+        } else {
+            // Conversation doesn't exist, create it
+            await setDoc(conversationRef, {
+                participants: [currentUser.uid, otherUser.uid],
+                participantDetails: [currentUserParticipant, otherParticipant],
+                lastMessage: tempMessage,
+                lastMessageTimestamp: serverTimestamp(),
+                unreadCounts: {
+                    [otherUser.uid]: 1,
+                    [currentUser.uid]: 0,
+                },
+                createdAt: serverTimestamp()
+            });
+        }
     };
     
     return (

@@ -1,5 +1,6 @@
+
 'use client';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Mail, ArrowLeft, Search } from 'lucide-react';
@@ -7,45 +8,36 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-
-interface Conversation {
-    id: string;
-    user: {
-        id: string;
-        name: string;
-        avatarUrl: string;
-    };
-    lastMessage: string;
-    time: string;
-    unread: number;
-}
-
-const mockConversations: Conversation[] = [
-    {
-        id: 'convo-1',
-        user: { id: 'user-2', name: 'Ben Styles', avatarUrl: 'https://i.pravatar.cc/150?u=user-2' },
-        lastMessage: "Yeah, it's amazing! You should try it.",
-        time: '5m ago',
-        unread: 2
-    },
-    {
-        id: 'convo-2',
-        user: { id: 'user-3', name: 'Aisha Glow', avatarUrl: 'https://i.pravatar.cc/150?u=user-3' },
-        lastMessage: 'Just saw your new post, love it!',
-        time: '1h ago',
-        unread: 0
-    },
-    {
-        id: 'convo-3',
-        user: { id: 'user-4', name: 'Marco Looks', avatarUrl: 'https://i.pravatar.cc/150?u=user-4' },
-        lastMessage: 'Down to collab next week?',
-        time: 'Yesterday',
-        unread: 1
-    }
-];
+import { useAuth, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import type { Conversation } from '@/lib/types';
+import { PageLoader } from '@/components/page-loader';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function MessagesPage() {
     const router = useRouter();
+    const { user: authUser, isUserLoading } = useAuth();
+    const firestore = useFirestore();
+
+    const conversationsQuery = useMemoFirebase(() => {
+        if (!firestore || !authUser) return null;
+        return query(
+            collection(firestore, 'conversations'),
+            where('participants', 'array-contains', authUser.uid),
+            orderBy('lastMessageTimestamp', 'desc')
+        );
+    }, [firestore, authUser]);
+
+    const { data: conversations, isLoading: areConversationsLoading } = useCollection<Conversation>(conversationsQuery);
+
+    if (isUserLoading || areConversationsLoading) {
+        return <PageLoader />;
+    }
+    
+    if (!authUser) {
+      router.push('/login');
+      return <PageLoader />;
+    }
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-black text-white">
@@ -77,34 +69,51 @@ export default function MessagesPage() {
                             <Input placeholder="Search conversations..." className="bg-black/40 pl-10" />
                         </div>
                     </div>
-                    <ul className="divide-y divide-white/10">
-                        {mockConversations.map(convo => (
-                            <li key={convo.id}>
-                                <Link href={`/messages/${convo.user.id}`} className="block hover:bg-white/5 transition-colors">
-                                    <div className="p-4 flex items-center gap-4">
-                                        <Avatar className="h-12 w-12 border-2 border-white/20">
-                                            <AvatarImage src={convo.user.avatarUrl} alt={convo.user.name} />
-                                            <AvatarFallback>{convo.user.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between">
-                                                <p className="font-bold text-white">{convo.user.name}</p>
-                                                <p className="text-xs text-white/60">{convo.time}</p>
-                                            </div>
-                                            <div className="flex justify-between mt-1">
-                                                <p className="text-sm text-white/70 truncate pr-4">{convo.lastMessage}</p>
-                                                {convo.unread > 0 && (
-                                                    <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                                        {convo.unread}
-                                                    </span>
-                                                )}
+                    {conversations && conversations.length > 0 ? (
+                        <ul className="divide-y divide-white/10">
+                            {conversations.map(convo => {
+                                const otherParticipant = convo.participantDetails.find(p => p.id !== authUser.uid);
+                                if (!otherParticipant) return null;
+
+                                const unreadCount = convo.unreadCounts?.[authUser.uid] || 0;
+
+                                return (
+                                <li key={convo.id}>
+                                    <Link href={`/messages/${otherParticipant.id}`} className="block hover:bg-white/5 transition-colors">
+                                        <div className="p-4 flex items-center gap-4">
+                                            <Avatar className="h-12 w-12 border-2 border-white/20">
+                                                <AvatarImage src={otherParticipant.avatarUrl} alt={otherParticipant.name} />
+                                                <AvatarFallback>{otherParticipant.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between">
+                                                    <p className="font-bold text-white">{otherParticipant.name}</p>
+                                                    {convo.lastMessageTimestamp && (
+                                                        <p className="text-xs text-white/60">
+                                                            {formatDistanceToNow(convo.lastMessageTimestamp.toDate(), { addSuffix: true })}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="flex justify-between mt-1">
+                                                    <p className="text-sm text-white/70 truncate pr-4">{convo.lastMessage}</p>
+                                                    {unreadCount > 0 && (
+                                                        <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                                            {unreadCount}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
+                                    </Link>
+                                </li>
+                            )})}
+                        </ul>
+                    ) : (
+                        <div className="text-center py-12">
+                             <p className="text-lg text-white/70">No conversations yet.</p>
+                             <p className="text-sm text-white/60 mt-1">Start a chat from a user's profile.</p>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>
