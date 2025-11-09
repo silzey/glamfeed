@@ -140,7 +140,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
                         <Skeleton className="h-10 w-10 rounded-full" />
                     )}
                     <div className="text-shadow-lg flex-1">
-                        <button onClick={() => handleNavigation(`/users/${author?.uid}`)} className="cursor-pointer" disabled={!author?.uid}>
+                        <button onClick={() => author?.uid && handleNavigation(`/users/${author.uid}`)} className="cursor-pointer" disabled={!author?.uid}>
                             <p className="text-sm text-white/80 hover:underline">{author ? `by ${author.name}`: 'Loading...'}</p>
                         </button>
                          {isSponsored && (

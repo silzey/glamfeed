@@ -1,6 +1,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -25,7 +26,7 @@ export type Comment = {
 
 export type Review = {
   id:string;
-  userId: string;
+  authorId: string;
   productId: string;
   rating: number; // 1-5
   text: string;
@@ -49,6 +50,7 @@ export type AppUser = {
   isAdmin?: boolean;
   isFrozen?: boolean;
   points?: number;
+  coins?: number;
   [key: string]: any;
 }
 
@@ -88,4 +90,5 @@ export type Transaction = {
     date: string; // ISO 8601 format
 };
     
+
 
