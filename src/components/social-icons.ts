@@ -77,6 +77,7 @@ export const socialIcons = [
   { name: 'Support', icon: LifeBuoy },
   { name: 'Terms', icon: FileText },
   { name: 'Wallet', icon: Wallet },
+  { name: 'Wishlist', icon: Heart },
   { name: 'Yoga', icon: Flower },
   { name: 'Mission', icon: Goal },
   { name: 'Likes', icon: Heart },

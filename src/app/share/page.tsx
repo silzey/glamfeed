@@ -27,8 +27,19 @@ const SharePage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {socialIcons.map((item) => {
                         const Icon = item.icon;
-                        const href = item.name === 'Admin' ? '/admin' : '#';
-                        const target = item.name === 'Admin' ? '_self' : '_blank';
+                        let href = '#';
+                        let target = '_blank';
+
+                        if (item.name === 'Admin') {
+                            href = '/admin';
+                            target = '_self';
+                        } else if (item.name === 'Wallet') {
+                            href = '/wallet';
+                            target = '_self';
+                        } else if (item.name === 'Wishlist') {
+                            href = '/wishlist';
+                            target = '_self';
+                        }
 
                         return (
                             <Link
