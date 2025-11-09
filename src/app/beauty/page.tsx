@@ -1,5 +1,4 @@
 
-
 'use client';
 import { useState } from 'react';
 import { Header } from '@/components/header';
@@ -8,13 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { healthArticles } from '@/lib/articles';
+import { beautyArticles } from '@/lib/articles';
 import { PageLoader } from '@/components/page-loader';
 import { cn } from '@/lib/utils';
 
-const mainArticle = healthArticles[0];
-const featuredArticles = healthArticles.slice(1, 3);
-const otherArticles = healthArticles.slice(3);
+const mainArticle = beautyArticles[0];
+const otherArticles = beautyArticles.slice(1);
 
 const categoryIcons = [
   { name: 'News', href: '/news', Icon: Newspaper },
@@ -25,7 +23,7 @@ const categoryIcons = [
   { name: 'Travel', href: '/travel', Icon: Grape },
 ];
 
-export default function HealthPage() {
+export default function BeautyPage() {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
   
@@ -51,7 +49,7 @@ export default function HealthPage() {
           <div className="hidden sm:flex items-center gap-4">
               {categoryIcons.map(item => (
                    <Link href={item.href} key={item.name} onClick={(e) => handleNavigation(e, item.href)}>
-                       <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Health' ? 'text-primary bg-primary/10' : 'text-white/70')}>
+                       <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Beauty' ? 'text-primary bg-primary/10' : 'text-white/70')}>
                            <item.Icon className="h-6 w-6" />
                        </Button>
                    </Link>
@@ -60,14 +58,14 @@ export default function HealthPage() {
         </div>
 
         <div className="flex items-center gap-4 mb-8">
-          <HeartPulse
+          <Sparkles
             className="h-10 w-10 text-primary"
             style={{ filter: 'drop-shadow(0 0 10px hsla(var(--primary), 0.7))' }}
           />
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Health & Wellness</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Beauty</h1>
             <p className="text-md sm:text-lg text-white/70">
-              Tips and articles for a healthier lifestyle.
+              Your guide to makeup, skincare, and more.
             </p>
           </div>
         </div>
@@ -77,7 +75,7 @@ export default function HealthPage() {
                 <div className="flex items-center justify-around">
                     {categoryIcons.map(item => (
                        <Link href={item.href} key={item.name} onClick={(e) => handleNavigation(e, item.href)}>
-                           <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Health' ? 'text-primary bg-primary/10' : 'text-white/70')}>
+                           <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Beauty' ? 'text-primary bg-primary/10' : 'text-white/70')}>
                                <item.Icon className="h-6 w-6" />
                            </Button>
                        </Link>
@@ -86,8 +84,8 @@ export default function HealthPage() {
             </div>
         </div>
 
-        {/* Main Article */}
-        <Link href={`/articles/health/${mainArticle.id}`} className="glass-card overflow-hidden group cursor-pointer block mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <Link href={`/articles/beauty/${mainArticle.id}`} className="lg:col-span-2 glass-card overflow-hidden group cursor-pointer block">
              <div className="relative w-full aspect-video">
                 <Image
                     src={mainArticle.imageUrl}
@@ -95,42 +93,56 @@ export default function HealthPage() {
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     data-ai-hint={mainArticle.imageHint}
-                    priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 flex flex-col justify-end">
-                    <span className="text-sm font-semibold text-primary">{mainArticle.category}</span>
-                    <h2 className="text-2xl sm:text-4xl font-bold mt-2 text-white group-hover:text-primary transition-colors">{mainArticle.title}</h2>
-                    <p className="text-white/80 mt-3 text-sm sm:text-base hidden md:block max-w-3xl">{mainArticle.excerpt}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+             </div>
+             <div className="p-4 sm:p-6">
+                <span className="text-sm font-semibold text-primary">{mainArticle.category}</span>
+                <h2 className="text-2xl sm:text-3xl font-bold mt-2 text-white group-hover:text-primary transition-colors">{mainArticle.title}</h2>
+                <p className="text-white/80 mt-3 text-sm sm:text-base">{mainArticle.excerpt}</p>
+             </div>
+          </Link>
+          
+          <div className="flex flex-col gap-6">
+             <div className="glass-card p-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-3"><TrendingUp className="text-primary"/> Trending Now</h3>
+                <div className="space-y-4">
+                    {otherArticles.slice(0, 2).map((article) => (
+                        <Link href={`/articles/beauty/${article.id}`} key={article.id} className="flex items-center gap-4 group cursor-pointer">
+                            <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                                 <Image
+                                    src={article.imageUrl}
+                                    alt={article.title}
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint={article.imageHint}
+                                />
+                            </div>
+                            <div>
+                               <span className="text-xs font-semibold text-primary">{article.category}</span>
+                               <h4 className="text-sm font-semibold leading-tight text-white group-hover:underline">{article.title}</h4>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+             <div className="glass-card p-4">
+                <h3 className="text-lg font-semibold mb-3">Tutorials</h3>
+                <div className="space-y-4">
+                    {otherArticles.slice(2, 4).map((article) => (
+                        <Link href={`/articles/beauty/${article.id}`} key={article.id} className="group cursor-pointer block">
+                            <span className="text-xs font-semibold text-primary">{article.category}</span>
+                            <h4 className="font-semibold leading-tight text-white group-hover:underline">{article.title}</h4>
+                        </Link>
+                    ))}
                 </div>
              </div>
-        </Link>
-
-        {/* Featured Articles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {featuredArticles.map((article) => (
-             <Link href={`/articles/health/${article.id}`} key={article.id} className="glass-card overflow-hidden group cursor-pointer block">
-                <div className="relative w-full aspect-video">
-                  <Image
-                      src={article.imageUrl}
-                      alt={article.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      data-ai-hint={article.imageHint}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                </div>
-                <div className="p-4">
-                  <span className="text-xs font-semibold text-primary">{article.category}</span>
-                  <h3 className="text-lg font-bold mt-1 text-white group-hover:underline leading-tight">{article.title}</h3>
-                </div>
-              </Link>
-          ))}
+          </div>
         </div>
 
-        {/* Other Articles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {otherArticles.map((article) => (
-                 <Link href={`/articles/health/${article.id}`} key={article.id} className="glass-card overflow-hidden group cursor-pointer block">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {otherArticles.slice(4).map((article) => (
+                 <Link href={`/articles/beauty/${article.id}`} key={article.id} className="glass-card overflow-hidden group cursor-pointer block">
                     <div className="relative w-full aspect-[4/3]">
                         <Image
                             src={article.imageUrl}
@@ -144,7 +156,6 @@ export default function HealthPage() {
                     <div className="p-4">
                         <span className="text-xs font-semibold text-primary">{article.category}</span>
                         <h3 className="text-md font-bold mt-1 text-white group-hover:underline leading-tight">{article.title}</h3>
-                        <p className="text-sm text-white/70 mt-2 line-clamp-2">{article.excerpt}</p>
                     </div>
                 </Link>
             ))}

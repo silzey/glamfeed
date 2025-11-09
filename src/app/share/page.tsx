@@ -32,6 +32,7 @@ import {
   Leaf,
   Gem,
   Banknote,
+  Sparkles,
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { PageLoader } from '@/components/page-loader';
@@ -88,6 +89,7 @@ export default function SharePage() {
     { Icon: HeartPulse, name: 'Health', href: '/health' },
     { Icon: Leaf, name: 'Yoga', href: '/yoga' },
     { Icon: BrainCircuit, name: 'Growth', href: '/growth' },
+    { Icon: Sparkles, name: 'Beauty', href: '/beauty' },
     ...(canInstall ? [{ Icon: Download, name: 'Install', href: '#install' }] : []),
     { Icon: LogOut, name: 'Logout', href: '#logout' },
   ];

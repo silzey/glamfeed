@@ -10,6 +10,79 @@ export type Article = {
   date: string;
 };
 
+export const beautyArticles: Article[] = [
+    {
+        id: 'glass-skin-routine',
+        title: 'The Ultimate Guide to Achieving Glass Skin',
+        excerpt: 'Learn the step-by-step Korean skincare routine to get that coveted luminous, poreless, and translucent complexion.',
+        imageUrl: 'https://images.unsplash.com/photo-1590152994408-e43543534125?q=80&w=2187&auto=format&fit=crop',
+        imageHint: 'skincare products',
+        category: 'Skincare',
+        author: 'Serena Glass',
+        date: '2024-06-10',
+    },
+    {
+        id: 'bold-lip-tutorial',
+        title: 'How to Master the Perfect Bold Lip',
+        excerpt: 'A step-by-step tutorial on how to prep, line, and apply lipstick for a flawless, long-lasting bold lip that won\'t smudge.',
+        imageUrl: 'https://images.unsplash.com/photo-1671288239289-f01976a87c43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGxpcHN0aWNrfGVufDB8fHx8MTc2MjYwMzAwNHww&ixlib=rb-4.1.0&q=80&w=1080',
+        imageHint: 'bold lipstick',
+        category: 'Makeup',
+        author: 'Ruby Red',
+        date: '2024-06-08',
+    },
+    {
+        id: 'retinol-for-beginners',
+        title: 'Retinol for Beginners: A Complete Guide',
+        excerpt: 'Everything you need to know before adding retinol to your skincare routine, from choosing the right strength to avoiding irritation.',
+        imageUrl: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxza2luY2FyZSUyMHByb2R1Y3RzfGVufDB8fHx8MTc2MjUzMTM0OXww&ixlib=rb-4.1.0&q=80&w=1080',
+        imageHint: 'serum bottle',
+        category: 'Skincare',
+        author: 'Dr. Erin Derm',
+        date: '2024-06-05',
+    },
+    {
+        id: 'graphic-eyeliner-looks',
+        title: 'Unleash Your Inner Artist: 5 Graphic Eyeliner Looks to Try',
+        excerpt: 'Move beyond the classic wing with these creative and eye-catching graphic eyeliner styles that are surprisingly easy to recreate.',
+        imageUrl: 'https://images.unsplash.com/photo-1625094640367-05f84293fe42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxleWVzaGFkb3clMjBwYWxldHRlfGVufDB8fHx8MTc2MjU1NjI0NHww&ixlib=rb-4.1.0&q=80&w=1080',
+        imageHint: 'graphic eyeliner',
+        category: 'Tutorials',
+        author: 'Lina Art',
+        date: '2024-06-02',
+    },
+    {
+        id: 'sunscreen-every-day',
+        title: 'Why You Need to Wear Sunscreen Every Single Day',
+        excerpt: 'A deep dive into the importance of daily sun protection for preventing premature aging and reducing skin cancer risk.',
+        imageUrl: 'https://images.unsplash.com/photo-1580554763125-89498da13f9c?q=80&w=2070&auto=format&fit=crop',
+        imageHint: 'sunscreen application',
+        category: 'Skincare',
+        author: 'Sunny Shield',
+        date: '2024-05-30',
+    },
+    {
+        id: 'no-makeup-makeup',
+        title: 'The "No-Makeup" Makeup Look in 5 Easy Steps',
+        excerpt: 'Achieve a fresh, flawless, and natural-looking face with this quick and simple "no-makeup" makeup tutorial.',
+        imageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=2080&auto=format&fit=crop',
+        imageHint: 'natural makeup',
+        category: 'Tutorials',
+        author: 'Mia Natural',
+        date: '2024-05-28',
+    },
+    {
+        id: 'hair-slugging-trend',
+        title: 'Hair Slugging: The Viral Trend for Softer, Shinier Hair',
+        excerpt: 'Could coating your hair in oil overnight be the secret to luscious locks? We investigate the "hair slugging" trend.',
+        imageUrl: 'https://images.unsplash.com/photo-1599388825375-068393666336?q=80&w=2187&auto=format&fit=crop',
+        imageHint: 'healthy hair',
+        category: 'Haircare',
+        author: 'Holly Locks',
+        date: '2024-05-26',
+    },
+];
+
 export const yogaArticles: Article[] = [
   {
     id: 'deepen-your-practice',
@@ -322,3 +395,4 @@ export const growthArticles: Article[] = [
     date: '2024-05-22',
   },
 ];
+
