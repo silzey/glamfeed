@@ -69,7 +69,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
     if (isUserLoading || !post.id) {
          return (
             <div className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
-                <Skeleton className="relative aspect-video w-full rounded" />
+                <Skeleton className="relative aspect-square w-full rounded" />
                 <div className="flex items-center gap-4">
                     <Skeleton className="h-12 w-12 rounded-full" />
                     <div className="space-y-2">
@@ -103,7 +103,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
     return (
     <>
     {isNavigating && <PageLoader />}
-    <div className={cn("glass-card h-full flex flex-col group overflow-hidden card min-h-[550px]")}>
+    <div className={cn("glass-card h-full flex flex-col group overflow-hidden card min-h-[500px] sm:min-h-[550px]")}>
       <span className="glow"></span>
       <div className="inner">
         {post.mediaUrl && (
@@ -188,3 +188,5 @@ export function ReviewCard({ post }: ReviewCardProps) {
     </>
   );
 }
+
+    

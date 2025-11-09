@@ -79,7 +79,7 @@ export default function SettingsPage() {
     <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
       <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8 sm:py-12">
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-8">
             <Button variant="ghost" onClick={() => router.back()} className="text-muted-foreground hover:text-foreground -ml-4">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -150,3 +150,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

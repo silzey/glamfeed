@@ -91,7 +91,7 @@ export default function FeedUpload() {
 
   if (!user) {
       return (
-        <div className="container mx-auto max-w-md py-8 mt-16">
+        <div className="container mx-auto max-w-md py-8 mt-16 sm:mt-24">
             <div className="glass-card p-4 sm:p-6 text-center">
                 <h2 className="text-lg font-semibold mb-2 text-white">Join the conversation!</h2>
                 <p className="text-white/70 mb-4">Sign in to share your own reviews.</p>
@@ -102,7 +102,7 @@ export default function FeedUpload() {
   }
 
   return (
-    <div className="container mx-auto max-w-md py-8 mt-16">
+    <div className="container mx-auto max-w-md py-8 mt-16 sm:mt-24">
         <div className="glass-card p-4 sm:p-6">
         <h2 className="text-lg font-semibold mb-4 text-white">Create a new post</h2>
 
@@ -137,3 +137,5 @@ export default function FeedUpload() {
     </div>
   );
 }
+
+    

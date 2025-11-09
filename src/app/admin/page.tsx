@@ -293,7 +293,7 @@ const handleCreatePost = async () => {
 
         {/* Main Content */}
         <main className="flex-1 md:ml-64">
-            <div className="container mx-auto max-w-7xl px-4 py-8 space-y-8">
+            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {activePanel === 'Dashboard' && (
                     <div>
@@ -524,15 +524,5 @@ const handleCreatePost = async () => {
     </div>
   );
 }
-
-    
-
-    
-
-    
-
-    
-
-    
 
     

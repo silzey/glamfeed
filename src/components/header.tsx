@@ -47,7 +47,7 @@ export function Header() {
     <>
       {isNavigating && <PageLoader />}
       <header className="fixed top-0 z-50 w-full p-2 sm:p-4">
-        <div className="container mx-auto flex h-14 sm:h-16 items-center glass-card px-4 sm:px-6">
+        <div className="container mx-auto flex h-14 items-center glass-card px-4 sm:px-6">
           <Link href="/" className="mr-auto flex items-center space-x-2" onClick={(e) => handleNavigation(e, '/')}>
             <Gem className="h-8 w-8 text-primary" />
             <span className="hidden sm:inline-block text-xl font-bold text-white">GlamFeed</span>
@@ -163,7 +163,7 @@ export function Header() {
                               <PlusCircle className="h-5 w-5" />
                           </Button>
                       </Link>
-                      <Button onClick={handleSignInClick} className="glass-button h-10 sm:h-12 px-4 rounded-full text-sm sm:text-base">
+                      <Button onClick={handleSignInClick} className="glass-button h-10 px-4 rounded-full text-sm">
                           Sign In
                       </Button>
                   </>
@@ -174,3 +174,5 @@ export function Header() {
     </>
   );
 }
+
+    

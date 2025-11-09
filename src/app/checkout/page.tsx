@@ -73,14 +73,16 @@ export default function CheckoutPage() {
           <div className="credit-info">
             <div className="credit-info-content">
               <table className='half-input-table'>
-                <tr>
-                  <td>Please select your card: </td>
-                  <td>
-                    <div className='dropdown' id='card-dropdown'>
-                      <div className='dropdown-btn' id='current-card'>Visa</div>
-                    </div>
-                  </td>
-                </tr>
+                <tbody>
+                  <tr>
+                    <td>Please select your card: </td>
+                    <td>
+                      <div className='dropdown' id='card-dropdown'>
+                        <div className='dropdown-btn' id='current-card'>Visa</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
               <img src='https://dl.dropboxusercontent.com/s/ubamyu6dpjc5xow/cc.png' height='80' className='credit-card-image' id='credit-card-image' alt="credit card"/>
               Card Number
@@ -88,16 +90,18 @@ export default function CheckoutPage() {
               Card Holder
               <input className='input-field'></input>
               <table className='half-input-table'>
-                <tr>
-                  <td>
-                    Expires
-                    <input className='input-field'></input>
-                  </td>
-                  <td>
-                    CVC
-                    <input className='input-field'></input>
-                  </td>
-                </tr>
+                <tbody>
+                  <tr>
+                    <td>
+                      Expires
+                      <input className='input-field'></input>
+                    </td>
+                    <td>
+                      CVC
+                      <input className='input-field'></input>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
               <button className='pay-btn'>Checkout</button>
             </div>
@@ -107,3 +111,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+    

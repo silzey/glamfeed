@@ -71,7 +71,7 @@ export default function ReviewDetailsPage() {
 
     if (isPostLoading || areCommentsLoading || isAuthLoading) {
         return (
-            <div className="container mx-auto max-w-2xl px-4 py-8">
+            <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
                 <Skeleton className="h-[550px] w-full rounded-lg" />
                 <div className="mt-8 space-y-4">
                     <Skeleton className="h-16 w-full" />
@@ -83,14 +83,14 @@ export default function ReviewDetailsPage() {
     
     if (!post) {
         return (
-            <div className="container mx-auto max-w-2xl px-4 py-8 text-center">
+            <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8 text-center">
                 <p className="text-white/80">Review not found.</p>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto max-w-2xl px-4 py-8">
+        <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
             <div className="space-y-8">
                 <ReviewCard post={post} />
                 <div className="glass-card p-4 sm:p-6">
@@ -115,3 +115,5 @@ export default function ReviewDetailsPage() {
         </div>
     );
 }
+
+    

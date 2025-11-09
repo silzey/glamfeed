@@ -37,7 +37,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-2xl px-4 py-8">
+      <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
         <div className="space-y-8">
           {[...Array(3)].map((_, i) => (
              <div key={i} className="glass-card h-full flex flex-col group overflow-hidden card p-4 space-y-4">
@@ -59,7 +59,7 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-8">
+    <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
       <div className="space-y-8">
         {posts?.map(post => (
           <ReviewCard key={post.id} post={post} />
@@ -74,3 +74,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
