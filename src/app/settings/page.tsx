@@ -1,7 +1,7 @@
 
 'use client';
 import { useState, useEffect } from 'react';
-import { Palette, Sun, Moon, Contrast, Check, ArrowLeft, User as UserIcon, Loader2 } from 'lucide-react';
+import { Palette, Sun, Moon, Contrast, Check, ArrowLeft, User as UserIcon, Loader2, Volume2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
+import Link from 'next/link';
 
 const themes = [
   { name: 'Glam Pink', hsl: '340 90% 65%' },
@@ -141,6 +142,24 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="glass-card">
+                <CardContent className="p-6">
+                    <h2 className="text-lg font-semibold mb-4">Sound</h2>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Volume2 className="h-6 w-6 text-muted-foreground"/>
+                            <p className="text-foreground">Manage audio preferences</p>
+                        </div>
+                        <Button asChild variant="ghost" size="icon">
+                            <Link href="/sound">
+                                <ChevronRight className="h-5 w-5 text-muted-foreground"/>
+                            </Link>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
             <Card className="glass-card">
                 <CardContent className="p-6">
                     <h2 className="text-lg font-semibold mb-4">Appearance</h2>
