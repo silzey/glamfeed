@@ -82,3 +82,57 @@ export const yogaArticles: Article[] = [
     date: '2024-05-05',
   },
 ];
+
+
+export const newsArticles: Article[] = [
+  {
+    id: 'summer-beauty-trends',
+    title: 'Top 5 Beauty Trends to Try This Summer',
+    excerpt: 'From glossy lips to bold eyeshadows, discover the hottest beauty trends that are taking over this summer.',
+    imageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=2080&auto=format&fit=crop',
+    imageHint: 'summer beauty',
+    category: 'Trends',
+    author: 'Julia Styles',
+    date: '2024-06-01',
+  },
+  {
+    id: 'skincare-mistakes',
+    title: 'Are You Making These Common Skincare Mistakes?',
+    excerpt: 'A leading dermatologist breaks down the most common mistakes people make in their skincare routines and how to fix them for healthier skin.',
+    imageUrl: 'https://images.unsplash.com/photo-1552046122-03184de85e08?q=80&w=2187&auto=format&fit=crop',
+    imageHint: 'skincare routine',
+    category: 'Skincare',
+    author: 'Dr. Anya Sharma',
+    date: '2024-05-28',
+  },
+  {
+    id: 'celebrity-interview',
+    title: 'Exclusive: Celebrity MUA Shares Red Carpet Secrets',
+    excerpt: 'We sit down with a world-renowned makeup artist to get the inside scoop on how she preps A-listers for the red carpet.',
+    imageUrl: 'https://images.unsplash.com/photo-1616099079201-3837a8951859?q=80&w=2187&auto=format&fit=crop',
+    imageHint: 'makeup artist',
+    category: 'Interviews',
+    author: 'Chloe Reporter',
+    date: '2024-05-25',
+  },
+    {
+    id: 'new-product-launch',
+    title: 'The Viral Foundation That’s Selling Out Everywhere',
+    excerpt: 'A new foundation has taken the internet by storm. We investigate if it lives up to the hype and where you can get your hands on it.',
+    imageUrl: 'https://images.unsplash.com/photo-1590152994408-e43543534125?q=80&w=2187&auto=format&fit=crop',
+    imageHint: 'foundation product',
+    category: 'Products',
+    author: 'Ben Filter',
+    date: '2024-05-22',
+  },
+  {
+    id: 'diy-face-masks',
+    title: 'Natural Glow: 3 DIY Face Masks You Can Make at Home',
+    excerpt: 'Get radiant skin with these simple and effective DIY face masks using ingredients you probably already have in your kitchen.',
+    imageUrl: 'https://images.unsplash.com/photo-1596524430615-b46475ddff6e?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'DIY facemask',
+    category: 'DIY Beauty',
+    author: 'Aisha Green',
+    date: '2024-05-19',
+  },
+];
