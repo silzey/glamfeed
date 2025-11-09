@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -19,7 +20,7 @@ const GoogleIcon = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail, signInWithGoogle, isUserLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -75,9 +76,14 @@ export default function LoginPage() {
     }
   };
 
-  if (isLoading) {
-    return null;
+  if (isUserLoading) {
+    return (
+      <div className="fixed inset-0 z-[100] flex h-screen w-screen items-center justify-center bg-background/80 backdrop-blur-sm">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
   }
+
 
   return (
     <div className="login-body">
@@ -119,7 +125,10 @@ export default function LoginPage() {
                 />
               </div>
               <div className="input-control">
-                <input type="submit" name="submit" className="input-submit" value="Sign In" />
+                <Button type="submit" className="input-submit" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign In
+                </Button>
               </div>
             </form>
             <div className="striped">
@@ -129,7 +138,8 @@ export default function LoginPage() {
             </div>
             <div className="method">
                <div className="method-control">
-                    <Button variant="outline" className="w-full method-action" onClick={handleGoogleSignIn}>
+                    <Button variant="outline" className="w-full method-action" onClick={handleGoogleSignIn} disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         <GoogleIcon />
                         <span>Sign in with Google</span>
                     </Button>

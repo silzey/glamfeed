@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import '../login/styles.css'; 
+import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -20,7 +21,7 @@ const GoogleIcon = () => (
 );
 
 export default function SignupPage() {
-  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const { signUpWithEmail, signInWithGoogle, isUserLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -82,8 +83,12 @@ export default function SignupPage() {
     }
   };
 
-  if (isActionLoading) {
-    return null;
+  if (isUserLoading) {
+    return (
+      <div className="fixed inset-0 z-[100] flex h-screen w-screen items-center justify-center bg-background/80 backdrop-blur-sm">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -144,7 +149,10 @@ export default function SignupPage() {
                 </label>
               </div>
               <div className="input-control">
-                <input type="submit" name="submit" className="input-submit" value="Sign Up" disabled={!termsAccepted}/>
+                <Button type="submit" className="input-submit" disabled={!termsAccepted || isActionLoading}>
+                    {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign Up
+                </Button>
               </div>
             </form>
             <div className="striped">
@@ -154,7 +162,8 @@ export default function SignupPage() {
             </div>
             <div className="method">
                <div className="method-control">
-                    <Button variant="outline" className="w-full method-action" onClick={handleGoogleSignIn} disabled={!termsAccepted}>
+                    <Button variant="outline" className="w-full method-action" onClick={handleGoogleSignIn} disabled={!termsAccepted || isActionLoading}>
+                        {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         <GoogleIcon />
                         <span>Sign up with Google</span>
                     </Button>

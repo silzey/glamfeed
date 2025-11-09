@@ -99,6 +99,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color .2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .input-submit:disabled {
