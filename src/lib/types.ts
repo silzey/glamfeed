@@ -2,6 +2,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -90,5 +91,6 @@ export type Transaction = {
     date: string; // ISO 8601 format
 };
     
+
 
 

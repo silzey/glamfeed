@@ -1,103 +1,38 @@
 
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFirestore } from '@/firebase/hooks/use-firebase';
-import { collection, query, orderBy, limit, getDocs, startAfter, DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, DocumentData } from 'firebase/firestore';
 import type { Post } from '@/lib/types';
 import { ReviewCard } from '@/components/review-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-
-const PAGE_SIZE = 5;
 
 export default function Home() {
   const firestore = useFirestore();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
-  const fetchPosts = useCallback(async (lastDoc: QueryDocumentSnapshot<DocumentData> | null) => {
+  useEffect(() => {
     if (!firestore) return;
 
-    let postsQuery;
-    if (lastDoc) {
-      postsQuery = query(
-        collection(firestore, 'feed'),
-        orderBy('createdAt', 'desc'),
-        startAfter(lastDoc),
-        limit(PAGE_SIZE)
-      );
-    } else {
-      postsQuery = query(
-        collection(firestore, 'feed'),
-        orderBy('createdAt', 'desc'),
-        limit(PAGE_SIZE)
-      );
-    }
-
-    try {
-      const documentSnapshots = await getDocs(postsQuery);
-      const newPosts = documentSnapshots.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
-      
-      setPosts(prevPosts => lastDoc ? [...prevPosts, ...newPosts] : newPosts);
-      
-      const lastDocInBatch = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-      setLastVisible(lastDocInBatch);
-
-      if (documentSnapshots.docs.length < PAGE_SIZE) {
-        setHasMore(false);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  }, [firestore]);
-
-
-  useEffect(() => {
     setIsLoading(true);
-    fetchPosts(null).then(() => {
-        setIsLoading(false);
-    });
-  }, [fetchPosts]);
-  
-  const handleFetchMore = useCallback(() => {
-    if (isFetchingMore || !hasMore || !lastVisible) return;
-    setIsFetchingMore(true);
-    fetchPosts(lastVisible).finally(() => {
-      setIsFetchingMore(false);
-    });
-  }, [isFetchingMore, hasMore, lastVisible, fetchPosts]);
-
-  useEffect(() => {
-    if (isLoading || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          handleFetchMore();
-        }
-      },
-      { threshold: 1.0 }
+    const postsQuery = query(
+      collection(firestore, 'feed'),
+      orderBy('createdAt', 'desc')
     );
 
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-    
-    observerRef.current = observer;
+    const unsubscribe = onSnapshot(postsQuery, (querySnapshot) => {
+      const newPosts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      setPosts(newPosts);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching posts in real-time:", error);
+      setIsLoading(false);
+    });
 
-    return () => {
-      if (observerRef.current && loadMoreRef.current) {
-        observerRef.current.unobserve(loadMoreRef.current);
-      }
-    };
-  }, [isLoading, hasMore, handleFetchMore]);
+    return () => unsubscribe();
+  }, [firestore]);
 
 
   if (isLoading) {
@@ -135,14 +70,6 @@ export default function Home() {
                 <p className="text-sm text-white/50 mt-2">Looks like there's nothing here right now.</p>
             </div>
          )}
-        <div ref={loadMoreRef} className="flex justify-center py-6">
-            {isFetchingMore && (
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            )}
-            {!hasMore && posts.length > 0 && (
-                <p className="text-sm text-white/50">You've reached the end of the feed.</p>
-            )}
-        </div>
       </div>
     </div>
   );

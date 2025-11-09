@@ -71,16 +71,7 @@ export default function CommentCard({ comment }: CommentCardProps) {
             return;
         }
 
-        // The path to the comment is complex. Assuming a structure for now.
-        // A better structure would be a top level reviews collection.
-        // This path is likely incorrect and needs to be adjusted based on final data model.
-        // For now, this is a placeholder to show the logic.
-        const postOwnerId = comment.reviewId.split('_')[0];
-        if (!postOwnerId) {
-            console.error("Could not determine post owner from reviewId");
-            return;
-        }
-        const commentRef = doc(firestore, 'users', postOwnerId, 'reviews', comment.reviewId, 'comments', comment.id);
+        const commentRef = doc(firestore, 'feed', comment.reviewId, 'comments', comment.id);
         
         const incrementValue = isLiked ? -1 : 1;
         
