@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Header } from '@/components/header';
 import { 
     BarChart, Users, Heart, MessageCircle, ArrowLeft, Share2, Eye, UserPlus, 
@@ -42,6 +42,12 @@ export default function AnalyticsPage() {
   }, [firestore, authUser]);
 
   const { data: reviews, isLoading: isLoadingReviews } = useCollection<Post>(reviewsQuery);
+
+  useEffect(() => {
+    if (!isUserLoading && !authUser) {
+      router.push('/login');
+    }
+  }, [isUserLoading, authUser, router]);
 
   const engagementData = useMemo(() => {
     const months = Array.from({ length: 6 }, (_, i) => {
@@ -113,12 +119,7 @@ export default function AnalyticsPage() {
   }, [reviews, authUser]);
 
 
-  if (isUserLoading || isLoadingReviews) {
-    return <PageLoader />;
-  }
-  
-  if (!authUser) {
-    router.push('/login');
+  if (isUserLoading || isLoadingReviews || !authUser) {
     return <PageLoader />;
   }
 
