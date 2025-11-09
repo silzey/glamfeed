@@ -2,11 +2,11 @@
 'use client';
 
 import { Header } from '@/components/header';
-import { Settings, Palette, Bell, Shield, Info, ArrowLeft, User as UserIcon, Volume2, ChevronRight } from 'lucide-react';
+import { Settings, Palette, Bell, Shield, Info, ArrowLeft, User as UserIcon, Volume2, ChevronRight, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { useAuth, useStorage, useFirestore } from '@/firebase';
 import { Input } from '@/components/ui/input';
@@ -14,9 +14,10 @@ import { useToast } from '@/hooks/use-toast';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
 import { Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 
 const settingsItems = [
-    { href: '/settings', Icon: UserIcon, title: 'Profile', description: 'Manage your profile picture and public info.'},
     { href: '/settings', Icon: Palette, title: 'Appearance', description: 'Customize the app\'s look and feel.' },
     { href: '/sound', Icon: Volume2, title: 'Sound', description: 'Manage audio and sound preferences.' },
     { href: '/settings', Icon: Bell, title: 'Notifications', description: 'Choose what you want to be notified about.' },
@@ -59,6 +60,7 @@ export default function SettingsPage() {
         description: 'Your profile picture has been updated. It may take a moment to reflect across the app.',
       });
       
+      // Force a reload of the page to show the new avatar
       window.location.reload();
 
     } catch (error: any) {
@@ -98,6 +100,35 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-8">
+
+             <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="text-lg">Profile Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                     <Avatar className="h-16 w-16 border-2 border-primary/50">
+                        <AvatarImage src={user?.avatarUrl} alt={user?.name || 'User'}/>
+                        <AvatarFallback>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-2">
+                        <Input id="profile-pic-upload" type="file" accept="image/jpeg,image/png" onChange={(e) => setProfilePicFile(e.target.files?.[0] || null)} className="bg-black/40 border-white/20 file:text-primary file:font-semibold flex-1"/>
+                         <div className="flex gap-2">
+                             <Button onClick={handleProfilePicUpload} disabled={isUploading || !profilePicFile} size="sm">
+                                {isUploading ? <Loader2 className="animate-spin" /> : 'Save Photo'}
+                            </Button>
+                             <Button variant="outline" size="sm" asChild>
+                                <Link href="/profile/edit">
+                                    <Edit className="mr-2 h-4 w-4"/>
+                                    Edit Name & Bio
+                                </Link>
+                             </Button>
+                        </div>
+                    </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {settingsItems.map((item) => (
               <Card className="glass-card" key={item.title}>
                   <CardContent className="p-4">
@@ -114,23 +145,6 @@ export default function SettingsPage() {
                   </CardContent>
               </Card>
             ))}
-
-            <Card className="glass-card">
-              <CardContent className="p-6">
-                <h2 className="text-lg font-semibold mb-4">Profile</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="profile-pic-upload" className="text-sm font-medium text-muted-foreground">Update Profile Picture</label>
-                    <div className="flex items-center gap-4 mt-2">
-                      <Input id="profile-pic-upload" type="file" accept="image/jpeg,image/png" onChange={(e) => setProfilePicFile(e.target.files?.[0] || null)} className="bg-black/40 border-white/20 file:text-primary file:font-semibold flex-1"/>
-                      <Button onClick={handleProfilePicUpload} disabled={isUploading || !profilePicFile}>
-                        {isUploading ? <Loader2 className="animate-spin" /> : 'Upload'}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
         </div>
       </main>
     </div>
