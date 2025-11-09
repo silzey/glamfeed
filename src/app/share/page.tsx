@@ -39,7 +39,14 @@ const SharePage = () => {
                         } else if (item.name === 'Wishlist') {
                             href = '/wishlist';
                             target = '_self';
+                        } else if (item.name === 'News') {
+                            href = '/news';
+                            target = '_self';
+                        } else if (item.name === 'Yoga') {
+                            href = '/yoga';
+                            target = '_self';
                         }
+
 
                         return (
                             <Link

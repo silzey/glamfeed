@@ -146,7 +146,7 @@ export default function YogaPage() {
                             src={article.imageUrl}
                             alt={article.title}
                             fill
-                            className="object-cover group-hover:scale-105 transition--transform duration-300"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
                             data-ai-hint={article.imageHint}
                         />
                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>

@@ -42,6 +42,7 @@ import {
   Camera,
   AppWindow,
   Shield,
+  Leaf,
 } from 'lucide-react';
 
 export const socialIcons = [
@@ -78,7 +79,7 @@ export const socialIcons = [
   { name: 'Terms', icon: FileText },
   { name: 'Wallet', icon: Wallet },
   { name: 'Wishlist', icon: Heart },
-  { name: 'Yoga', icon: Flower },
+  { name: 'Yoga', icon: Leaf },
   { name: 'Mission', icon: Goal },
   { name: 'Likes', icon: Heart },
   { name: 'Help', icon: HelpCircle },
