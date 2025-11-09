@@ -52,8 +52,13 @@ export function Header() {
               ) : authUser ? (
                 <>
                   <Link href="/settings" passHref>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
                         <Palette className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/share" passHref>
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                        <Gem className="h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href="/upload" passHref>
@@ -134,9 +139,14 @@ export function Header() {
               ) : (
                   <>
                       <Link href="/settings" passHref>
-                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
                               <Palette className="h-5 w-5" />
                           </Button>
+                      </Link>
+                      <Link href="/share" passHref>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                            <Gem className="h-5 w-5" />
+                        </Button>
                       </Link>
                        <Link href="/upload" passHref>
                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
@@ -154,7 +164,3 @@ export function Header() {
     </>
   );
 }
-
-    
-
-    
