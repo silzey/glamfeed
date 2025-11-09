@@ -65,7 +65,7 @@ export const socialIcons = [
   { name: 'Codepen', icon: Codepen },
   { name: 'Sandbox', icon: Codesandbox },
   { name: 'Branch', icon: GitBranch },
-  { name: 'Star', icon: Star },
+  { name: 'Favorite', icon: Star },
   { name: 'Home', icon: Home },
   { name: 'Coins', icon: Coins },
   { name: 'Shop', icon: Store },
