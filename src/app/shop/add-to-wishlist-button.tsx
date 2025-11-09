@@ -38,9 +38,10 @@ export default function AddToWishlistButton({ product }: AddToWishlistButtonProp
     <Button
       onClick={handleWishlistClick}
       size="icon"
+      variant="ghost"
       className={cn(
-        "absolute top-2 right-2 h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm transition-all hover:bg-primary/70",
-        inWishlist ? "text-primary" : "text-white"
+        "absolute top-2 right-2 h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm transition-all hover:bg-black/70",
+        inWishlist ? "text-primary opacity-100" : "text-white opacity-0 group-hover:opacity-100"
       )}
     >
       <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
