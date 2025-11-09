@@ -3,9 +3,9 @@
 
 export function PageLoader() {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <svg
-        className="h-16 w-16 animate-spin-fast text-primary"
+        className="h-16 w-16 animate-spin text-primary"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

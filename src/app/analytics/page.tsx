@@ -59,7 +59,7 @@ export default function AnalyticsPage() {
     if (!reviews) return months;
 
     reviews.forEach(review => {
-      if (review.createdAt) {
+      if (review.createdAt && review.createdAt.toDate) {
         const reviewDate = review.createdAt.toDate();
         const monthStr = format(reviewDate, 'MMM');
         const monthData = months.find(m => m.month === monthStr);
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
       totalComments,
       totalShares,
       topPost,
-      engagementRate: reviews.length > 0 ? (((totalLikes + totalComments) / reviews.length) / followerCount) * 100 : 0, 
+      engagementRate: reviews.length > 0 && followerCount > 0 ? (((totalLikes + totalComments) / reviews.length) / followerCount) * 100 : 0, 
     };
   }, [reviews, authUser]);
 
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
     return <PageLoader />;
   }
 
-  const topPostImage = analytics?.topPost ? PlaceHolderImages.find(p => p.imageUrl === analytics.topPost.mediaUrl) : null;
+  const topPostImage = analytics?.topPost ? PlaceHolderImages.find(p => p.imageUrl === analytics.topPost!.mediaUrl) : null;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
