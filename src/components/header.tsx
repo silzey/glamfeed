@@ -1,7 +1,7 @@
 
 'use client';
 import { useState } from 'react';
-import { Palette, PlusCircle, LogOut, Gem, Settings, Shield, Heart } from 'lucide-react';
+import { Palette, PlusCircle, LogOut, Gem, Settings, Shield, Heart, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -95,6 +95,12 @@ export function Header() {
                         <Link href="/wishlist">
                             <Heart className="mr-2 h-4 w-4" />
                             <span>Wishlist</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
+                        <Link href="/wallet">
+                            <Wallet className="mr-2 h-4 w-4" />
+                            <span>Wallet</span>
                         </Link>
                       </DropdownMenuItem>
                        {isAdminUser && (
