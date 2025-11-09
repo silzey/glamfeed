@@ -1,71 +1,55 @@
 {
-    "categories": {
-      "Products": {
-        "Skincare": [
-          "Cleansers",
-          "Serums",
-          "Moisturizers",
-          "Sunscreens",
-          "Masks",
-          "Eye Creams"
-        ],
-        "Makeup": {
-          "Face": [
-            "Foundation",
-            "Concealer",
-            "Powder",
-            "Blush",
-            "Bronzer",
-            "Highlighter"
-          ],
-          "Eyes": [
-            "Mascara",
-            "Eyeshadow",
-            "Eyeliner",
-            "Eyebrow"
-          ],
-          "Lips": [
-            "Lipstick",
-            "Lip Gloss",
-            "Lip Liner"
-          ]
-        },
-        "Haircare": [
-          "Shampoo",
-          "Conditioner",
-          "Styling Products",
-          "Treatments"
-        ],
-        "Fragrance": [
-          "Perfume",
-          "Cologne",
-          "Body Mist"
-        ]
+  "categories": {
+    "Beauty": {
+      "Makeup": {
+        "Face": ["Foundation", "Concealer", "Primer", "Powder", "Blush", "Bronzer", "Highlighter", "Contour", "Setting Spray"],
+        "Eyes": ["Eyeshadow", "Eyeliner", "Mascara", "Eyebrow Pencil", "Eyebrow Gel", "False Lashes", "Lash Glue"],
+        "Lips": ["Lipstick", "Lip Gloss", "Lip Liner", "Lip Balm", "Lip Oil", "Lip Tint"],
+        "Makeup Remover": ["Cleansing Balm", "Micellar Water", "Makeup Wipes"]
       },
-      "Trends": {
-        "Looks": [
-          "Natural Glow",
-          "Bold Lip",
-          "Smokey Eye",
-          "Glass Skin",
-          "Graphic Liner"
-        ],
-        "Ingredients": [
-          "Hyaluronic Acid",
-          "Retinol",
-          "Vitamin C",
-          "Niacinamide",
-          "Squalane"
-        ]
+      "Skincare": {
+        "Cleansers": ["Gel Cleanser", "Foam Cleanser", "Cream Cleanser", "Oil Cleanser", "Micellar Water"],
+        "Toners & Mists": ["Hydrating Toner", "Exfoliating Toner", "Setting Mist"],
+        "Serums & Treatments": ["Vitamin C", "Retinol", "Hyaluronic Acid", "Niacinamide", "Acne Treatment", "Anti-Aging"],
+        "Moisturizers": ["Cream", "Gel", "Lotion", "Night Cream", "Eye Cream"],
+        "Sun Care": ["Sunscreen", "After Sun"],
+        "Masks & Peels": ["Clay Mask", "Sheet Mask", "Overnight Mask"]
       },
-      "Brands": [
-        "Giorgio Armani",
-        "NARS",
-        "YSL Beauty",
-        "Dior",
-        "Urban Decay",
-        "Fenty Beauty",
-        "Glossier"
-      ]
+      "Haircare": {
+        "Products": ["Shampoo", "Conditioner", "Leave-in Conditioner", "Hair Oil", "Hair Mask", "Heat Protectant", "Scalp Treatment"],
+        "Styling": ["Hairspray", "Mousse", "Gel", "Wax", "Pomade", "Dry Shampoo"],
+        "Tools": ["Hair Dryer", "Flat Iron", "Curling Iron", "Brush", "Comb"]
+      },
+      "Fragrance": ["Perfume", "Eau de Parfum", "Body Mist", "Roll-on", "Perfume Oil", "Candles", "Home Scents"],
+      "Body Care": ["Body Wash", "Scrub", "Lotion", "Body Butter", "Deodorant", "Hand Cream", "Foot Care", "Bath Salts", "Bath Bombs"],
+      "Nails": ["Nail Polish", "Nail Art Tools", "Press-ons", "Base Coat", "Top Coat", "Nail Treatment", "Cuticle Oil"]
+    },
+    "Fashion": {
+      "Clothing": {
+        "By Type": ["Dresses", "Tops", "Bottoms", "Outerwear", "Activewear", "Swimwear", "Loungewear", "Jumpsuits", "Rompers"],
+        "By Style": ["Casual", "Streetwear", "Formal", "Business", "Boho", "Vintage", "Minimalist"],
+        "By Season": ["Spring", "Summer", "Fall", "Winter"],
+        "By Occasion": ["Party", "Date Night", "Wedding Guest", "Vacation"]
+      },
+      "Shoes": ["Heels", "Sandals", "Boots", "Flats", "Sneakers", "Loafers", "Slippers"],
+      "Accessories": ["Jewelry", "Handbags", "Wallets", "Belts", "Hats", "Scarves", "Gloves", "Sunglasses", "Watches"],
+      "Intimates & Loungewear": ["Bras", "Underwear", "Shapewear", "Sleepwear", "Robes", "Slippers"]
+    },
+    "Health & Wellness": {
+      "Wellness Products": ["Supplements", "Vitamins", "Essential Oils", "Aromatherapy", "Period Care", "Wellness Tools"],
+      "Fitness Gear": ["Yoga Mats", "Resistance Bands", "Water Bottles"]
+    },
+    "Tools & Devices": {
+      "Beauty Tools": ["Makeup Brushes", "Sponges", "Skincare Devices", "LED Masks"],
+      "Hair Tools": ["Curling Irons", "Straighteners", "Dryers"],
+      "Organizers": ["Makeup Bags", "Storage Boxes"]
+    },
+    "Luxury & Designer": {
+      "Categories": ["Designer Brands", "Limited Editions", "Collaborations", "Influencer Collections"]
+    },
+    "Trends & Collections": {
+      "Trending": ["Viral Products", "Clean Beauty", "Vegan", "Cruelty-Free"],
+      "Seasonal": ["Holiday Collections", "Festival Styles"]
     }
   }
+}
