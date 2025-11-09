@@ -7,6 +7,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -39,9 +40,12 @@ export type Review = {
   rating: number; // 1-5
   text: string;
   imageId: string;
+  imageUrl?: string;
   likes: number;
+  likeCount?: number;
   comments: Comment[];
-  createdAt: string;
+  commentCount?: number;
+  createdAt: any;
 };
 
 export type PopulatedReview = Review & {
