@@ -37,7 +37,7 @@ service cloud.firestore {
     }
 
     // --- Nested Reviews Collection ---
-    // Rules for the /users/{userId}/reviews/{reviewId} path
+    // This is a subcollection of a user, not a top-level collection
     match /users/{userId}/reviews/{reviewId} {
       // Anyone can read a review
       allow read: if true;
@@ -47,13 +47,16 @@ service cloud.firestore {
     }
 
     // --- Nested Comments Collection ---
-    // Rules for the /users/{userId}/reviews/{reviewId}/comments/{commentId} path
+    // This is a subcollection of a review
     match /users/{userId}/reviews/{reviewId}/comments/{commentId} {
       // Anyone can read comments
       allow read: if true;
       
-      // A user can only create, update, or delete their own comment.
-      allow write: if request.auth != null && request.auth.uid == userId;
+      // An authenticated user can create a comment
+      allow create: if request.auth != null;
+
+      // The original author of the comment can update or delete it
+      allow update, delete: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
     // --- Public Feed Collection (for denormalized posts) ---
@@ -66,8 +69,20 @@ service cloud.firestore {
         allow create: if request.auth != null;
 
         // The original author of the post can update or delete it.
-        // The resource.data.userId refers to the data of the document *before* the update.
+        // We check the incoming write's data for the userId to match.
         allow update, delete: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
+    // --- Nested Comments on Feed Posts ---
+    match /feed/{postId}/comments/{commentId} {
+      // Anyone can read comments on a feed post
+      allow read: if true;
+
+      // Any authenticated user can create a comment
+      allow create: if request.auth != null;
+
+      // Only the user who created the comment can edit or delete it
+      allow update, delete: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
     // --- Reports Collection (Admin Only) ---
