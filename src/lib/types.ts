@@ -4,6 +4,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -95,6 +96,22 @@ export type Transaction = {
     date: string; // ISO 8601 format
 };
     
+export type Notification = {
+  id: string;
+  type: 'like' | 'comment' | 'follow' | 'system';
+  user: {
+    id: string;
+    name: string;
+    avatarUrl: string;
+  };
+  post?: {
+    id: string;
+    imageUrl: string;
+  };
+  commentText?: string;
+  createdAt: string; // ISO 8601 string
+  read: boolean;
+};
 
 
 

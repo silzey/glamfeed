@@ -20,8 +20,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 const settingsItems = [
     { href: '/settings', Icon: Palette, title: 'Appearance', description: 'Customize the app\'s look and feel.' },
     { href: '/sound', Icon: Volume2, title: 'Sound', description: 'Manage audio and sound preferences.' },
-    { href: '/settings', Icon: Bell, title: 'Notifications', description: 'Choose what you want to be notified about.' },
-    { href: '/settings', Icon: Shield, title: 'Privacy & Safety', description: 'Control your data and account privacy.' },
+    { href: '/notifications', Icon: Bell, title: 'Notifications', description: 'Choose what you want to be notified about.' },
+    { href: '/privacy', Icon: Shield, title: 'Privacy & Safety', description: 'Control your data and account privacy.' },
 ];
 
 export default function SettingsPage() {
