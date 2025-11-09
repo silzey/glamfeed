@@ -6,13 +6,15 @@ import { useRouter } from 'next/navigation';
 import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const GoogleIcon = () => (
-    <svg className="w-5 h-5" viewBox="0 0 48 48">
-        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039L38.802 8.94C34.331 4.791 29.333 2 24 2C11.822 2 2 11.822 2 24s9.822 22 22 22c11.133 0 20.21-8.526 21.611-19.389l-1.012-.528z" />
-        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.841-5.841C34.331 4.791 29.333 2 24 2C16.318 2 9.656 6.337 6.306 14.691z" />
-        <path fill="#4CAF50" d="M24 46c5.952 0 11.133-2.543 14.897-6.584l-6.522-5.027C30.594 36.686 27.536 38 24 38c-5.22 0-9.641-3.336-11.283-7.946l-6.571 4.819C9.656 41.663 16.318 46 24 46z" />
-        <path fill="#1565C0" d="M43.611 20.083L43.595 20L42 20H24v8h11.303c-0.792 2.237-2.231 4.166-4.087 5.571l6.522 5.027C39.587 35.92 44 28.718 44 24c0-1.582-.158-3.116-.446-4.594l-0.035-.117L43.611 20.083z" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        <path d="M1 1h22v22H1z" fill="none"/>
     </svg>
 );
 
@@ -73,63 +75,69 @@ export default function LoginPage() {
     }
   };
 
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
   return (
-    <>
-      {isLoading && <PageLoader />}
-      <div className="login-wrap">
-        <div className="login-html">
-          <div className="login-form-container">
-            <div className="login-header">
-              <h1 className="text-2xl font-bold text-white">Sign In</h1>
-              <p className="text-sm text-white/70">
+    <div className="login-body">
+      <main className="main">
+        <div className="container">
+          <section className="wrapper">
+            <div className="heading">
+              <h1 className="text text-large">Sign In</h1>
+              <p className="text text-normal">
                 Don't have an account?{' '}
-                <Link href="/signup" className="text-primary hover:underline">
+                <Link href="/signup" className="text text-links">
                   Sign Up
                 </Link>
               </p>
             </div>
-            <div className="login-form">
-              <form onSubmit={handleSignIn}>
-                <div className="group">
-                  <label htmlFor="user" className="label">Email Address</label>
-                  <input
-                    id="user"
-                    type="text"
-                    className="input"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="group">
-                  <label htmlFor="pass" className="label">Password</label>
-                  <input
-                    id="pass"
-                    type="password"
-                    className="input"
-                    data-type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-
-                <div className="group">
-                  <input type="submit" className="button" value="Sign In" disabled={isLoading} />
-                </div>
-                <div className="hr"></div>
-                <div className="group">
-                  <button type="button" onClick={handleGoogleSignIn} className="button flex items-center justify-center gap-2" disabled={isLoading}>
-                    <GoogleIcon />
-                    Sign In with Google
-                  </button>
-                </div>
-                <div className="foot-lnk">
-                  <a href="#forgot">Forgot Password?</a>
-                </div>
-              </form>
+            <form name="signin" className="form" onSubmit={handleSignIn}>
+              <div className="input-control">
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  className="input-field"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="input-control">
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  className="input-field"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="input-control">
+                <input type="submit" name="submit" className="input-submit" value="Sign In" />
+              </div>
+            </form>
+            <div className="striped">
+              <span className="striped-line"></span>
+              <span className="striped-text">Or</span>
+              <span className="striped-line"></span>
             </div>
-          </div>
+            <div className="method">
+               <div className="method-control">
+                    <Button variant="outline" className="w-full method-action" onClick={handleGoogleSignIn}>
+                        <GoogleIcon />
+                        <span>Sign in with Google</span>
+                    </Button>
+                </div>
+            </div>
+          </section>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

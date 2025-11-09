@@ -82,50 +82,52 @@ export default function SignupPage() {
     }
   };
 
+  if (isActionLoading) {
+    return <PageLoader />;
+  }
+
   return (
-    <>
-    {isActionLoading && <PageLoader />}
-     <div className="login-wrap">
-      <div className="login-html">
-        <div className="login-form-container">
-            <div className="login-header">
-              <h1 className="text-2xl font-bold text-white">Create Account</h1>
-              <p className="text-sm text-white/70">Already have an account? <span><Link href="/login" className="text-primary hover:underline">Sign In</Link></span>
+    <div className="login-body">
+      <main className="main">
+        <div className="container">
+          <section className="wrapper">
+            <div className="heading">
+              <h1 className="text text-large">Create Account</h1>
+              <p className="text text-normal">Already have an account? <span><Link href="/login" className="text text-links">Sign In</Link></span>
               </p>
             </div>
-            <form name="signup" className="login-form" onSubmit={handleSignup}>
-              <div className="group">
-                <label htmlFor="username" className="label">Username</label>
+            <form name="signup" className="form" onSubmit={handleSignup}>
+              <div className="input-control">
                 <input
                   type="text"
                   name="username"
                   id="username"
-                  className="input"
+                  className="input-field"
+                  placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
-              <div className="group">
-                 <label htmlFor="email" className="label">Email Address</label>
+              <div className="input-control">
                 <input
                   type="email"
                   name="email"
                   id="email"
-                  className="input"
+                  className="input-field"
+                  placeholder="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
-              <div className="group">
-                <label htmlFor="password" className="label">Password</label>
+              <div className="input-control">
                 <input
                   type="password"
                   name="password"
                   id="password"
-                  className="input"
-                  data-type="password"
+                  className="input-field"
+                  placeholder="Password (min. 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -141,20 +143,26 @@ export default function SignupPage() {
                     .
                 </label>
               </div>
-              <div className="group">
-                <input type="submit" name="submit" className="button" value="Sign Up" disabled={!termsAccepted}/>
+              <div className="input-control">
+                <input type="submit" name="submit" className="input-submit" value="Sign Up" disabled={!termsAccepted}/>
               </div>
             </form>
-            <div className="hr"></div>
-            <div className="group">
-                <button type="button" onClick={handleGoogleSignIn} className="button flex items-center justify-center gap-2" disabled={!termsAccepted}>
-                    <GoogleIcon />
-                    Sign up with Google
-                </button>
+            <div className="striped">
+              <span className="striped-line"></span>
+              <span className="striped-text">Or</span>
+              <span className="striped-line"></span>
             </div>
+            <div className="method">
+               <div className="method-control">
+                    <Button variant="outline" className="w-full method-action" onClick={handleGoogleSignIn} disabled={!termsAccepted}>
+                        <GoogleIcon />
+                        <span>Sign up with Google</span>
+                    </Button>
+                </div>
+            </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
-    </>
   );
 }
