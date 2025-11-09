@@ -12,10 +12,12 @@ export default function Home() {
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    // Only show posts that are marked as visible
+    // Fetch posts where 'visible' is not explicitly false.
+    // This includes posts where visible is true and posts where the field is not yet set.
     return query(
         collection(firestore, 'feed'), 
-        where("visible", "==", true),
+        where("visible", "!=", false),
+        orderBy("visible"), // Order by visible to process true values first
         orderBy('createdAt', 'desc')
     );
   }, [firestore]);
