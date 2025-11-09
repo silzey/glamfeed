@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { yogaArticles } from '@/lib/articles';
+import { healthArticles } from '@/lib/articles';
 import { PageLoader } from '@/components/page-loader';
 import { cn } from '@/lib/utils';
 
-const mainArticle = yogaArticles[0];
-const otherArticles = yogaArticles.slice(1);
+const mainArticle = healthArticles[0];
+const otherArticles = healthArticles.slice(1);
 
 const categoryIcons = [
   { name: 'News', href: '/news', Icon: Newspaper },
@@ -23,7 +23,7 @@ const categoryIcons = [
   { name: 'Travel', href: '/travel', Icon: Grape },
 ];
 
-export default function YogaPage() {
+export default function HealthPage() {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
   
@@ -49,7 +49,7 @@ export default function YogaPage() {
           <div className="hidden sm:flex items-center gap-4">
               {categoryIcons.map(item => (
                    <Link href={item.href} key={item.name} onClick={(e) => handleNavigation(e, item.href)}>
-                       <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Yoga' ? 'text-primary bg-primary/10' : 'text-white/70')}>
+                       <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Health' ? 'text-primary bg-primary/10' : 'text-white/70')}>
                            <item.Icon className="h-6 w-6" />
                        </Button>
                    </Link>
@@ -58,14 +58,14 @@ export default function YogaPage() {
         </div>
 
         <div className="flex items-center gap-4 mb-8">
-          <Leaf
+          <HeartPulse
             className="h-10 w-10 text-primary"
             style={{ filter: 'drop-shadow(0 0 10px hsla(var(--primary), 0.7))' }}
           />
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Yoga & Mindfulness</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Health & Wellness</h1>
             <p className="text-md sm:text-lg text-white/70">
-              Find your balance and inner peace.
+              Tips and articles for a healthier lifestyle.
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function YogaPage() {
                 <div className="flex items-center justify-around">
                     {categoryIcons.map(item => (
                        <Link href={item.href} key={item.name} onClick={(e) => handleNavigation(e, item.href)}>
-                           <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Yoga' ? 'text-primary bg-primary/10' : 'text-white/70')}>
+                           <Button variant="ghost" size="icon" className={cn('h-12 w-12 rounded-full hover:bg-primary/20', item.name === 'Health' ? 'text-primary bg-primary/10' : 'text-white/70')}>
                                <item.Icon className="h-6 w-6" />
                            </Button>
                        </Link>
@@ -85,7 +85,7 @@ export default function YogaPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <Link href={`/articles/yoga/${mainArticle.id}`} className="lg:col-span-2 glass-card overflow-hidden group cursor-pointer block">
+          <Link href={`/articles/health/${mainArticle.id}`} className="lg:col-span-2 glass-card overflow-hidden group cursor-pointer block">
              <div className="relative w-full aspect-video">
                 <Image
                     src={mainArticle.imageUrl}
@@ -108,7 +108,7 @@ export default function YogaPage() {
                 <h3 className="text-lg font-semibold flex items-center gap-2 mb-3"><TrendingUp className="text-primary"/> Most Popular</h3>
                 <div className="space-y-4">
                     {otherArticles.slice(0, 2).map((article) => (
-                        <Link href={`/articles/yoga/${article.id}`} key={article.id} className="flex items-center gap-4 group cursor-pointer">
+                        <Link href={`/articles/health/${article.id}`} key={article.id} className="flex items-center gap-4 group cursor-pointer">
                             <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
                                  <Image
                                     src={article.imageUrl}
@@ -127,10 +127,10 @@ export default function YogaPage() {
                 </div>
             </div>
              <div className="glass-card p-4">
-                <h3 className="text-lg font-semibold mb-3">Beginner's Corner</h3>
+                <h3 className="text-lg font-semibold mb-3">Recent Articles</h3>
                 <div className="space-y-4">
                     {otherArticles.slice(2, 4).map((article) => (
-                        <Link href={`/articles/yoga/${article.id}`} key={article.id} className="group cursor-pointer block">
+                        <Link href={`/articles/health/${article.id}`} key={article.id} className="group cursor-pointer block">
                             <span className="text-xs font-semibold text-primary">{article.category}</span>
                             <h4 className="font-semibold leading-tight text-white group-hover:underline">{article.title}</h4>
                         </Link>
@@ -142,7 +142,7 @@ export default function YogaPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {otherArticles.slice(4).map((article) => (
-                 <Link href={`/articles/yoga/${article.id}`} key={article.id} className="glass-card overflow-hidden group cursor-pointer block">
+                 <Link href={`/articles/health/${article.id}`} key={article.id} className="glass-card overflow-hidden group cursor-pointer block">
                     <div className="relative w-full aspect-[4/3]">
                         <Image
                             src={article.imageUrl}

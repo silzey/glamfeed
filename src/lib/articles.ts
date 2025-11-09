@@ -166,3 +166,68 @@ export const newsArticles: Article[] = [
     date: '2024-05-11',
   },
 ];
+
+export const healthArticles: Article[] = [
+  {
+    id: 'holistic-health-guide',
+    title: 'A Beginner\'s Guide to Holistic Health',
+    excerpt: 'Explore the foundations of holistic health, which considers the whole person—body, mind, spirit, and emotions—in the quest for optimal wellness.',
+    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'healthy food bowl',
+    category: 'Holistic',
+    author: 'Aura Wellness',
+    date: '2024-06-03',
+  },
+  {
+    id: 'sleep-hygiene',
+    title: 'The Art of Sleep: 8 Tips for Better Rest',
+    excerpt: 'Struggling to get a good night\'s sleep? These expert-backed tips on sleep hygiene can help you improve your sleep quality and overall health.',
+    imageUrl: 'https://images.unsplash.com/photo-1530530972418-5452683a3233?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'person sleeping',
+    category: 'Lifestyle',
+    author: 'Dr. Remy Sleepwell',
+    date: '2024-06-01',
+  },
+  {
+    id: 'superfoods-2024',
+    title: 'Superfoods for 2024: What to Add to Your Diet',
+    excerpt: 'From moringa to mushrooms, discover the nutrient-packed superfoods that nutritionists are recommending for a major health boost this year.',
+    imageUrl: 'https://images.unsplash.com/photo-1542844378-4795c453b754?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'superfood smoothie',
+    category: 'Nutrition',
+    author: 'Nina Nutrient',
+    date: '2024-05-29',
+  },
+  {
+    id: 'gut-health-importance',
+    title: 'Gut Feeling: Why Your Microbiome is Key to Health',
+    excerpt: 'The health of your gut impacts everything from your immune system to your mood. Learn how to cultivate a healthy gut microbiome.',
+    imageUrl: 'https://images.unsplash.com/photo-1528740096961-3798add19cb7?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'fermented food',
+    category: 'Nutrition',
+    author: 'Polly Probiotic',
+    date: '2024-05-27',
+  },
+  {
+    id: 'digital-detox',
+    title: 'How to Do a Digital Detox (and Why You Need One)',
+    excerpt: 'Feeling overwhelmed by screens? A digital detox can help you reset, reduce stress, and reconnect with the world around you. Here\'s how to start.',
+    imageUrl: 'https://images.unsplash.com/photo-1516245834210-c4c1427873ab?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'nature landscape',
+    category: 'Mental Health',
+    author: 'Calm Connect',
+    date: '2024-05-24',
+  },
+  {
+    id: 'hydration-myths',
+    title: 'H2-Oh! Debunking Common Hydration Myths',
+    excerpt: 'Are you really drinking enough water? We separate fact from fiction when it comes to hydration and its importance for your body.',
+    imageUrl: 'https://images.unsplash.com/photo-1550426296-7a42784a5c7f?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'drinking water',
+    category: 'Lifestyle',
+    author: 'Aqua Pure',
+    date: '2024-05-21',
+  },
+];
+
+    

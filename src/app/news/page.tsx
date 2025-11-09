@@ -1,7 +1,8 @@
+
 'use client';
 import { useState } from 'react';
 import { Header } from '@/components/header';
-import { Newspaper, ArrowLeft, Sparkles, Heart, BrainCircuit, Grape, Leaf } from 'lucide-react';
+import { Newspaper, ArrowLeft, Sparkles, Heart, BrainCircuit, Grape, Leaf, HeartPulse } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -18,7 +19,7 @@ const categoryIcons = [
   { name: 'News', href: '/news', Icon: Newspaper },
   { name: 'Yoga', href: '/yoga', Icon: Leaf },
   { name: 'Beauty', href: '/beauty', Icon: Sparkles },
-  { name: 'Health', href: '/health', Icon: Heart },
+  { name: 'Health', href: '/health', Icon: HeartPulse },
   { name: 'Growth', href: '/growth', Icon: BrainCircuit },
   { name: 'Travel', href: '/travel', Icon: Grape },
 ];
@@ -152,3 +153,5 @@ export default function NewsPage() {
     </>
   );
 }
+
+    

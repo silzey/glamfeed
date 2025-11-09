@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -26,6 +27,7 @@ import {
   Newspaper,
   Download,
   Coins,
+  HeartPulse,
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { PageLoader } from '@/components/page-loader';
@@ -78,6 +80,7 @@ export default function SharePage() {
     { Icon: HelpCircle, name: 'Help', href: '/help' },
     { Icon: Wallet, name: 'Wallet', href: '/wallet' },
     { Icon: Newspaper, name: 'News', href: '/news' },
+    { Icon: HeartPulse, name: 'Health', href: '/health' },
     ...(canInstall ? [{ Icon: Download, name: 'Install', href: '#install' }] : []),
     { Icon: LogOut, name: 'Logout', href: '#logout' },
   ];
@@ -149,3 +152,5 @@ export default function SharePage() {
     </div>
   );
 }
+
+    
