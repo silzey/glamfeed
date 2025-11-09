@@ -64,7 +64,7 @@ export default function TermsPage() {
 
           <h2 className="text-2xl font-semibold mt-6">5. Prohibited Activities</h2>
           <p>
-            You agree not to engage in any of the following prohibited activities: (a) using any automated system to access the Service; (b) engaging in any activity that interferes with or disrupts the Service; (c) impersonating another person or otherwise misrepresenting your affiliation with a person or entity.
+            You agree not to engage in any of a a following prohibited activities: (a) using any automated system to access the Service; (b) engaging in any activity that interferes with or disrupts the Service; (c) impersonating another person or otherwise misrepresenting your affiliation with a person or entity.
           </p>
           
           <h2 className="text-2xl font-semibold mt-6">6. Termination</h2>
