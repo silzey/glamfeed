@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -10,8 +11,6 @@ import { getProducts } from '@/lib/products';
 import AddToWishlistButton from '../shop/add-to-wishlist-button';
 import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
-
 
 export default function CoinShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -27,7 +26,7 @@ export default function CoinShopPage() {
   }, []);
 
   if (loading) {
-    return <PageLoader />;
+    return null;
   }
 
   return (

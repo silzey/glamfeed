@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
-import { PageLoader } from './page-loader';
 import { useAuth, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
 import { doc, getDoc, increment, collection, query, where, writeBatch } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
@@ -118,7 +117,7 @@ export default function CommentCard({ comment }: CommentCardProps) {
 
     return (
         <>
-        {isNavigating && <PageLoader />}
+        {isNavigating && null}
         <div className="flex gap-4 py-4">
             <button onClick={handleAvatarClick} className="cursor-pointer" disabled={!author.uid}>
                 <Avatar className="h-10 w-10 border-2 border-white/20 hover:border-primary transition-colors">

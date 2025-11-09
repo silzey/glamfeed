@@ -8,7 +8,6 @@ import { useAuth } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import type { Review, AppUser, Post } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { doc, collection, query, where, orderBy, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
@@ -86,7 +85,7 @@ export default function UserProfilePage() {
     const isOwnProfile = authUser?.uid === userId;
 
     if (isUserLoading || isAuthLoading || isLoadingReviews) {
-        return <PageLoader />;
+        return null;
     }
     
     if (!user) {
@@ -105,7 +104,7 @@ export default function UserProfilePage() {
 
   return (
     <>
-    {isNavigating && <PageLoader />}
+    {isNavigating && null}
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
       <Header />
       <main className="container mx-auto max-w-4xl px-4 pt-20 sm:pt-24 flex-1 pb-16 md:pb-24">
@@ -171,7 +170,7 @@ export default function UserProfilePage() {
 
         <div>
             <h2 className="text-2xl font-bold mb-4">{isOwnProfile ? "Your" : `${user.name}'s`} Posts</h2>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
                 {reviews && reviews.length > 0 ? (
                     <ReviewList
                         posts={reviews}

@@ -11,7 +11,6 @@ import Link from 'next/link';
 import BuyButton from '../buy-button';
 import { Suspense, useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import AddToWishlistButton from '../add-to-wishlist-button';
 import { StarRating } from '@/components/star-rating';
 
@@ -35,7 +34,7 @@ function ProductDetails({ id }: { id: string }) {
     }, [id]);
 
     if (loading || !product) {
-        return <PageLoader />;
+        return null;
     }
   
     const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
@@ -68,7 +67,7 @@ function ProductDetails({ id }: { id: string }) {
              <div className="flex items-center gap-4 mt-2 mb-4">
                 <p className="text-2xl text-primary font-bold">${price}</p>
                  <div className="flex items-center gap-1">
-                    <StarRating rating={product.rating} readOnly={true} />
+                    <StarRating rating={product.rating} />
                     <span className="text-sm text-white/80 ml-1">({product.rating})</span>
                 </div>
             </div>
@@ -101,7 +100,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </Link>
           </Button>
         </div>
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={null}>
             <ProductDetails id={id} />
         </Suspense>
       </main>

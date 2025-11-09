@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { useAuth, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import type { Conversation } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function MessagesPage() {
@@ -31,12 +30,12 @@ export default function MessagesPage() {
     const { data: conversations, isLoading: areConversationsLoading } = useCollection<Conversation>(conversationsQuery);
 
     if (isUserLoading || areConversationsLoading) {
-        return <PageLoader />;
+        return null;
     }
     
     if (!authUser) {
       router.push('/login');
-      return <PageLoader />;
+      return null;
     }
 
     return (

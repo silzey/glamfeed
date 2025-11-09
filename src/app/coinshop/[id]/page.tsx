@@ -11,7 +11,6 @@ import Link from 'next/link';
 import BuyWithCoinsButton from '../buy-with-coins-button';
 import { Suspense, useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import AddToWishlistButton from '../../shop/add-to-wishlist-button';
 import { StarRating } from '@/components/star-rating';
 
@@ -36,7 +35,7 @@ function ProductDetails({ id }: { id: string }) {
     }, [id]);
 
     if (loading || !product) {
-        return <PageLoader />;
+        return null;
     }
   
     const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
@@ -65,7 +64,7 @@ function ProductDetails({ id }: { id: string }) {
                     <span>{product.price.replace(' Coins', '')}</span>
                 </div>
                  <div className="flex items-center gap-1">
-                    <StarRating rating={product.rating} readOnly={true} />
+                    <StarRating rating={product.rating} />
                     <span className="text-sm text-white/80 ml-1">({product.rating})</span>
                 </div>
             </div>
@@ -98,7 +97,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </Link>
           </Button>
         </div>
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={null}>
             <ProductDetails id={id} />
         </Suspense>
       </main>

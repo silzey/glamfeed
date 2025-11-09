@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { AppUser, Conversation } from '@/lib/types';
 import { useAuth } from '@/firebase';
-import { PageLoader } from '@/components/page-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Link from 'next/link';
 import { Chat } from '@/components/chat';
@@ -53,7 +52,7 @@ export default function ChatPage() {
     }, [otherUserId, authUser, isUserLoading, router]);
 
     if (isLoadingOtherUser || isUserLoading || !authUser || !conversationId) {
-        return <PageLoader />;
+        return null;
     }
     
     if (!otherUser) {
@@ -113,7 +112,7 @@ export default function ChatPage() {
                     </PopoverContent>
                 </Popover>
             </div>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
                 <Chat chatId={conversationId} otherUser={otherUser} />
             </Suspense>
         </div>

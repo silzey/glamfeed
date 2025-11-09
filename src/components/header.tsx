@@ -15,7 +15,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useAuth } from '@/firebase';
-import { PageLoader } from './page-loader';
 import { Skeleton } from './ui/skeleton';
 
 
@@ -45,7 +44,7 @@ export function Header() {
 
   return (
     <>
-      {isNavigating && <PageLoader />}
+      {isNavigating && null}
       <header className="fixed top-0 z-50 w-full p-2 sm:p-4">
         <div className="container mx-auto flex h-14 items-center glass-card px-4 sm:px-6">
           <Link href="/" className="mr-auto flex items-center space-x-2" onClick={(e) => handleNavigation(e, '/')}>
@@ -174,5 +173,3 @@ export function Header() {
     </>
   );
 }
-
-    

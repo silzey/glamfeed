@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CartContext } from '@/context/cart-context';
 import type { Product } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import { Loader2 } from 'lucide-react';
 
 export default function BuyButton({ product }: { product: Product }) {
@@ -37,7 +36,7 @@ export default function BuyButton({ product }: { product: Product }) {
 
   return (
     <>
-      {isRedirecting && <PageLoader />}
+      {isRedirecting && null}
       <Button
         size="lg"
         onClick={handleBuyNow}

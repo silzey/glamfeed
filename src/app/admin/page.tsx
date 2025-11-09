@@ -11,7 +11,6 @@ import { Loader2, Trash2, Eye, EyeOff, Check, ShieldCheck, Bell, Users, LayoutDa
 import { useToast } from '@/hooks/use-toast';
 import type { AppUser, Post, Report } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { PageLoader } from '@/components/page-loader';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ReviewCard } from '@/components/review-card';
@@ -214,7 +213,7 @@ const handleCreatePost = async () => {
   };
 
   if (isUserLoading) {
-    return <PageLoader />;
+    return null;
   }
 
   if (!isAdminUser) {
@@ -229,7 +228,7 @@ const handleCreatePost = async () => {
   }
 
   if (loading) {
-    return <PageLoader />;
+    return null;
   }
 
   const navItems = [

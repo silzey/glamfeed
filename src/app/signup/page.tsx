@@ -1,8 +1,8 @@
+
 'use client';
 import { useState } from 'react';
 import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ export default function SignupPage() {
   };
 
   if (isActionLoading) {
-    return <PageLoader />;
+    return null;
   }
 
   return (

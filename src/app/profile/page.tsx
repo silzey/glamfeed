@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/firebase';
-import { PageLoader } from '@/components/page-loader';
 
 export default function ProfileRedirectPage() {
     const { user, isUserLoading } = useAuth();
@@ -19,5 +18,5 @@ export default function ProfileRedirectPage() {
         }
     }, [user, isUserLoading, router]);
 
-    return <PageLoader />;
+    return null;
 }

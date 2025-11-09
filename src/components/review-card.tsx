@@ -9,7 +9,6 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { PageLoader } from './page-loader';
 import { useAuth, useFirestore, useMemoFirebase, useCollection, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { doc, getDoc, collection, query, where, increment, writeBatch } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
@@ -154,7 +153,7 @@ export function ReviewCard({ post }: ReviewCardProps) {
 
     return (
     <>
-    {isNavigating && <PageLoader />}
+    {isNavigating && null}
     <div className={cn("glass-card h-full flex flex-col group overflow-hidden card min-h-[500px] sm:min-h-[550px]")}>
       <span className="glow"></span>
       <div className="inner">

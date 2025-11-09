@@ -1,10 +1,10 @@
+
 'use client';
 import { useState } from 'react';
 import { Header } from '@/components/header';
 import { ArrowLeft, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { PageLoader } from '@/components/page-loader';
 import { useAuth } from '@/firebase';
 import { NotificationFeed } from '@/components/notification-feed';
 
@@ -14,12 +14,12 @@ export default function NotificationsPage() {
   const [isNavigating, setIsNavigating] = useState(false);
 
   if (isUserLoading) {
-    return <PageLoader />;
+    return null;
   }
 
   return (
     <>
-    {isNavigating && <PageLoader />}
+    {isNavigating && null}
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
       <Header />
       <main className="container mx-auto max-w-2xl px-4 pt-20 sm:pt-24 flex-1">

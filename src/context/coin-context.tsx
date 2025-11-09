@@ -1,8 +1,9 @@
+
 'use client';
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useAuth, useFirestore } from '@/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 
 interface CoinContextType {
   coins: number;
@@ -10,7 +11,7 @@ interface CoinContextType {
   spendCoins: (amount: number) => void;
 }
 
-export const CoinContext = createContext<CoinContextType>({
+const CoinContext = createContext<CoinContextType>({
   coins: 0,
   addCoins: () => {},
   spendCoins: () => {},
@@ -31,19 +32,28 @@ export const CoinProvider = ({ children }: { children: ReactNode }) => {
       });
       return () => unsubscribe();
     } else if (!user) {
-        // Reset to default if user logs out
         setCoins(0);
     }
   }, [user, firestore]);
 
-  const addCoins = (amount: number) => {
-    // In a real app, this would be a server-side update
-    setCoins(prev => prev + amount);
+  const addCoins = async (amount: number) => {
+    if (user && firestore) {
+      const userDocRef = doc(firestore, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        coins: increment(amount)
+      });
+    }
   };
 
-  const spendCoins = (amount: number) => {
-    // In a real app, this would be a server-side update
-    setCoins(prev => Math.max(0, prev - amount));
+  const spendCoins = async (amount: number) => {
+    if (user && firestore) {
+       const userDocRef = doc(firestore, 'users', user.uid);
+       if (coins >= amount) {
+         await updateDoc(userDocRef, {
+           coins: increment(-amount)
+         });
+       }
+    }
   };
 
   return (

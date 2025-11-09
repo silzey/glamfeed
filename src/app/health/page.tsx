@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { healthArticles } from '@/lib/articles';
-import { PageLoader } from '@/components/page-loader';
 import { cn } from '@/lib/utils';
 
 const mainArticle = healthArticles[0];
@@ -39,7 +38,7 @@ export default function HealthPage() {
 
   return (
     <>
-    {isNavigating && <PageLoader />}
+    {isNavigating && null}
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
       <Header />
       <main className="container mx-auto max-w-6xl px-4 pt-20 sm:pt-24 flex-1 pb-16 md:pb-24">

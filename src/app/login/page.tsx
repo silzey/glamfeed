@@ -1,9 +1,9 @@
+
 'use client';
 import { useState } from 'react';
 import './styles.css';
 import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { PageLoader } from '@/components/page-loader';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -76,7 +76,7 @@ export default function LoginPage() {
   };
 
   if (isLoading) {
-    return <PageLoader />;
+    return null;
   }
 
   return (

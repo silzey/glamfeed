@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth } from '@/firebase';
-import { PageLoader } from '@/components/page-loader';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import type { Post } from '@/lib/types';
@@ -120,7 +119,7 @@ export default function AnalyticsPage() {
 
 
   if (isUserLoading || isLoadingReviews || !authUser) {
-    return <PageLoader />;
+    return null;
   }
 
   const topPostImage = analytics?.topPost ? PlaceHolderImages.find(p => p.imageUrl === analytics.topPost!.mediaUrl) : null;

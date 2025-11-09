@@ -10,7 +10,6 @@ import { getProducts } from '@/lib/products';
 import AddToWishlistButton from './add-to-wishlist-button';
 import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import { StarRating } from '@/components/star-rating';
 
 
@@ -26,7 +25,7 @@ export default function ShopPage() {
   }, []);
 
   if (loading) {
-    return <PageLoader />;
+    return null;
   }
 
   return (

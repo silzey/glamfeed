@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useContext } from 'react';
@@ -6,13 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useCoin } from '@/context/coin-context';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { PageLoader } from '@/components/page-loader';
 import { Loader2, Coins } from 'lucide-react';
 
 export default function BuyWithCoinsButton({ product }: { product: Product }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { coins, setCoins } = useCoin();
+  const { coins, spendCoins } = useCoin();
   const [isRedirecting, setIsRedirecting] = useState(false);
   
   const price = parseInt(product.price.replace(' Coins', ''), 10);
@@ -33,7 +33,7 @@ export default function BuyWithCoinsButton({ product }: { product: Product }) {
     
     // The timeout simulates a network request before redirecting
     setTimeout(() => {
-        setCoins(coins - price);
+        spendCoins(price);
         toast({
             title: 'Purchase Successful!',
             description: `You've purchased ${product.name} for ${price} coins.`
@@ -44,7 +44,7 @@ export default function BuyWithCoinsButton({ product }: { product: Product }) {
 
   return (
     <>
-      {isRedirecting && <PageLoader />}
+      {isRedirecting && null}
       <Button
         size="lg"
         onClick={handleBuyNow}

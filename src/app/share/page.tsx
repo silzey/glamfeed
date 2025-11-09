@@ -35,7 +35,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Header } from '@/components/header';
-import { PageLoader } from '@/components/page-loader';
 import { useAuth } from '@/firebase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -96,7 +95,7 @@ export default function SharePage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
-      {isNavigating && <PageLoader />}
+      {isNavigating && null}
       <Header />
       <main className="flex-1 pt-20 sm:pt-24 pb-16 md:pb-24">
         <div className="container mx-auto max-w-xl px-4">
