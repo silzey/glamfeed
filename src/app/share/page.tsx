@@ -46,6 +46,9 @@ const SharePage = () => {
                         } else if (item.name === 'Yoga') {
                             href = '/yoga';
                             target = '_self';
+                        } else if (item.name === 'Shop') {
+                            href = '/shop';
+                            target = '_self';
                         }
 
 

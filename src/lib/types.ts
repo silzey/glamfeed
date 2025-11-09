@@ -3,6 +3,7 @@
 
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -14,6 +15,9 @@ export type Product = {
   id: string;
   name: string;
   brand: string;
+  imageUrl: string;
+  price: string;
+  rating: number;
 };
 
 export type Comment = {
@@ -91,6 +95,7 @@ export type Transaction = {
     date: string; // ISO 8601 format
 };
     
+
 
 
 
