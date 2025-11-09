@@ -228,6 +228,24 @@ export const healthArticles: Article[] = [
     author: 'Aqua Pure',
     date: '2024-05-21',
   },
+  {
+    id: 'mindful-movement',
+    title: 'Beyond the Gym: Finding Joy in Mindful Movement',
+    excerpt: 'Exercise doesn\'t have to be a chore. Discover forms of movement that you genuinely enjoy, from dancing to hiking, and make fitness a sustainable habit.',
+    imageUrl: 'https://images.unsplash.com/photo-1502224514721-9d3b3478de2b?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'person hiking',
+    category: 'Fitness',
+    author: 'Motion Matt',
+    date: '2024-05-18',
+  },
+  {
+    id: 'herbal-teas',
+    title: 'A Guide to Herbal Teas for Relaxation and Health',
+    excerpt: 'Chamomile for sleep, peppermint for digestion, ginger for immunity. Explore the wonderful world of herbal teas and their health benefits.',
+    imageUrl: 'https://images.unsplash.com/photo-1594751543129-97692d47352b?q=80&w=2070&auto=format&fit=crop',
+    imageHint: 'herbal tea',
+    category: 'Wellness',
+    author: 'Camellia Day',
+    date: '2024-05-15',
+  },
 ];
-
-    
