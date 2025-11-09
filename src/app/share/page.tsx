@@ -30,6 +30,7 @@ import {
   HeartPulse,
   BrainCircuit,
   Leaf,
+  Gem,
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { PageLoader } from '@/components/page-loader';
@@ -102,7 +103,7 @@ export default function SharePage() {
               </Button>
           </div>
           <div className="flex items-center gap-4 mb-8">
-            <LayoutGrid
+            <Gem
               className="h-8 w-8 sm:h-10 sm:w-10 text-primary"
               style={{ filter: 'drop-shadow(0 0 10px hsla(var(--primary), 0.7))' }}
             />
