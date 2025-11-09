@@ -22,13 +22,22 @@ import { Skeleton } from './ui/skeleton';
 export function Header() {
   const { user: authUser, isUserLoading, signOut } = useAuth()
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
+  const handleNavigation = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    setIsNavigating(true);
+    router.push(href);
+  };
+  
   const handleSignOut = () => {
+    setIsNavigating(true);
     signOut();
     router.push('/');
   };
 
   const handleSignInClick = () => {
+    setIsNavigating(true);
     router.push('/login');
   }
 
@@ -36,9 +45,10 @@ export function Header() {
 
   return (
     <>
+      {isNavigating && <PageLoader />}
       <header className="fixed top-0 z-50 w-full p-2 sm:p-4">
         <div className="container mx-auto flex h-14 sm:h-16 items-center glass-card px-4 sm:px-6">
-          <Link href="/" className="mr-auto flex items-center space-x-2">
+          <Link href="/" className="mr-auto flex items-center space-x-2" onClick={(e) => handleNavigation(e, '/')}>
             <Gem className="h-8 w-8 text-primary" />
             <span className="hidden sm:inline-block text-xl font-bold text-white">GlamFeed</span>
           </Link>
@@ -52,17 +62,17 @@ export function Header() {
               ) : authUser ? (
                 <>
                   <Link href="/settings" passHref>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10" onClick={(e) => handleNavigation(e, '/settings')}>
                         <Palette className="h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href="/share" passHref>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10" onClick={(e) => handleNavigation(e, '/share')}>
                         <Gem className="h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href="/upload" passHref>
-                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10" onClick={(e) => handleNavigation(e, '/upload')}>
                           <PlusCircle className="h-5 w-5" />
                       </Button>
                   </Link>
@@ -91,39 +101,39 @@ export function Header() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-white/20"/>
                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/share">
+                        <Link href="/share" onClick={(e) => handleNavigation(e, '/share')}>
                             <Gem className="mr-2 h-4 w-4" />
                             <span>Share</span>
                         </Link>
                       </DropdownMenuItem>
                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/wishlist">
+                        <Link href="/wishlist" onClick={(e) => handleNavigation(e, '/wishlist')}>
                             <Heart className="mr-2 h-4 w-4" />
                             <span>Wishlist</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/wallet">
+                        <Link href="/wallet" onClick={(e) => handleNavigation(e, '/wallet')}>
                             <Wallet className="mr-2 h-4 w-4" />
                             <span>Wallet</span>
                         </Link>
                       </DropdownMenuItem>
                        {isAdminUser && (
                         <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                          <Link href="/admin">
+                          <Link href="/admin" onClick={(e) => handleNavigation(e, '/admin')}>
                             <Shield className="mr-2 h-4 w-4" />
                             <span>Admin</span>
                           </Link>
                         </DropdownMenuItem>
                        )}
                        <DropdownMenuItem asChild className="text-white/80 focus:bg-white/10 focus:text-white cursor-pointer">
-                        <Link href="/settings">
+                        <Link href="/settings" onClick={(e) => handleNavigation(e, '/settings')}>
                            <Settings className="mr-2 h-4 w-4" />
                             <span>Settings</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-primary focus:bg-white/10 focus:text-primary cursor-pointer">
-                       <Link href="/upload">
+                       <Link href="/upload" onClick={(e) => handleNavigation(e, '/upload')}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         <span>Create Post</span>
                       </Link>
@@ -139,17 +149,17 @@ export function Header() {
               ) : (
                   <>
                       <Link href="/settings" passHref>
-                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10" onClick={(e) => handleNavigation(e, '/settings')}>
                               <Palette className="h-5 w-5" />
                           </Button>
                       </Link>
                       <Link href="/share" passHref>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-white/80 border-white/20 hover:bg-white/10 hover:text-white">
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10" onClick={(e) => handleNavigation(e, '/share')}>
                             <Gem className="h-5 w-5" />
                         </Button>
                       </Link>
                        <Link href="/upload" passHref>
-                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10">
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary border border-primary/50 hover:bg-primary/10" onClick={(e) => handleNavigation(e, '/upload')}>
                               <PlusCircle className="h-5 w-5" />
                           </Button>
                       </Link>
