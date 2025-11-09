@@ -29,6 +29,7 @@ import {
   Coins,
   HeartPulse,
   BrainCircuit,
+  Leaf,
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { PageLoader } from '@/components/page-loader';
@@ -82,6 +83,7 @@ export default function SharePage() {
     { Icon: Wallet, name: 'Wallet', href: '/wallet' },
     { Icon: Newspaper, name: 'News', href: '/news' },
     { Icon: HeartPulse, name: 'Health', href: '/health' },
+    { Icon: Leaf, name: 'Yoga', href: '/yoga' },
     { Icon: BrainCircuit, name: 'Growth', href: '/growth' },
     ...(canInstall ? [{ Icon: Download, name: 'Install', href: '#install' }] : []),
     { Icon: LogOut, name: 'Logout', href: '#logout' },
