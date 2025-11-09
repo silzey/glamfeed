@@ -1,3 +1,4 @@
+
 import {
   Twitter,
   Facebook,
@@ -82,7 +83,7 @@ export const socialIcons = [
   { name: 'Help', icon: HelpCircle },
   { name: 'Health', icon: HeartPulse },
   { name: 'Growth', icon: TrendingUp },
-  { namee: 'Explore', icon: Compass },
+  { name: 'Explore', icon: Compass },
   { name: 'Creator', icon: PenTool },
   { name: 'Camera', icon: Camera },
   { name: 'Admin', icon: Shield },
