@@ -8,8 +8,8 @@ import { Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from './page-loader';
-import { useAuth, useFirestore, updateDocumentNonBlocking } from '@/firebase';
-import { doc, getDoc, increment } from 'firebase/firestore';
+import { useAuth, useFirestore, useMemoFirebase, useCollection, updateDocumentNonBlocking } from '@/firebase';
+import { doc, getDoc, increment, collection, query, where, writeBatch } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,19 @@ export default function CommentCard({ comment }: CommentCardProps) {
     const [author, setAuthor] = useState<AppUser | null>(null);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(comment.likes || 0);
+
+    const commentLikesQuery = useMemoFirebase(() => {
+        if (!firestore || !comment.reviewId || !comment.id || !currentUser?.uid) return null;
+        return query(collection(firestore, `feed/${comment.reviewId}/comments/${comment.id}/likes`), where('userId', '==', currentUser.uid));
+    }, [firestore, comment.reviewId, comment.id, currentUser?.uid]);
+
+    const { data: commentLikes } = useCollection(commentLikesQuery);
+
+     useEffect(() => {
+        if (commentLikes) {
+            setIsLiked(commentLikes.length > 0);
+        }
+    }, [commentLikes]);
 
 
     useEffect(() => {
@@ -61,8 +74,8 @@ export default function CommentCard({ comment }: CommentCardProps) {
         router.push(`/users/${author.uid}`);
     };
     
-    const handleLike = () => {
-        if (!firestore || !currentUser) {
+    const handleLike = async () => {
+        if (!firestore || !currentUser || !comment.reviewId || !comment.id) {
             toast({
                 variant: 'destructive',
                 title: 'You must be logged in to like a comment.'
@@ -72,16 +85,21 @@ export default function CommentCard({ comment }: CommentCardProps) {
         }
 
         const commentRef = doc(firestore, 'feed', comment.reviewId, 'comments', comment.id);
+        const likeRef = doc(firestore, `feed/${comment.reviewId}/comments/${comment.id}/likes`, currentUser.uid);
+        const batch = writeBatch(firestore);
         
-        const incrementValue = isLiked ? -1 : 1;
-        
-        // Optimistically update the UI
-        setLikeCount(prev => prev + incrementValue);
+        if (isLiked) {
+            batch.delete(likeRef);
+            batch.update(commentRef, { likes: increment(-1) });
+            setLikeCount(prev => prev - 1);
+        } else {
+            batch.set(likeRef, { userId: currentUser.uid });
+            batch.update(commentRef, { likes: increment(1) });
+            setLikeCount(prev => prev + 1);
+        }
         setIsLiked(!isLiked);
 
-        updateDocumentNonBlocking(commentRef, {
-            likes: increment(incrementValue)
-        });
+        await batch.commit();
     };
 
     const getFormattedDate = () => {

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useFirestore, useDoc, useCollection, useMemoFirebase, useAuth, addDocumentNonBlocking } from '@/firebase';
-import { doc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, serverTimestamp, increment, writeBatch } from 'firebase/firestore';
 import { Post, Comment as CommentType } from '@/lib/types';
 import { ReviewCard } from '@/components/review-card';
 import CommentList from '@/components/comment-list';
@@ -58,10 +58,17 @@ export default function ReviewDetailsPage() {
                 likes: 0,
                 reviewId: id,
             };
-            await addDocumentNonBlocking(commentsRef!, commentData);
+            
+            const batch = writeBatch(firestore);
+            const newCommentRef = doc(commentsRef!);
+            batch.set(newCommentRef, commentData);
+            batch.update(postRef!, { commentsCount: increment(1) });
+            
+            await batch.commit();
+
             setCommentText('');
             toast({ title: 'Comment posted!', description: 'Your comment is now live.' });
-            router.push('/');
+
         } catch (error) {
             toast({ variant: 'destructive', title: 'Failed to post comment.' });
         } finally {
@@ -115,5 +122,3 @@ export default function ReviewDetailsPage() {
         </div>
     );
 }
-
-    

@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageLoader } from './page-loader';
-import { useAuth, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { useAuth, useFirestore, useMemoFirebase, useCollection, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { doc, getDoc, collection, query, where, increment, writeBatch } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 
 type ReviewCardProps = {
@@ -22,7 +23,7 @@ type ReviewCardProps = {
 export function ReviewCard({ post }: ReviewCardProps) {
     const router = useRouter();
     const firestore = useFirestore();
-    const { isUserLoading } = useAuth();
+    const { user: currentUser, isUserLoading } = useAuth();
     const [isNavigating, setIsNavigating] = useState(false);
     
     const [author, setAuthor] = useState<AppUser | null>(null);
@@ -32,6 +33,22 @@ export function ReviewCard({ post }: ReviewCardProps) {
 
     const isVideo = post.mediaUrl && (post.mediaUrl.includes('.mp4') || post.mediaUrl.includes('.mov') || post.mediaUrl.includes('video'));
 
+    const { toast } = useToast();
+    const [likeCount, setLikeCount] = useState(post.likesCount || 0);
+    const [isLiked, setIsLiked] = useState(false);
+
+    const likesQuery = useMemoFirebase(() => {
+        if (!firestore || !post.id || !currentUser?.uid) return null;
+        return query(collection(firestore, `feed/${post.id}/likes`), where('userId', '==', currentUser.uid));
+    }, [firestore, post.id, currentUser?.uid]);
+
+    const { data: likes } = useCollection(likesQuery);
+
+    useEffect(() => {
+        if (likes) {
+            setIsLiked(likes.length > 0);
+        }
+    }, [likes]);
 
     useEffect(() => {
         if (videoRef.current) {
@@ -60,6 +77,41 @@ export function ReviewCard({ post }: ReviewCardProps) {
             });
             
     }, [post.userId, firestore]);
+
+    const handleLikeToggle = async () => {
+        if (!currentUser || !firestore || !post.id) {
+            toast({
+                variant: 'destructive',
+                title: 'Please sign in to like posts.',
+            });
+            router.push('/login');
+            return;
+        }
+
+        const postRef = doc(firestore, 'feed', post.id);
+        const likeRef = doc(firestore, `feed/${post.id}/likes`, currentUser.uid);
+        const batch = writeBatch(firestore);
+
+        if (isLiked) {
+            batch.delete(likeRef);
+            batch.update(postRef, { likesCount: increment(-1) });
+            setLikeCount(prev => prev - 1);
+        } else {
+            batch.set(likeRef, { userId: currentUser.uid });
+            batch.update(postRef, { likesCount: increment(1) });
+            setLikeCount(prev => prev + 1);
+        }
+        setIsLiked(!isLiked);
+        await batch.commit().catch(err => {
+             errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                path: postRef.path,
+                operation: 'update',
+                })
+            )
+        });
+    };
 
     const handleNavigation = (path: string) => {
         setIsNavigating(true);
@@ -169,9 +221,9 @@ export function ReviewCard({ post }: ReviewCardProps) {
                     {getFormattedDate()}
                 </p>
                 <div className="flex items-center -mr-2">
-                    <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
-                        <Heart className="h-4 w-4" />
-                        <span>{post.likesCount || 0}</span>
+                    <Button variant="ghost" size="sm" onClick={handleLikeToggle} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
+                        <Heart className={cn("h-4 w-4", isLiked && "text-red-500 fill-current")} />
+                        <span>{likeCount}</span>
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => post.id && handleNavigation(`/reviews/${post.id}`)} className="flex items-center gap-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                         <MessageCircle className="h-4 w-4" />
@@ -188,5 +240,3 @@ export function ReviewCard({ post }: ReviewCardProps) {
     </>
   );
 }
-
-    
