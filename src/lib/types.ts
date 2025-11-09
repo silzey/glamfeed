@@ -1,5 +1,6 @@
 
 
+
 export type User = {
   id: string;
   name: string;
@@ -77,4 +78,14 @@ export type Report = {
     resolvedAt?: any;
 }
 
+export type Transaction = {
+    id: string;
+    uid: string;
+    action: string;
+    type: 'earn' | 'spend';
+    description: string;
+    amount: number;
+    date: string; // ISO 8601 format
+};
     
+
