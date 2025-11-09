@@ -31,6 +31,7 @@ import {
   BrainCircuit,
   Leaf,
   Gem,
+  Banknote,
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { PageLoader } from '@/components/page-loader';
@@ -74,6 +75,7 @@ export default function SharePage() {
     { Icon: Store, name: 'Shop', href: '/shop' },
     { Icon: Coins, name: 'Coin Shop', href: '/coinshop' },
     { Icon: Star, name: 'Missions', href: '/missions' },
+    { Icon: Banknote, name: 'Cashout', href: '/cashout' },
     { Icon: Camera, name: 'Camera', href: '/camera' },
     { Icon: BarChart, name: 'Analytics', href: '/analytics' },
     { Icon: Settings, name: 'Settings', href: '/settings' },

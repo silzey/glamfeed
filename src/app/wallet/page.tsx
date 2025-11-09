@@ -68,7 +68,7 @@ export default function WalletPage() {
             <CardContent className="grid grid-cols-3 gap-2">
                 <Button asChild className="glass-button h-12 text-sm" style={{'--glow-color': 'hsl(var(--primary))'} as React.CSSProperties}><Link href="/missions"><Star className="mr-2"/>Earn Coins</Link></Button>
                 <Button asChild className="glass-button h-12 text-sm"><Link href="/coinshop"><ArrowUpRight className="mr-2"/>Spend Coins</Link></Button>
-                <Button asChild className="glass-button h-12 text-sm"><Link href="/cash-out"><ArrowUpRight className="mr-2"/>Cash Out</Link></Button>
+                <Button asChild className="glass-button h-12 text-sm"><Link href="/cashout"><ArrowUpRight className="mr-2"/>Cash Out</Link></Button>
             </CardContent>
         </Card>
 
