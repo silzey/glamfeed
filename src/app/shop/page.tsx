@@ -11,6 +11,7 @@ import AddToWishlistButton from './add-to-wishlist-button';
 import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
 import { PageLoader } from '@/components/page-loader';
+import { StarRating } from '@/components/star-rating';
 
 
 export default function ShopPage() {
@@ -77,10 +78,7 @@ export default function ShopPage() {
                                 <h3 className="font-semibold truncate text-white">{product.name}</h3>
                                 <div className="flex items-center justify-between mt-2">
                                     <p className="text-sm text-primary font-bold">${price}</p>
-                                    <div className="flex items-center gap-1">
-                                        <Star className="h-4 w-4 text-amber-400 fill-amber-400"/>
-                                        <span className="text-xs text-white/80">{product.rating}</span>
-                                    </div>
+                                    <StarRating rating={product.rating} />
                                 </div>
                                 <Button className="w-full mt-auto pt-2 glass-button h-9">View Details</Button>
                             </div>
