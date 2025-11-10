@@ -7,12 +7,13 @@
 // The config object is included below as a reference.
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyCwmeORwHLnQ8ESauE9cobUYE-stkiq7fM",
-  authDomain: "studio-9439717090-1fb6e.firebaseapp.com",
-  projectId: "studio-9439717090-1fb6e",
-  storageBucket: "studio-9439717090-1fb6e.appspot.com",
-  messagingSenderId: "779726117709",
-  appId: "1:779726117709:web:11b8676cd7b5fb2cec3504",
-  measurementId: "G-FBRQCW4X60"
+  apiKey: "AIzaSyD4CU0IU8fZQyNvHqIodpU8dNJfn-9L2T4",
+  authDomain: "studio-3439019714-ce2b4.firebaseapp.com",
+  databaseURL: "https://studio-3439019714-ce2b4-default-rtdb.firebaseio.com",
+  projectId: "studio-3439019714-ce2b4",
+  storageBucket: "studio-3439019714-ce2b4.appspot.com",
+  messagingSenderId: "972854038727",
+  appId: "1:972854038727:web:e809568c96c134d3d26ee2"
 };
+
 
