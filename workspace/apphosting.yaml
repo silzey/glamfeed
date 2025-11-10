@@ -8,3 +8,4 @@ runConfig:
 secretEnv:
   - secret: GEMINI_API_KEY
     env: GEMINI_API_KEY
+
