@@ -144,7 +144,7 @@ export default function HelpPage() {
                             <PenSquare className="h-5 w-5 mt-1 text-primary"/>
                             <div>
                                 <h4 className="font-semibold text-white">2. Create Your First Post</h4>
-                                <p className="text-sm">Got a product you love (or hate)? Go to the Creator page, rate it, write your thoughts, and share it with everyone.</p>
+                                <p className="text-sm">Got a product you love (or hate)? Go to the Upload page, rate it, write your thoughts, and share it with everyone.</p>
                             </div>
                         </div>
                          <div className="flex items-start gap-3">
@@ -187,7 +187,7 @@ export default function HelpPage() {
                             <PenSquare className="h-5 w-5 mt-1 text-primary"/>
                             <div>
                                 <h4 className="font-semibold text-white">Creator</h4>
-                                <p className="text-sm">Share your own reviews! On the Creator page, you can rate products, write your thoughts, and upload photos to contribute to the community.</p>
+                                <p className="text-sm">Share your own reviews! On the Upload page, you can rate products, write your thoughts, and upload photos to contribute to the community.</p>
                             </div>
                         </div>
 

@@ -86,7 +86,7 @@ export const socialIcons = [
   { name: 'Health', icon: HeartPulse },
   { name: 'Growth', icon: TrendingUp },
   { name: 'Explore', icon: Compass },
-  { name: 'Creator', icon: PenTool },
+  { name: 'Upload', icon: PenTool },
   { name: 'Camera', icon: Camera },
   { name: 'Admin', icon: Shield },
 ];
