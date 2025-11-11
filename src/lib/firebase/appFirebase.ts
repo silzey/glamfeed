@@ -2,17 +2,17 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_APP_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_APP_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_APP_PROJECT_ID,
-};
-
 let appFirebase: FirebaseApp;
 let auth: Auth;
 
 function getAppFirebase(): FirebaseApp {
     if (appFirebase) return appFirebase;
+
+    const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_APP_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_APP_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_APP_PROJECT_ID,
+    };
 
     const existingApp = getApps().find(app => app.name === '[DEFAULT]');
     if (existingApp) {
