@@ -82,13 +82,7 @@ function ProductDetails({ id }: { id: string }) {
     );
 }
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function ProductDetailPage({ params }: PageProps) {
+export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
   
   return (
