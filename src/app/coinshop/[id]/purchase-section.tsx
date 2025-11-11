@@ -18,7 +18,7 @@ export default function PurchaseSection({ product, coinCost }: PurchaseSectionPr
   const { user } = useAuth();
   const { coins: userCoins } = useCoin();
 
-  const canAfford = userCoins >= coinCost;
+  const canAfford = user ? userCoins >= coinCost : false;
 
   return (
     <>
@@ -43,7 +43,7 @@ export default function PurchaseSection({ product, coinCost }: PurchaseSectionPr
       <div className="flex gap-4 mt-8">
         {user ? (
            canAfford ? (
-              <BuyWithCoinsButton product={product} />
+              <BuyWithCoinsButton product={product} coinCost={coinCost} />
            ) : (
               <Button
                 disabled

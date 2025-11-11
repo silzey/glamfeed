@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -11,12 +12,13 @@ import {
   setDoc,
   serverTimestamp,
   collection,
+  writeBatch,
 } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
-export default function BuyWithCoinsButton({ product }: { product: Product }) {
+export default function BuyWithCoinsButton({ product, coinCost }: { product: Product, coinCost: number }) {
   const { user } = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -46,11 +48,7 @@ export default function BuyWithCoinsButton({ product }: { product: Product }) {
       const userData = userSnap.data();
       const userCoins = userData.coins || 0;
       
-      const productPrice = Math.floor(
-        parseInt(product.price.replace(/[^\d]/g, ''))
-      );
-
-      if (userCoins < productPrice) {
+      if (userCoins < coinCost) {
         toast({
           variant: 'destructive',
           title: 'Not Enough Coins',
@@ -60,28 +58,32 @@ export default function BuyWithCoinsButton({ product }: { product: Product }) {
         return;
       }
 
-      // Deduct coins
-      const newBalance = userCoins - productPrice;
-      await updateDoc(userRef, { coins: newBalance });
+      const batch = writeBatch(firestore);
 
-      // Record purchase
+      // 1. Deduct coins
+      const newBalance = userCoins - coinCost;
+      batch.update(userRef, { coins: newBalance });
+
+      // 2. Record purchase
       const purchaseRef = doc(
-        collection(firestore, 'purchases'),
-        `${user.uid}_${product.id}_${Date.now()}`
+        collection(firestore, 'purchases')
+        // Using a random ID is better for collections
       );
 
-      await setDoc(purchaseRef, {
+      batch.set(purchaseRef, {
         userId: user.uid,
         productId: product.id,
         productName: product.name,
         imageUrl: product.imageUrl,
-        cost: productPrice,
+        cost: coinCost,
         createdAt: serverTimestamp(),
       });
+      
+      await batch.commit();
 
       toast({
         title: 'Purchase Successful 🎉',
-        description: `You bought ${product.name} for ${productPrice} coins.`,
+        description: `You bought ${product.name} for ${coinCost} coins.`,
       });
 
       router.push('/profile/purchases');
