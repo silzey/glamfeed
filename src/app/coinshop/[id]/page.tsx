@@ -13,10 +13,15 @@ import type { Product } from '@/lib/types';
 import AddToWishlistButton from '../../shop/add-to-wishlist-button';
 import { StarRating } from '@/components/star-rating';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCoin } from '@/context/coin-context';
+import { useAuth } from '@/firebase';
 
 function ProductDetails({ id }: { id: string }) {
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
+    const [coinCost, setCoinCost] = useState(0);
+    const { user } = useAuth();
+    const { coins: userCoins } = useCoin();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -24,8 +29,8 @@ function ProductDetails({ id }: { id: string }) {
             const p = await getProductById(id);
             if (p) {
                  const numericPrice = Number(String(p.price).replace(/[^\d.]/g, '')) || 0;
-                 const coinProduct = {...p, price: `${Math.floor(numericPrice / 10)} Coins`};
-                 setProduct(coinProduct);
+                 setCoinCost(Math.floor(numericPrice / 10));
+                 setProduct(p);
             } else {
                 setProduct(null);
             }
@@ -33,6 +38,8 @@ function ProductDetails({ id }: { id: string }) {
         };
         fetchProduct();
     }, [id]);
+    
+    const canAfford = userCoins >= coinCost;
 
     if (loading) {
         return (
@@ -78,7 +85,7 @@ function ProductDetails({ id }: { id: string }) {
                 data-ai-hint={productImage?.imageHint || 'cosmetics accessories'}
                 priority
               />
-              <AddToWishlistButton product={product} />
+              <AddToWishlistButton product={{...product, price: `${coinCost} Coins`}} />
             </div>
           </div>
           <div className="flex flex-col justify-center">
@@ -86,7 +93,7 @@ function ProductDetails({ id }: { id: string }) {
              <div className="flex items-center gap-4 mt-2 mb-4">
                 <div className="flex items-center gap-1.5 text-2xl text-primary font-bold">
                     <Coins className="h-6 w-6" />
-                    <span>{product.price.replace(' Coins', '')}</span>
+                    <span>{coinCost}</span>
                 </div>
                  <div className="flex items-center gap-1">
                     <StarRating rating={product.rating} />
@@ -96,8 +103,38 @@ function ProductDetails({ id }: { id: string }) {
             <p className="text-white/80 leading-relaxed">
               This is an exclusive item available only in the Coin Shop! Use your earned coins to redeem this amazing product.
             </p>
+
+            {user ? (
+              <div className="mt-4 text-white/70">
+                Your Balance: <span className="font-bold">{userCoins}</span> Coins
+              </div>
+            ) : (
+              <div className="mt-4 text-white/70">
+                <Link href="/login" className="underline">
+                  Log in
+                </Link>{' '}
+                to check your balance.
+              </div>
+            )}
+            
             <div className="flex gap-4 mt-8">
-              <BuyWithCoinsButton product={product} />
+              {user && (
+                 canAfford ? (
+                    <BuyWithCoinsButton product={{...product, price: `${coinCost} Coins`}} />
+                 ) : (
+                    <Button
+                      disabled
+                      className="flex-1 h-12 bg-gray-600 text-gray-300 cursor-not-allowed"
+                    >
+                      Not Enough Coins
+                    </Button>
+                 )
+              )}
+               {!user && (
+                <Button asChild className="flex-1 h-12">
+                  <Link href="/login">Login to Purchase</Link>
+                </Button>
+              )}
               <Button size="lg" variant="outline" asChild className="flex-1 h-12 glass-button text-base font-semibold">
                  <Link href="/coinshop">Cancel</Link>
               </Button>
