@@ -1,5 +1,4 @@
 
-'use client';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
@@ -8,69 +7,38 @@ import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
 import AddToWishlistButton from '../add-to-wishlist-button';
 import { StarRating } from '@/components/star-rating';
-import { Skeleton } from '@/components/ui/skeleton';
 import PurchaseSection from './purchase-section';
 
 
-function ProductDetails({ id }: { id: string }) {
-    const [product, setProduct] = useState<Product | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [coinCost, setCoinCost] = useState(0);
+export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const product = await getProductById(id);
 
-    useEffect(() => {
-        const fetchProduct = async () => {
-            setLoading(true);
-            const p = await getProductById(id);
-            if (p) {
-                 const numericPrice = Number(String(p.price).replace(/[^\d.]/g, '')) || 0;
-                 setCoinCost(Math.floor(numericPrice / 10));
-                 setProduct(p);
-            } else {
-                setProduct(null);
-            }
-            setLoading(false);
-        };
-        fetchProduct();
-    }, [id]);
-    
+  if (!product) {
+    notFound();
+  }
 
-    if (loading) {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                <Skeleton className="aspect-square w-full rounded-lg" />
-                <div className="space-y-4">
-                    <Skeleton className="h-10 w-3/4" />
-                    <Skeleton className="h-8 w-1/4" />
-                    <Skeleton className="h-20 w-full" />
-                    <div className="flex gap-4 pt-4">
-                        <Skeleton className="h-12 flex-1" />
-                        <Skeleton className="h-12 flex-1" />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!product) {
-        return (
-            <div className="text-center py-20 glass-card">
-                <h2 className="text-2xl font-bold text-white">Product Not Found</h2>
-                <p className="text-white/70 mt-2">The item you are looking for does not exist.</p>
-                <Button asChild variant="link" className="mt-4 text-primary">
-                    <Link href="/coinshop">Back to Coin Shop</Link>
-                </Button>
-            </div>
-        );
-    }
+  const numericPrice = Number(String(product.price).replace(/[^\d.]/g, '')) || 0;
+  const coinCost = Math.floor(numericPrice / 10);
+  const productWithCoinPrice = { ...product, price: `${coinCost} Coins` };
   
-    const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
-    const productWithCoinPrice = { ...product, price: `${coinCost} Coins` };
+  const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
   
-    return (
+  return (
+    <div className="flex min-h-screen w-full flex-col bg-black text-white">
+      <Header />
+      <main className="container mx-auto max-w-4xl px-4 pt-20 sm:pt-24 pb-16 md:pb-24">
+        <div className="mb-6">
+          <Button asChild variant="ghost" className="text-white/70 hover:text-white">
+            <Link href="/coinshop">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Coin Shop
+            </Link>
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           <div className="glass-card overflow-hidden">
             <div className="relative aspect-square w-full">
@@ -102,26 +70,8 @@ function ProductDetails({ id }: { id: string }) {
 
           </div>
         </div>
-    );
-}
-
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const id = params.id;
-  
-  return (
-    <div className="flex min-h-screen w-full flex-col bg-black text-white">
-      <Header />
-      <main className="container mx-auto max-w-4xl px-4 pt-20 sm:pt-24 pb-16 md:pb-24">
-        <div className="mb-6">
-          <Button asChild variant="ghost" className="text-white/70 hover:text-white">
-            <Link href="/coinshop">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Coin Shop
-            </Link>
-          </Button>
-        </div>
-        <ProductDetails id={id} />
       </main>
     </div>
   );
 }
+
