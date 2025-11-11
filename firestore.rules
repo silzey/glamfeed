@@ -1,3 +1,4 @@
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -5,7 +6,7 @@ service cloud.firestore {
     
     // Helper function to check for admin email
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'reellookz@gmail.com';
+      return request.auth != null && request.auth.token.email == "reellookz@gmail.com";
     }
 
     // Unrestricted admin access to all documents. This is the first check.

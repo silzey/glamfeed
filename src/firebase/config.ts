@@ -7,11 +7,11 @@
 // The config object is included below as a reference.
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyCwmeORwHLnQ8ESauE9cobUYE-stkiq7fM",
-  authDomain: "studio-9439717090-1fb6e.firebaseapp.com",
-  projectId: "studio-9439717090-1fb6e",
-  storageBucket: "studio-9439717090-1fb6e.appspot.com",
-  messagingSenderId: "779726117709",
-  appId: "1:779726117709:web:11b8676cd7b5fb2cec3504",
-  measurementId: "G-FBRQCW4X60"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
