@@ -1,4 +1,4 @@
-'use client';
+'use server';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
@@ -11,8 +11,11 @@ import AddToWishlistButton from '../add-to-wishlist-button';
 import { StarRating } from '@/components/star-rating';
 import PurchaseSection from './purchase-section';
 
+interface PageProps {
+  params: { id: string };
+}
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = params;
   const product = await getProductById(id);
 
