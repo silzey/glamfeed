@@ -71,7 +71,8 @@ service cloud.firestore {
 
         // The original author of the post can update or delete it.
         // We check the incoming write's data for the userId to match.
-        allow update, delete: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        allow update: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // --- Nested Comments on Feed Posts ---
@@ -83,13 +84,35 @@ service cloud.firestore {
       allow create: if request.auth != null;
 
       // Only the user who created the comment can edit or delete it
-      allow update, delete: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
+    
+     match /feed/{postId}/likes/{userId} {
+        allow read: if true;
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+     match /feed/{postId}/comments/{commentId}/likes/{userId} {
+        allow read: if true;
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
+     }
 
     // --- Reports Collection (Admin Only) ---
     match /reports/{reportId} {
         // Only admin can read/write reports
         allow read, write: if isAdmin();
+    }
+    
+    match /chats/{chatId} {
+        allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
+    }
+
+    match /chats/{chatId}/messages/{messageId} {
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+    }
+    
+    match /conversations/{conversationId} {
+        allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
     }
 
     // --- Broadcasts Collection (Admin create, all users read) ---

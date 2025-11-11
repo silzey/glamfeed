@@ -130,7 +130,7 @@ export default function UserProfilePage() {
                     </div>
                     <p className="text-white/70 mt-1 text-sm">@{user.username}</p>
                     <p className="text-white/90 mt-3 max-w-lg text-sm sm:text-base">
-                        Just a beauty enthusiast sharing my honest thoughts on the latest products. ✨
+                        {user.bio || 'Just a beauty enthusiast sharing my honest thoughts on the latest products. ✨'}
                     </p>
                     <div className="flex justify-center sm:justify-start gap-4 sm:gap-6 mt-4">
                         <div>
