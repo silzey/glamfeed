@@ -1,30 +1,29 @@
 'use client';
 
-import { firebaseConfig } from '@/firebase/config';
+import { primaryFirebaseConfig, dataFirebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
-  if (!getApps().length) {
-    // When deployed, Firebase App Hosting provides the config automatically.
-    // For local development, we'll use the config object.
-    const app = initializeApp(firebaseConfig);
-    return getSdks(app);
-  }
+  const apps = getApps();
+  const defaultApp = apps.find(app => app.name === '[DEFAULT]');
+  const dataApp = apps.find(app => app.name === 'dataApp');
 
-  // If already initialized, return the SDKs with the already initialized App
-  return getSdks(getApp());
+  const primary = defaultApp ? defaultApp : initializeApp(primaryFirebaseConfig);
+  const data = dataApp ? dataApp : initializeApp(dataFirebaseConfig, 'dataApp');
+  
+  return getSdks(primary, data);
 }
 
-export function getSdks(firebaseApp: FirebaseApp) {
+export function getSdks(primaryApp: FirebaseApp, dataApp: FirebaseApp) {
   return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp),
-    storage: getStorage(firebaseApp)
+    firebaseApp: primaryApp,
+    auth: getAuth(primaryApp), // Auth from the primary app
+    firestore: getFirestore(dataApp), // Firestore from the data app
+    storage: getStorage(dataApp), // Storage from the data app
   };
 }
 
