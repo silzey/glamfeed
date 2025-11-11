@@ -17,13 +17,15 @@ export default function BuyButton({ product }: { product: Product }) {
     if (!product) return;
     setIsRedirecting(true);
     
-    // Add all product fields to cart item
+    // Safely parse price
+    const numericPrice = Number(String(product.price).replace(/[^\\d.]/g, '')) || 0;
+
     const cartItem = {
         id: product.id,
         name: product.name,
         brand: product.brand,
         imageUrl: product.imageUrl,
-        price: (parseInt(product.price) / 100).toFixed(2),
+        price: (numericPrice / 100).toFixed(2),
         rating: product.rating,
     };
     addToCart(cartItem);

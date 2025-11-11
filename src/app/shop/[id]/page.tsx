@@ -34,7 +34,11 @@ function ProductDetails({ id }: { id: string }) {
     }, [id]);
 
     if (loading || !product) {
-        return null;
+        return (
+             <div className="flex justify-center items-center min-h-[400px]">
+                <p className="text-white/60 animate-pulse">Loading product details...</p>
+            </div>
+        );
     }
   
     const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
@@ -45,6 +49,9 @@ function ProductDetails({ id }: { id: string }) {
         : (parseInt(product.price, 10) / 100).toFixed(2)
       : '0.00';
   
+    if (!loading && !product) {
+        return <p className="text-white/80">Product not found.</p>;
+    }
   
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
@@ -100,9 +107,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </Link>
           </Button>
         </div>
-        <Suspense fallback={null}>
-            <ProductDetails id={id} />
-        </Suspense>
+        <ProductDetails id={id} />
       </main>
     </div>
   );
