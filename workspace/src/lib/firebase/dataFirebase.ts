@@ -12,9 +12,9 @@ const dataFirebaseConfig = {
 
 // Check if already initialized; name it differently to avoid conflict
 const dataApp = getApps().find(app => app.name === "dataApp") 
-  || initializeApp(dataFirebaseConfig, "dataApp");
+  ? getApp("dataApp")
+  : initializeApp(dataFirebaseConfig, "dataApp");
 
 export const db = getFirestore(dataApp);
 export const storage = getStorage(dataApp);
 export default dataApp;
-
