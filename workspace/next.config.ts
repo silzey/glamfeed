@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -23,7 +24,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'https',
+        protocol: 'https://',
         hostname: 'picsum.photos',
         port: '',
         pathname: '/**',
@@ -35,12 +36,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
-  },
-  // The 'allowedDevOrigins' experimental flag has been replaced in Next.js 15.
-  // The new 'devServer.allowedForwardedHosts' option is used to allow
-  // cross-origin requests from specific domains during development.
-  devServer: {
-    allowedForwardedHosts: ["*.cloudworkstations.dev"],
   },
 };
 
