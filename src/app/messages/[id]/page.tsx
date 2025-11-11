@@ -1,7 +1,7 @@
 
 'use client';
 import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import { ArrowLeft, User, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,13 +15,12 @@ import { useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase
 import { doc, collection, query, where } from 'firebase/firestore';
 
 
-export default function ChatPage() {
+export default function ChatPage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const params = useParams();
     const { user: authUser, isUserLoading } = useAuth();
     const firestore = useFirestore();
     
-    const otherUserId = params.id as string; 
+    const otherUserId = params.id; 
     
     const otherUserDocRef = useMemoFirebase(() => {
         if (!firestore || !otherUserId) return null;

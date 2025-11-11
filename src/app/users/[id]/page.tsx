@@ -21,11 +21,10 @@ const getLevel = (coins: number) => {
     return { name: 'Bronze', color: 'bg-orange-600' };
 }
 
-export default function UserProfilePage() {
-    const params = useParams();
+export default function UserProfilePage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const { user: authUser, isUserLoading: isAuthLoading } = useAuth();
-    const userId = params.id as string;
+    const userId = params.id;
     const firestore = useFirestore();
     
     const userDocRef = useMemoFirebase(() => (firestore && userId ? doc(firestore, 'users', userId) : null), [firestore, userId]);

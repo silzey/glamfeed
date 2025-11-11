@@ -1,4 +1,3 @@
-
 'use client';
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -13,10 +12,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
-export default function ReviewDetailsPage() {
-    const params = useParams();
+export default function ReviewDetailsPage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const id = params.id as string;
+    const id = params.id;
     const firestore = useFirestore();
     const { user, isUserLoading: isAuthLoading } = useAuth();
     const { toast } = useToast();

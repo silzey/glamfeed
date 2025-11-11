@@ -1,4 +1,3 @@
-
 'use client';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -26,19 +25,23 @@ function ProductDetails({ id }: { id: string }) {
             if (p) {
                 setProduct(p);
             } else {
-                notFound();
+                // Don't call notFound() in a client component effect
             }
             setLoading(false);
         };
         fetchProduct();
     }, [id]);
 
-    if (loading || !product) {
+    if (loading) {
         return (
              <div className="flex justify-center items-center min-h-[400px]">
                 <p className="text-white/60 animate-pulse">Loading product details...</p>
             </div>
         );
+    }
+    
+    if (!product) {
+        return <div className="text-center py-10"><p className="text-white/80">Product not found.</p></div>;
     }
   
     const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
@@ -48,10 +51,6 @@ function ProductDetails({ id }: { id: string }) {
         ? (parseInt(product.price.replace(' Coins', ''), 10) / 100).toFixed(2) 
         : (parseInt(product.price, 10) / 100).toFixed(2)
       : '0.00';
-  
-    if (!loading && !product) {
-        return <p className="text-white/80">Product not found.</p>;
-    }
   
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
@@ -93,7 +92,7 @@ function ProductDetails({ id }: { id: string }) {
 }
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const id = params.id;
+  const { id } = params;
   
   return (
     <div className="flex min-h-screen w-full flex-col bg-black text-white">

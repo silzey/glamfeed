@@ -1,9 +1,8 @@
-
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
 import { getProductById } from '@/lib/products';
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
@@ -20,7 +19,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     notFound();
   }
 
-  const numericPrice = Number(String(product.price).replace(/[^\d.]/g, '')) || 0;
+  const numericPrice = Number(String(product.price).replace(/[^\\d.]/g, '')) || 0;
   const coinCost = Math.floor(numericPrice / 10);
   const productWithCoinPrice = { ...product, price: `${coinCost} Coins` };
   
