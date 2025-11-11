@@ -1,60 +1,119 @@
-
 'use client';
 
-import { useState, useContext } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useCoin } from '@/context/coin-context';
+import { Loader2, Coins } from 'lucide-react';
+import { useAuth, useFirestore } from '@/firebase';
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+  serverTimestamp,
+  collection,
+} from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { Loader2, Coins } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function BuyWithCoinsButton({ product }: { product: Product }) {
-  const router = useRouter();
+  const { user } = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
-  const { coins, spendCoins } = useCoin();
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  
-  const price = parseInt(product.price.replace(' Coins', ''), 10);
+  const router = useRouter();
+  const [isBuying, setIsBuying] = useState(false);
 
-  const handleBuyNow = () => {
-    if (!product) return;
-
-    if (coins < price) {
-        toast({
-            variant: 'destructive',
-            title: 'Not enough coins!',
-            description: `You need ${price - coins} more coins to purchase this item.`,
-        });
-        return;
+  const handleBuy = async () => {
+    if (!user || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Required',
+        description: 'Please sign in to redeem this product.',
+      });
+      router.push('/login');
+      return;
     }
 
-    setIsRedirecting(true);
-    
-    // The timeout simulates a network request before redirecting
-    setTimeout(() => {
-        spendCoins(price);
+    setIsBuying(true);
+    try {
+      const userRef = doc(firestore, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        throw new Error('User profile not found.');
+      }
+
+      const userData = userSnap.data();
+      const userCoins = userData.coins || 0;
+      
+      const productPrice = Math.floor(
+        parseInt(product.price.replace(/[^\d]/g, ''))
+      );
+
+      if (userCoins < productPrice) {
         toast({
-            title: 'Purchase Successful!',
-            description: `You've purchased ${product.name} for ${price} coins.`
-        })
-        router.push('/wallet');
-    }, 1500);
-  }
+          variant: 'destructive',
+          title: 'Not Enough Coins',
+          description: 'You don’t have enough coins to buy this item.',
+        });
+        setIsBuying(false);
+        return;
+      }
+
+      // Deduct coins
+      const newBalance = userCoins - productPrice;
+      await updateDoc(userRef, { coins: newBalance });
+
+      // Record purchase
+      const purchaseRef = doc(
+        collection(firestore, 'purchases'),
+        `${user.uid}_${product.id}_${Date.now()}`
+      );
+
+      await setDoc(purchaseRef, {
+        userId: user.uid,
+        productId: product.id,
+        productName: product.name,
+        imageUrl: product.imageUrl,
+        cost: productPrice,
+        createdAt: serverTimestamp(),
+      });
+
+      toast({
+        title: 'Purchase Successful 🎉',
+        description: `You bought ${product.name} for ${productPrice} coins.`,
+      });
+
+      router.push('/profile/purchases');
+    } catch (error: any) {
+      console.error('Error purchasing product:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Purchase Failed',
+        description:
+          error.message || 'An error occurred while processing your purchase.',
+      });
+    } finally {
+      setIsBuying(false);
+    }
+  };
 
   return (
-    <>
-      {isRedirecting && null}
-      <Button
-        size="lg"
-        onClick={handleBuyNow}
-        disabled={isRedirecting}
-        className="flex-1 h-12 bg-primary text-primary-foreground hover:bg-primary/90 text-base font-semibold"
-        style={{boxShadow: '0 0 15px 2px hsla(var(--primary), 0.3)'}}
-      >
-        {isRedirecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Coins className="mr-2 h-5 w-5" />}
-        {isRedirecting ? 'Processing...' : 'Buy with Coins'}
-      </Button>
-    </>
+    <Button
+      onClick={handleBuy}
+      disabled={isBuying}
+      size="lg"
+      className="flex-1 h-12 bg-primary text-white font-semibold hover:bg-primary/90"
+    >
+      {isBuying ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
+        </>
+      ) : (
+        <>
+          <Coins className="mr-2 h-5 w-5" /> Buy with Coins
+        </>
+      )}
+    </Button>
   );
 }

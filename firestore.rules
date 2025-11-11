@@ -84,7 +84,7 @@ service cloud.firestore {
       allow create: if request.auth != null;
 
       // Only the user who created the comment can edit or delete it
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
     
      match /feed/{postId}/likes/{userId} {
@@ -121,6 +121,13 @@ service cloud.firestore {
         allow create: if isAdmin();
         // All authenticated users can read broadcasts
         allow read: if request.auth != null;
+    }
+
+    // --- Purchases Collection ---
+    match /purchases/{purchaseId} {
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
     }
   }
 }
