@@ -1,3 +1,4 @@
+
 'use client';
 import {
   User,
@@ -7,6 +8,7 @@ import {
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   Auth,
+  signInWithPopup,
 } from 'firebase/auth';
 import { Firestore } from 'firebase/firestore';
 import {
@@ -18,7 +20,7 @@ import {
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { initiateGoogleSignIn } from './non-blocking-login';
+import { useAuthCore, useFirestore } from './hooks/use-firebase';
 
 // The shape of the user object, extending the base Firebase User
 export type AppUser = User & {
@@ -46,14 +48,14 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
   children: ReactNode;
-  auth: Auth;
-  firestore: Firestore;
 }
 
-export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   const router = useRouter();
+  const auth = useAuthCore();
+  const firestore = useFirestore();
 
 
   useEffect(() => {
@@ -120,7 +122,8 @@ export function AuthProvider({ children, auth, firestore }: AuthProviderProps) {
   
 
   const signInWithGoogle = async () => {
-    return initiateGoogleSignIn(auth);
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
   };
 
   const signOut = () => {
