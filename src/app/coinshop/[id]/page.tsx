@@ -1,19 +1,18 @@
 
 'use client';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
 import { Header } from '@/components/header';
 import { getProductById } from '@/lib/products';
-import { ArrowLeft, Star, Coins } from 'lucide-react';
+import { ArrowLeft, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import BuyWithCoinsButton from '../buy-with-coins-button';
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/types';
 import AddToWishlistButton from '../../shop/add-to-wishlist-button';
 import { StarRating } from '@/components/star-rating';
-
+import { Skeleton } from '@/components/ui/skeleton';
 
 function ProductDetails({ id }: { id: string }) {
     const [product, setProduct] = useState<Product | null>(null);
@@ -24,18 +23,44 @@ function ProductDetails({ id }: { id: string }) {
             setLoading(true);
             const p = await getProductById(id);
             if (p) {
-                 const coinProduct = {...p, price: `${Math.floor(parseInt(p.price) / 10)} Coins`};
+                 const numericPrice = Number(String(p.price).replace(/[^\d.]/g, '')) || 0;
+                 const coinProduct = {...p, price: `${Math.floor(numericPrice / 10)} Coins`};
                  setProduct(coinProduct);
             } else {
-                notFound();
+                setProduct(null);
             }
             setLoading(false);
         };
         fetchProduct();
     }, [id]);
 
-    if (loading || !product) {
-        return null;
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+                <div className="space-y-4">
+                    <Skeleton className="h-10 w-3/4" />
+                    <Skeleton className="h-8 w-1/4" />
+                    <Skeleton className="h-20 w-full" />
+                    <div className="flex gap-4 pt-4">
+                        <Skeleton className="h-12 flex-1" />
+                        <Skeleton className="h-12 flex-1" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className="text-center py-20 glass-card">
+                <h2 className="text-2xl font-bold text-white">Product Not Found</h2>
+                <p className="text-white/70 mt-2">The item you are looking for does not exist.</p>
+                <Button asChild variant="link" className="mt-4 text-primary">
+                    <Link href="/coinshop">Back to Coin Shop</Link>
+                </Button>
+            </div>
+        );
     }
   
     const productImage = PlaceHolderImages.find(p => p.imageUrl === product.imageUrl);
@@ -97,9 +122,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </Link>
           </Button>
         </div>
-        <Suspense fallback={null}>
-            <ProductDetails id={id} />
-        </Suspense>
+        <ProductDetails id={id} />
       </main>
     </div>
   );
